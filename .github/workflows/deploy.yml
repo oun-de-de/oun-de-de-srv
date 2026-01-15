@@ -3,7 +3,7 @@ name: 🚀 Deploy on push
 on:
   push:
     branches: [ "main" ]
-# 🚚 Get latest code
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         with:
           context: .
           push: false
-          tags: my-java-app:${{ github.sha }}
+          tags: oun-de-de:${{ github.sha }}
           load: true
 
   deploy:
@@ -81,7 +81,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: myorg/java-app:dev-${{ github.sha }}
+          tags: dacnguyen9101/oun-de-de:dev-${{ github.sha }}
 
       # - name: Deploy to Dev Environment
       #   uses: appleboy/ssh-action@master
@@ -90,7 +90,7 @@ jobs:
       #     username: ${{ secrets.DEV_USERNAME }}
       #     key: ${{ secrets.DEV_SSH_KEY }}
       #     script: |
-      #       docker pull myorg/java-app:dev-${{ github.sha }}
-      #       docker stop java-app || true
-      #       docker rm java-app || true
-      #       docker run -d --name java-app -p 8080:8080 myorg/java-app:dev-${{ github.sha }}
+      #       docker pull dacnguyen9101/oun-de-de:dev-${{ github.sha }}
+      #       docker stop oun-de-de || true
+      #       docker rm oun-de-de || true
+      #       docker run -d --name oun-de-de -p 8080:8080 dacnguyen9101/oun-de-de:dev-${{ github.sha }}
