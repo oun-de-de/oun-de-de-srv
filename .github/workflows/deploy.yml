@@ -85,12 +85,16 @@ jobs:
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
+        env:
+          IMAGE_TAG: dev-${{ github.sha }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            docker pull dacnguyen9101/oun-de-de:dev-${{ github.sha }}
-            docker stop oun-de-de || true
-            docker rm oun-de-de || true
-            docker run -d --name oun-de-de -p 8080:8080 dacnguyen9101/oun-de-de:dev-${{ github.sha }}
+          # script: |
+          #   docker pull dacnguyen9101/oun-de-de:dev-${{ github.sha }}
+          #   docker stop oun-de-de || true
+          #   docker rm oun-de-de || true
+          #   docker run -d --name oun-de-de -p 8080:8080 dacnguyen9101/oun-de-de:dev-${{ github.sha }}
+          envs: IMAGE_TAG
+          script_path: infra/script.sh
