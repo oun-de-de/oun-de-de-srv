@@ -1,3 +1,11 @@
 spring:
   application:
     name: oun-de-de
+security:
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiration: 3600s
+
+logging:
+  level:
+    ccom.cdtphuhoi.oun_de_de: DEBUG
