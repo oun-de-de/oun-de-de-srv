@@ -1,6 +1,8 @@
 package com.cdtphuhoi.oun_de_de.services.auth;
 
 import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
+import com.cdtphuhoi.oun_de_de.exceptions.ConflictException;
 import com.cdtphuhoi.oun_de_de.repository.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.SignUpData;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
@@ -35,10 +37,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public void signUp(SignUpData request) {
         if (!request.getPassword().equals(request.getReEnteredPassword())) {
-            throw new IllegalArgumentException("Passwords do not match");
+            throw new BadRequestException("Passwords do not match");
         }
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new ConflictException("Username already exists");
         }
 
         var user = new User();
