@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -31,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         return UserDetailsImpl.builder()
             .username(username)
+            .password(usr.getPassword())
             .build();
     }
 
