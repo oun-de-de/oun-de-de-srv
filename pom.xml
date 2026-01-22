@@ -31,13 +31,16 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <!-- SPRING BOOT VERSION -->
+        <!-- springboot -->
         <spring.boot.version>3.5.9</spring.boot.version>
-        <!-- LOMBOK VERSION -->
+        <!-- lombok -->
         <lombok.version>1.18.42</lombok.version>
-        <!-- SECURITY-->
+        <!-- security-->
         <jjwt-api.version>0.11.5</jjwt-api.version>
         <spring-security-web.version>6.5.4</spring-security-web.version>
+        <!-- database -->
+        <spring-jpa.version>3.5.9</spring-jpa.version>
+        <mysql-connector.version>9.5.0</mysql-connector.version>
     </properties>
 
     <repositories>
@@ -76,7 +79,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- jsonwebtoken -->
+        <!-- security -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -107,6 +110,20 @@
             <artifactId>spring-security-config</artifactId>
             <version>${spring-security-web.version}</version>
         </dependency>
+
+        <!-- database -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring-jpa.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>${mysql-connector.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
