@@ -16,4 +16,7 @@ public class JwtProperties {
 
     @NotNull
     private Duration expiration;
+
+    @NotNull
+    private Duration refreshExpiration;
 }

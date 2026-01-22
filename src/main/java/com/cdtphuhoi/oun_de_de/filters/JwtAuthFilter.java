@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.filters;
 
 import com.cdtphuhoi.oun_de_de.common.Constants;
 import com.cdtphuhoi.oun_de_de.services.auth.JwtService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,9 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain) throws ServletException, IOException {
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain) throws ServletException, IOException {
         var authHeader = request.getHeader(Constants.AUTHORIZATION_HEADER);
         String token = null;
         String username = null;

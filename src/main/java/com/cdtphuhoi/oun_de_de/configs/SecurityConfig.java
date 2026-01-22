@@ -39,7 +39,12 @@ public class SecurityConfig {
             .securityMatcher("/**")
             .authorizeHttpRequests(
                 auth -> auth
-                    .requestMatchers("/auth/token").permitAll()
+                    .requestMatchers(
+                        "/auth/sign-in",
+                        "/auth/sign-up",
+                        "/auth/refreshToken"
+                    )
+                    .permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(
