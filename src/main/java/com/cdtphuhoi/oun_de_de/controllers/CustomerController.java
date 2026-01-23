@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/customers")
+@RequestMapping("/api/v1/customers")
 @RequiredArgsConstructor
 public class CustomerController {
     private final UserRepository userRepository;

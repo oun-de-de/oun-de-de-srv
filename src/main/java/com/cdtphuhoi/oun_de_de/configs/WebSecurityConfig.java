@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,9 +41,19 @@ public class WebSecurityConfig {
             .authorizeHttpRequests(
                 auth -> auth
                     .requestMatchers(
-                        "/auth/sign-in",
-                        "/auth/sign-up",
-                        "/auth/token/refresh"
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-resources",
+                        "/swagger-resources/**",
+                        "/configuration/ui",
+                        "/configuration/security",
+                        "/webjars/**",
+                        "/swagger-ui.html",
+                        "/public/**",
+                        "/health/**",
+                        "/api/v1/auth/sign-in",
+                        "/api/v1/auth/sign-up",
+                        "/api/v1/auth/token/refresh"
                     )
                     .permitAll()
                     .anyRequest().authenticated()

@@ -1,6 +1,6 @@
-server:
-  servlet:
-    context-path: /api/v1
+#server:
+#  servlet:
+#    context-path: /api/v1
 
 spring:
   application:
@@ -31,3 +31,11 @@ security:
 logging:
   level:
     ccom.cdtphuhoi.oun_de_de: DEBUG
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  paths-to-match: /api/v1/**/, /health
+  show-actuator: true

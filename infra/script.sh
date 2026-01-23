@@ -44,6 +44,8 @@ services:
     image: dacnguyen9101/oun-de-de:$IMAGE_TAG
     depends_on:
       - db
+    environment:
+      GIT_SHA: $GIT_SHA
     restart: unless-stopped
     networks:
       - app-network

@@ -3,15 +3,15 @@ services:
     image: mysql:8.4.7
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: OunDeDeDB
+      MYSQL_DATABASE: UserDB
       MYSQL_USER: admin
-      MYSQL_PASSWORD: password
+      MYSQL_PASSWORD: Admin123
     restart: unless-stopped
     networks:
       - app-network
 
   srv:
-    image: cdtphuhoi/oun-de-de:latest
+    image: dacnguyen9101/oun-de-de:latest
     depends_on:
       - db
     restart: unless-stopped

@@ -1,9 +1,10 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.BEARER_TOKEN_TYPE;
+import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignUpRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignInRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignUpRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.requests.TokenRefreshRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.responses.JwtResponse;
 import com.cdtphuhoi.oun_de_de.controllers.dto.responses.TokenRefreshResponse;
@@ -12,6 +13,7 @@ import com.cdtphuhoi.oun_de_de.services.auth.RefreshTokenService;
 import com.cdtphuhoi.oun_de_de.services.auth.UserDetailsServiceImpl;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.SignUpData;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +29,8 @@ import jakarta.validation.Valid;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@SecurityRequirement(name = SWAGGER_SECURITY_SCHEME_NAME)
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
