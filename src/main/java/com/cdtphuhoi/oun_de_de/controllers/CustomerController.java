@@ -1,7 +1,7 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import com.cdtphuhoi.oun_de_de.entities.User;
-import com.cdtphuhoi.oun_de_de.repository.UserRepository;
+import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;

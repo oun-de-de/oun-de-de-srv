@@ -3,7 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.auth;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ConflictException;
-import com.cdtphuhoi.oun_de_de.repository.UserRepository;
+import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.SignUpData;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +25,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var usr = userRepository.findByUsername(username)
-            .orElse(null);
-        if (usr == null) {
-            throw new UsernameNotFoundException("Account does nto exist");
-        }
+            .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         return UserDetailsImpl.builder()
+            .id(usr.getId())
             .username(username)
             .password(usr.getPassword())
             .build();

@@ -1,15 +1,15 @@
-package com.cdtphuhoi.oun_de_de.handler;
+package com.cdtphuhoi.oun_de_de.handlers;
 
 import com.cdtphuhoi.oun_de_de.common.ErrorCode;
 import com.cdtphuhoi.oun_de_de.exceptions.ApplicationException;
-import com.cdtphuhoi.oun_de_de.handler.dto.ApiError;
-import com.cdtphuhoi.oun_de_de.handler.dto.FieldError;
+import com.cdtphuhoi.oun_de_de.handlers.dto.ApiError;
+import com.cdtphuhoi.oun_de_de.handlers.dto.FieldError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -127,6 +127,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthenticationError(
+        AuthenticationException ex,
+        HttpServletRequest request) {
+
+        var traceId = generateTraceId();
+        log.warn("Unauthorized [traceId={}]: {}", traceId, ex.getMessage());
+
+        var error = ApiError.builder()
+            .status(HttpStatus.UNAUTHORIZED)
+            .detail(ErrorCode.UNAUTHORIZED.getDesc())
+            .errorCode(ErrorCode.UNAUTHORIZED.getCode())
+            .instance(request.getRequestURI())
+            .traceId(traceId)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     // Handle all unexpected exceptions

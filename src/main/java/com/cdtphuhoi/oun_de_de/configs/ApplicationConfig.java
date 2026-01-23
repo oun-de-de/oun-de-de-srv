@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Import;
 })
 @Import({
     JwtConfig.class,
-    SecurityConfig.class
+    WebSecurityConfig.class
 })
 public class ApplicationConfig {
 }

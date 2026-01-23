@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.handler.dto;
+package com.cdtphuhoi.oun_de_de.handlers.dto;
 
 public record FieldError(
     String field,

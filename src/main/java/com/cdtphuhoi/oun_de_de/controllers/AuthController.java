@@ -1,11 +1,17 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.BEARER_TOKEN_TYPE;
+import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
 import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignUpRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignInRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.requests.TokenRefreshRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.responses.JwtResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.responses.TokenRefreshResponse;
 import com.cdtphuhoi.oun_de_de.services.auth.JwtService;
+import com.cdtphuhoi.oun_de_de.services.auth.RefreshTokenService;
 import com.cdtphuhoi.oun_de_de.services.auth.UserDetailsServiceImpl;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.SignUpData;
+import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +30,15 @@ import jakarta.validation.Valid;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final JwtService jwtService;
-
     private final AuthenticationManager authenticationManager;
 
     private final UserDetailsServiceImpl userDetailsService;
+
+    private final JwtService jwtService;
+
+    private final RefreshTokenService refreshTokenService;
+
+    private final JwtProperties jwtProperties;
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtResponse> authenticateAndGetToken(
@@ -43,9 +53,18 @@ public class AuthController {
             throw new UsernameNotFoundException("Invalid user request!");
         }
         var jwt = jwtService.generateToken(request.getUsername());
+        var usrDetails = ((UserDetailsImpl) authentication.getPrincipal());
+        var refreshToken = refreshTokenService.createRefreshToken(
+            usrDetails.getId()
+        );
         return ResponseEntity.ok(
             JwtResponse.builder()
-                .token(jwt)
+                .userId(usrDetails.getId())
+                .accessToken(jwt)
+                .refreshToken(refreshToken.getToken())
+                .username(usrDetails.getUsername())
+                .type(BEARER_TOKEN_TYPE)
+                .expiresIn(jwtProperties.getExpiration().toSeconds())
                 .build()
         );
     }
@@ -63,4 +82,16 @@ public class AuthController {
         return ResponseEntity.ok("Register successful");
     }
 
+    @PostMapping("/token/refresh")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(
+        @Valid @RequestBody TokenRefreshRequest request) {
+        var refreshToken = refreshTokenService.findAndValidateByToken(request.getRefreshToken());
+        return ResponseEntity.ok(
+            TokenRefreshResponse.builder()
+                .accessToken(jwtService.generateToken(refreshToken.getUser().getUsername()))
+                .refreshToken(request.getRefreshToken())
+                .type(BEARER_TOKEN_TYPE)
+                .build()
+        );
+    }
 }

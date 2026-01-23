@@ -10,6 +10,8 @@ import java.util.List;
 @Builder
 public class UserDetailsImpl implements UserDetails {
 
+    private String id;
+
     private String username;
 
     private String password;

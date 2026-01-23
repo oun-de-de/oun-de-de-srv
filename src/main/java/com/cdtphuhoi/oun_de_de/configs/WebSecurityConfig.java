@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Import({
     PasswordEncoderConfig.class
 })
-public class SecurityConfig {
+public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
@@ -42,7 +42,7 @@ public class SecurityConfig {
                     .requestMatchers(
                         "/auth/sign-in",
                         "/auth/sign-up",
-                        "/auth/refreshToken"
+                        "/auth/token/refresh"
                     )
                     .permitAll()
                     .anyRequest().authenticated()
