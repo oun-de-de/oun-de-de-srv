@@ -70,7 +70,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<String> register(
+    public ResponseEntity<String> signUp(
         @Valid @RequestBody SignUpRequest request) {
         userDetailsService.signUp(
             SignUpData.builder()
@@ -79,7 +79,7 @@ public class AuthController {
                 .reEnteredPassword(request.getReEnteredPassword())
                 .build()
         );
-        return ResponseEntity.ok("Register successful");
+        return ResponseEntity.ok("Sign up successfully");
     }
 
     @PostMapping("/token/refresh")
@@ -94,4 +94,12 @@ public class AuthController {
                 .build()
         );
     }
+
+    @PostMapping("/sign-out")
+    public ResponseEntity<String> signOut(
+        @Valid @RequestBody TokenRefreshRequest request) {
+        refreshTokenService.delete(request.getRefreshToken());
+        return ResponseEntity.ok("Signed out successfully");
+    }
+
 }

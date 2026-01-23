@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.auth;
 
 import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
+import com.cdtphuhoi.oun_de_de.controllers.dto.requests.TokenRefreshRequest;
 import com.cdtphuhoi.oun_de_de.entities.RefreshToken;
 import com.cdtphuhoi.oun_de_de.exceptions.ForbiddenException;
 import com.cdtphuhoi.oun_de_de.repositories.RefreshTokenRepository;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -55,5 +57,10 @@ public class RefreshTokenService {
             );
         }
         return refreshToken;
+    }
+
+    public void delete(String refreshToken) {
+        var rfToken = findAndValidateByToken(refreshToken);
+        refreshTokenRepository.delete(rfToken);
     }
 }
