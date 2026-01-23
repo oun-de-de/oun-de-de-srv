@@ -33,9 +33,9 @@ services:
     image: mysql:8.4.7
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: UserDB
+      MYSQL_DATABASE: OunDeDeDB
       MYSQL_USER: admin
-      MYSQL_PASSWORD: Admin123
+      MYSQL_PASSWORD: password
     restart: unless-stopped
     networks:
       - app-network

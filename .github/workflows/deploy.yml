@@ -87,6 +87,10 @@ jobs:
         env:
           IMAGE_TAG: dev-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USRNAME: ${{ secrets.DB_USRNAME }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
