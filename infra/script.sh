@@ -36,7 +36,7 @@ services:
       MYSQL_DATABASE: OunDeDeDB
       MYSQL_USER: admin
       MYSQL_PASSWORD: password
-    restart: unless-stopped
+    # restart: unless-stopped
     networks:
       - app-network
 
@@ -50,7 +50,7 @@ services:
       DB_URL: $DB_URL
       DB_USRNAME: $DB_USRNAME
       JWT_SECRET: $JWT_SECRET
-    restart: unless-stopped
+    # restart: unless-stopped
     networks:
       - app-network
 
