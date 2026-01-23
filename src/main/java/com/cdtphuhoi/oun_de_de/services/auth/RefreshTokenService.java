@@ -37,14 +37,15 @@ public class RefreshTokenService {
     }
 
     public RefreshToken findAndValidateByToken(@NotBlank String refreshToken) {
-        return refreshTokenRepository.findByToken(refreshToken)
-            .map(this::validateRefreshToken)
+        var rfToken = refreshTokenRepository.findByToken(refreshToken)
             .orElseThrow(() -> new ForbiddenException(
                 String.format("Failed for [%s]: Refresh token is invalid!", refreshToken)
             ));
+        validateRefreshToken(rfToken);
+        return rfToken;
     }
 
-    private RefreshToken validateRefreshToken(@NotNull RefreshToken refreshToken) {
+    private void validateRefreshToken(@NotNull RefreshToken refreshToken) {
         if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(refreshToken);
             throw new ForbiddenException(
@@ -54,7 +55,6 @@ public class RefreshTokenService {
                 )
             );
         }
-        return refreshToken;
     }
 
     public void delete(String refreshToken) {
