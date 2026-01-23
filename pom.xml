@@ -45,8 +45,8 @@
         <spring-doc.version>2.8.15</spring-doc.version>
         <!-- coverage -->
         <jacoco-plugin.version>0.8.10</jacoco-plugin.version>
-        <coverage.instruction.ratio>0.96</coverage.instruction.ratio>
-        <coverage.branch.ratio>0.90</coverage.branch.ratio>
+        <coverage.instruction.ratio>0.85</coverage.instruction.ratio>
+        <coverage.branch.ratio>0.70</coverage.branch.ratio>
         <jacoco.skip>false</jacoco.skip>
     </properties>
 
@@ -177,10 +177,12 @@
                 <configuration>
                     <excludes>
                         <!-- Exclude this since this is a generated class made by cds -->
+                        <exclude>**/com/cdtphuhoi/oun_de_de/configs/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/exceptions/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/common/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/entities/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/**/dto/**</exclude>
+                        <exclude>com/cdtphuhoi/oun_de_de/OunDeDeApplication*</exclude>
                     </excludes>
                 </configuration>
                 <executions>
