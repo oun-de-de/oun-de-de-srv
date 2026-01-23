@@ -46,6 +46,10 @@ services:
       - db
     environment:
       GIT_SHA: $GIT_SHA
+      DB_PASSWORD: $DB_PASSWORD
+      DB_URL: $DB_URL
+      DB_USRNAME: $DB_USRNAME
+      JWT_SECRET: $JWT_SECRET
     restart: unless-stopped
     networks:
       - app-network
