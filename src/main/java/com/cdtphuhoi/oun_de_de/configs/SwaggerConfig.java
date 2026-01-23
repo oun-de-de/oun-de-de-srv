@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.configs;
 
-import static com.cdtphuhoi.oun_de_de.common.Constants.AUTHORIZATION_HEADER;
 import static com.cdtphuhoi.oun_de_de.common.Constants.BEARER_TOKEN_TYPE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
