@@ -180,6 +180,7 @@
                         <exclude>**/com/cdtphuhoi/oun_de_de/exceptions/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/common/**</exclude>
                         <exclude>**/com/cdtphuhoi/oun_de_de/entities/**</exclude>
+                        <exclude>**/com/cdtphuhoi/oun_de_de/**/dto/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
