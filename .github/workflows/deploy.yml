@@ -54,7 +54,7 @@ jobs:
 
   deploy:
     needs: containerize
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: development
     steps:
