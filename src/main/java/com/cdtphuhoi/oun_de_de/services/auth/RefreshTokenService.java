@@ -5,9 +5,11 @@ import com.cdtphuhoi.oun_de_de.entities.RefreshToken;
 import com.cdtphuhoi.oun_de_de.exceptions.ForbiddenException;
 import com.cdtphuhoi.oun_de_de.repositories.RefreshTokenRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.services.auth.dto.ReIssueTokenData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +25,18 @@ public class RefreshTokenService {
 
     private final JwtProperties jwtProperties;
 
+    private final JwtService jwtService;
+
+    @Transactional
+    public ReIssueTokenData reIssueToken(String refreshTokenStr) {
+        var refreshToken = this.findAndValidateByToken(refreshTokenStr);
+        var accessToken = jwtService.generateToken(refreshToken.getUser().getUsername());
+        return ReIssueTokenData.builder()
+            .refreshToken(refreshToken.getToken())
+            .accessToken(accessToken)
+            .build();
+    }
+
     public RefreshToken createRefreshToken(String userId) {
         var usr = userRepository.findById(userId)
             .orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
@@ -36,7 +50,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken findAndValidateByToken(@NotBlank String refreshToken) {
+    private RefreshToken findAndValidateByToken(@NotBlank String refreshToken) {
         var rfToken = refreshTokenRepository.findByToken(refreshToken)
             .orElseThrow(() -> new ForbiddenException(
                 String.format("Failed for [%s]: Refresh token is invalid!", refreshToken)

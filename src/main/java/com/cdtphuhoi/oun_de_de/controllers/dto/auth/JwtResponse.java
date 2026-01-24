@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.controllers.dto.responses;
+package com.cdtphuhoi.oun_de_de.controllers.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

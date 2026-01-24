@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.controllers.dto.responses;
+package com.cdtphuhoi.oun_de_de.controllers.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -12,6 +12,9 @@ public class TokenRefreshResponse {
 
     @JsonProperty("refresh_token")
     private String refreshToken;
+
+    @JsonProperty("expires_in")
+    private Long expiresIn;
 
     private String type;
 }

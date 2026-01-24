@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.controllers.dto.requests;
+package com.cdtphuhoi.oun_de_de.controllers.dto.auth;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.PASSWORD_ERROR_MSG;
 import static com.cdtphuhoi.oun_de_de.common.Constants.PASSWORD_REGEX;
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 @Data
-public class SignInRequest {
+public class SignUpRequest {
     @NotBlank
     @Pattern(
         regexp = USERNAME_REGEX,
@@ -23,4 +23,7 @@ public class SignInRequest {
         message = PASSWORD_ERROR_MSG
     )
     private String password;
+
+    @NotBlank
+    private String reEnteredPassword;
 }

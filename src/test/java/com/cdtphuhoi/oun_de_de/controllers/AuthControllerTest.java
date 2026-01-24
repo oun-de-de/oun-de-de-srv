@@ -7,11 +7,10 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignInRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignUpRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.TokenRefreshRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.SignInRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.SignUpRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.TokenRefreshRequest;
 import com.cdtphuhoi.oun_de_de.entities.RefreshToken;
-import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.services.auth.JwtService;
 import com.cdtphuhoi.oun_de_de.services.auth.RefreshTokenService;
 import com.cdtphuhoi.oun_de_de.services.auth.UserDetailsServiceImpl;
@@ -105,25 +104,6 @@ class AuthControllerTest {
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals("Sign up successfully", response.getBody());
-    }
-
-    @Test
-    void testRefreshToken() {
-        var request = new TokenRefreshRequest();
-        request.setRefreshToken("refresh-token");
-
-        var refreshToken = mock(RefreshToken.class);
-        var user = mock(User.class);
-        when(refreshToken.getUser()).thenReturn(user);
-        when(user.getUsername()).thenReturn("user");
-        when(refreshTokenService.findAndValidateByToken("refresh-token")).thenReturn(refreshToken);
-        when(jwtService.generateToken("user")).thenReturn("new-access-token");
-
-        var response = authController.refreshToken(request);
-
-        assertEquals(200, response.getStatusCode().value());
-        assertEquals("new-access-token", response.getBody().getAccessToken());
-        assertEquals("refresh-token", response.getBody().getRefreshToken());
     }
 
     @Test

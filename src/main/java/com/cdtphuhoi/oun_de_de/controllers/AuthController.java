@@ -3,11 +3,11 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.BEARER_TOKEN_TYPE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignInRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.SignUpRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.requests.TokenRefreshRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.responses.JwtResponse;
-import com.cdtphuhoi.oun_de_de.controllers.dto.responses.TokenRefreshResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.SignInRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.SignUpRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.TokenRefreshRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.JwtResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.auth.TokenRefreshResponse;
 import com.cdtphuhoi.oun_de_de.services.auth.JwtService;
 import com.cdtphuhoi.oun_de_de.services.auth.RefreshTokenService;
 import com.cdtphuhoi.oun_de_de.services.auth.UserDetailsServiceImpl;
@@ -16,6 +16,7 @@ import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -82,17 +83,19 @@ public class AuthController {
                 .reEnteredPassword(request.getReEnteredPassword())
                 .build()
         );
-        return ResponseEntity.ok("Sign up successfully");
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body("Sign up successfully");
     }
 
     @PostMapping("/token/refresh")
     public ResponseEntity<TokenRefreshResponse> refreshToken(
         @Valid @RequestBody TokenRefreshRequest request) {
-        var refreshToken = refreshTokenService.findAndValidateByToken(request.getRefreshToken());
+        var reIssueToken = refreshTokenService.reIssueToken(request.getRefreshToken());
         return ResponseEntity.ok(
             TokenRefreshResponse.builder()
-                .accessToken(jwtService.generateToken(refreshToken.getUser().getUsername()))
-                .refreshToken(request.getRefreshToken())
+                .accessToken(reIssueToken.getAccessToken())
+                .refreshToken(reIssueToken.getRefreshToken())
                 .type(BEARER_TOKEN_TYPE)
                 .build()
         );

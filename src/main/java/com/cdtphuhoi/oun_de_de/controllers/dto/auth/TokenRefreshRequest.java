@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.controllers.dto.requests;
+package com.cdtphuhoi.oun_de_de.controllers.dto.auth;
 
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
