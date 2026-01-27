@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -40,6 +41,9 @@ class RefreshTokenServiceTest {
     @Mock
     private JwtProperties jwtProperties;
 
+    @Mock
+    private JwtService jwtService;
+
     @Test
     void createRefreshToken_ShouldReturnToken() {
         var user = new User();
@@ -72,37 +76,31 @@ class RefreshTokenServiceTest {
     }
 
     @Test
-    void findAndValidateByToken_ShouldReturnToken_WhenNotExpired() {
-        var token = new RefreshToken();
-        token.setToken("valid-token");
-        token.setExpiryDate(Instant.now().plusSeconds(3600));
-        when(refreshTokenRepository.findByToken("valid-token")).thenReturn(Optional.of(token));
+    void testReIssueToken_Success() {
+        var oldToken = "oldRefreshToken";
+        var newToken = "newAccessToken";
+        var refreshToken = mock(RefreshToken.class);
+        when(refreshToken.getExpiryDate()).thenReturn(Instant.now().plusSeconds(5000));
+        when(refreshTokenRepository.findByToken(oldToken)).thenReturn(Optional.of(refreshToken));
+        var mockUser = mock(User.class);
+        var username = "username";
+        when(mockUser.getUsername()).thenReturn(username);
+        when(refreshToken.getUser()).thenReturn(mockUser);
+        when(jwtService.generateToken(anyString())).thenReturn(newToken);
 
-        var result = refreshTokenService.findAndValidateByToken("valid-token");
-        assertNotNull(result);
-        assertEquals("valid-token", result.getToken());
+        var result = refreshTokenService.reIssueToken(oldToken);
+
+        assertEquals(newToken, result.getAccessToken());
+        verify(refreshTokenRepository).findByToken(oldToken);
     }
 
     @Test
-    void findAndValidateByToken_ShouldReturnEmpty_WhenExpired() {
-        var token = new RefreshToken();
-        token.setToken("expired-token");
-        token.setExpiryDate(Instant.now().minusSeconds(10));
-        when(refreshTokenRepository.findByToken("expired-token")).thenReturn(Optional.of(token));
+    void testReIssueToken_TokenNotFound() {
+        var oldToken = "invalidToken";
+        when(refreshTokenRepository.findByToken(oldToken)).thenReturn(Optional.empty());
 
-        assertThrows(
-            ForbiddenException.class,
-            () -> refreshTokenService.findAndValidateByToken("expired-token")
-        );
-    }
-
-    @Test
-    void findAndValidateByToken_ShouldReturnEmpty_WhenNotFound() {
-        when(refreshTokenRepository.findByToken("missing-token")).thenReturn(Optional.empty());
-
-        assertThrows(
-            ForbiddenException.class,
-            () -> refreshTokenService.findAndValidateByToken("missing-token")
-        );
+        assertThrows(ForbiddenException.class, () -> {
+            refreshTokenService.reIssueToken(oldToken);
+        });
     }
 }
