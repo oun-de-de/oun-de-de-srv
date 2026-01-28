@@ -25,10 +25,11 @@ public class OrgDiscriminatorAspect {
     private final EntityManager entityManager;
 
     @Pointcut("execution(* com.cdtphuhoi.oun_de_de.services..OrgManagementService+.find*(..))")
-    public void pointcut(){}
+    public void pointcut() {
+    }
 
     @Before("pointcut()")
-    public void before(){
+    public void before() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null &&
@@ -42,7 +43,7 @@ public class OrgDiscriminatorAspect {
     }
 
     @After("pointcut()")
-    public void after(){
+    public void after() {
         entityManager.unwrap(Session.class).disableFilter(ORG_FILTER_NAME);
     }
 }
