@@ -4,7 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CustomerRequestResponse;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
-import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
+import com.cdtphuhoi.oun_de_de.services.customer.CustomerManagementService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = SWAGGER_SECURITY_SCHEME_NAME)
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
-    private final CustomerService customerService;
+    private final CustomerManagementService customerService;
 
     @GetMapping
     public ResponseEntity<List<CustomerRequestResponse>> listCustomers() {

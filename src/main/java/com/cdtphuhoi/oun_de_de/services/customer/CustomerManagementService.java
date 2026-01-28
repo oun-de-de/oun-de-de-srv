@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.services.customer;
 
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
+import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
@@ -9,18 +10,22 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import jakarta.persistence.EntityManager;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomerService {
+public class CustomerManagementService implements OrgManagementService {
 
     private final CustomerRepository customerRepository;
 
     private final UserRepository userRepository;
+
+    private final EntityManager entityManager;
 
     public Customer create(CreateCustomerData createCustomerData) {
         var employee = userRepository.findById(createCustomerData.getEmployeeId())
@@ -36,6 +41,7 @@ public class CustomerService {
         return customerDb;
     }
 
+    @Transactional(readOnly = true)
     public List<Customer> findBy() {
         return StreamSupport
             .stream(

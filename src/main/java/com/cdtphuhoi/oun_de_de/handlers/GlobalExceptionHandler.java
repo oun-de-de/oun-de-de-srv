@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.handlers;
 
+import static com.cdtphuhoi.oun_de_de.utils.Utils.generateShortString;
 import com.cdtphuhoi.oun_de_de.common.ErrorCode;
 import com.cdtphuhoi.oun_de_de.exceptions.ApplicationException;
 import com.cdtphuhoi.oun_de_de.handlers.dto.ApiError;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import java.nio.file.AccessDeniedException;
-import java.util.UUID;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 
@@ -172,6 +172,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private String generateTraceId() {
-        return UUID.randomUUID().toString().substring(0, 8);
+        return generateShortString(8);
     }
 }

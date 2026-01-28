@@ -1,8 +1,8 @@
 package com.cdtphuhoi.oun_de_de.controllers.dto.customer;
 
-import static com.cdtphuhoi.oun_de_de.common.DatabaseConstants.DEFAULT_DESCRIPTION_FIELD_LENGTH;
-import static com.cdtphuhoi.oun_de_de.common.DatabaseConstants.DEFAULT_STRING_FIELD_LENGTH;
-import static com.cdtphuhoi.oun_de_de.common.DatabaseConstants.DEFAULT_URL_FIELD_LENGTH;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DESCRIPTION_FIELD_LENGTH;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_STRING_FIELD_LENGTH;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_URL_FIELD_LENGTH;
 import lombok.Data;
 import java.util.Date;
 import java.util.UUID;

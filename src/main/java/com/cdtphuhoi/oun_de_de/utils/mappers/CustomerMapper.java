@@ -19,6 +19,7 @@ public interface CustomerMapper {
     CustomerMapper INSTANCE = Mappers.getMapper(CustomerMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orgId", source = "employeeUser.orgId")
     Customer toCustomer(CreateCustomerData request, User employeeUser);
 
     @AfterMapping
@@ -27,10 +28,12 @@ public interface CustomerMapper {
         CreateCustomerData request,
         User employeeUser) {
         customer.setEmployee(employeeUser);
-        customer.setContact(toContact(request));
+        customer.setContact(toContact(request, employeeUser));
     }
 
-    Contact toContact(CreateCustomerData request);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orgId", source = "employeeUser.orgId")
+    Contact toContact(CreateCustomerData request, User employeeUser);
 
     CreateCustomerData toCreateCustomerData(CreateCustomerRequest request);
 

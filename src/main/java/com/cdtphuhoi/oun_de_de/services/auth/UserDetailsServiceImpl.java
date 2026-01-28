@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.auth;
 
+import static com.cdtphuhoi.oun_de_de.utils.Utils.randomNumericString;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ConflictException;
@@ -30,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .id(usr.getId())
             .username(username)
             .password(usr.getPassword())
+            .orgId(usr.getOrgId())
             .build();
     }
 
@@ -46,6 +48,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             .username(request.getUsername())
             .password(passwordEncoder.encode(request.getPassword()))
             .build();
+        user.setOrgId(String.format("DAN-%s", randomNumericString(15)));
         userRepository.save(user);
     }
 }
