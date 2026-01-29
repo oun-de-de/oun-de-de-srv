@@ -16,12 +16,25 @@ http {
 
         server_name oun-de-de-srv.cloud;
 
+        return 301 https://\$host\$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        listen [::]:443 ssl;
+
+        server_name oun-de-de-srv.cloud;
+
+        ssl_certificate     /etc/letsencrypt/live/oun-de-de-srv.cloud/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/oun-de-de-srv.cloud/privkey.pem;
+
         location / {
             proxy_pass http://http_backend;
+
             proxy_set_header Host \$host;
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-Proto https;
         }
     }
 }
@@ -50,6 +63,7 @@ services:
       DB_URL: $DB_URL
       DB_USRNAME: $DB_USRNAME
       JWT_SECRET: $JWT_SECRET
+    # SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
     # restart: unless-stopped
     networks:
       - app-network
@@ -58,10 +72,13 @@ services:
     image: nginx:1.24.0
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - srv
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt/live/oun-de-de-srv.cloud/fullchain.pem:/etc/letsencrypt/live/oun-de-de-srv.cloud/fullchain.pem:ro
+      - /etc/letsencrypt/live/oun-de-de-srv.cloud/privkey.pem:/etc/letsencrypt/live/oun-de-de-srv.cloud/privkey.pem:ro
     networks:
       - app-network
 
