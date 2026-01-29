@@ -39,7 +39,7 @@ springdoc:
 
 cors-config:
   properties:
-    allowed-origins: "cdtphuhoi.com,oun-de-de-srv.cloud"
+    allowed-origins: "https://oun-de-de-srv.cloud,http://oun-de-de-srv.cloud,https://cdtphuhoi.com,http://cdtphuhoi.com"
     allowed-methods: "*"
     allowed-headers: "*"
     allow-credentials: true
