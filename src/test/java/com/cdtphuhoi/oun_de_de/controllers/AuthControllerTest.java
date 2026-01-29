@@ -102,7 +102,7 @@ class AuthControllerTest {
 
         var response = authController.signUp(request);
 
-        assertEquals(200, response.getStatusCode().value());
+        assertEquals(201, response.getStatusCode().value());
         assertEquals("Sign up successfully", response.getBody());
     }
 

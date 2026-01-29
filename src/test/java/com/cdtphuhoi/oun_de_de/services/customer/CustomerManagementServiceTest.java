@@ -1,0 +1,76 @@
+package com.cdtphuhoi.oun_de_de.services.customer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
+import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
+import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
+import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.Arrays;
+import java.util.Optional;
+
+@ExtendWith(MockitoExtension.class)
+class CustomerManagementServiceTest {
+    @Mock
+    private CustomerRepository customerRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private CustomerManagementService customerManagementService;
+
+
+    @Test
+    void create_shouldCreateCustomer() {
+        var data = mock(CreateCustomerData.class);
+        var mockId = "mockId";
+        when(data.getEmployeeId()).thenReturn(mockId);
+        var employee = mock(User.class);
+        when(userRepository.findById(mockId)).thenReturn(Optional.of(employee));
+        var customer = mock(Customer.class);
+        when(customerRepository.save(any(Customer.class))).thenReturn(customer);
+
+        var result = customerManagementService.create(data);
+
+        assertNotNull(result);
+        verify(customerRepository).save(any(Customer.class));
+    }
+
+    @Test
+    void create_shouldThrowWhenEmployeeNotFound() {
+        var data = mock(CreateCustomerData.class);
+        var mockId = "mockId";
+        when(data.getEmployeeId()).thenReturn(mockId);
+        when(userRepository.findById(mockId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> customerManagementService.create(data));
+    }
+
+    @Test
+    void findBy_shouldReturnAllCustomers() {
+        var customer1 = mock(Customer.class);
+        var customer2 = mock(Customer.class);
+        when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
+
+        var customers = customerManagementService.findBy();
+
+        assertEquals(2, customers.size());
+        verify(customerRepository).findAll();
+    }
+}
