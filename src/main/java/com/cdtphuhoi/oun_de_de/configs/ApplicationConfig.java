@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Import;
     "com.cdtphuhoi.oun_de_de.configs.properties",
 })
 @Import({
-    JwtConfig.class,
     WebSecurityConfig.class,
     SwaggerConfig.class
 })

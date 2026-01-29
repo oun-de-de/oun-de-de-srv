@@ -1,7 +1,10 @@
 package com.cdtphuhoi.oun_de_de.configs;
 
+import com.cdtphuhoi.oun_de_de.configs.properties.CorsProperties;
+import com.cdtphuhoi.oun_de_de.configs.properties.JwtProperties;
 import com.cdtphuhoi.oun_de_de.filters.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -17,9 +20,17 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties({
+    CorsProperties.class,
+    JwtProperties.class
+})
 @RequiredArgsConstructor
 @Import({
     PasswordEncoderConfig.class
@@ -31,6 +42,8 @@ public class WebSecurityConfig {
     private final UserDetailsService userDetailsService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final CorsProperties corsProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -64,6 +77,26 @@ public class WebSecurityConfig {
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean("customCorsConfigurationSource")
+    public CorsConfigurationSource corsConfigurationSource() {
+        if (corsProperties == null || corsProperties.getProperties() == null) {
+            return null;
+        }
+
+        var corsProperty = corsProperties.getProperties();
+        var origins = corsProperty.getAllowedOrigins().split(",");
+        var methods = corsProperty.getAllowedMethods().split(",");
+        var headers = corsProperty.getAllowedHeaders().split(",");
+
+        var configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList(origins));
+        configuration.setAllowedMethods(Arrays.asList(methods));
+        configuration.setAllowedHeaders(Arrays.asList(headers));
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
