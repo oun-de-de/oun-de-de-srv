@@ -63,6 +63,9 @@ services:
       DB_URL: $DB_URL
       DB_USRNAME: $DB_USRNAME
       JWT_SECRET: $JWT_SECRET
+      # disabled when production
+      CORS_CONFIG_PROPERTIES_ALLOWED_ORIGINS: "*"
+    # CORS_CONFIG_PROPERTIES_ALLOWED_ORIGINS: "http://cdtphuhoi.com,https://cdtphuhoi.com"
     # SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
     # restart: unless-stopped
     networks:
