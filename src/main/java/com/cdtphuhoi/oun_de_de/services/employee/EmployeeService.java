@@ -22,7 +22,7 @@ public class EmployeeService implements OrgManagementService {
 
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return userRepository.findAll();
     }

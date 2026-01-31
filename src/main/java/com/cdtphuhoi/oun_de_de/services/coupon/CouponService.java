@@ -5,12 +5,14 @@ import com.cdtphuhoi.oun_de_de.repositories.CouponRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
-import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponResult;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CouponMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -23,7 +25,12 @@ public class CouponService implements OrgManagementService {
 
     private final VehicleRepository vehicleRepository;
 
-    public CreateCouponResult create(CreateCouponData createCouponData) {
+    @Transactional(readOnly = true)
+    public List<CouponResult> findAll() {
+        return CouponMapper.INSTANCE.toListCouponResult(couponRepository.findAll());
+    }
+
+    public CouponResult create(CreateCouponData createCouponData) {
         var employee = userRepository.findById(createCouponData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(

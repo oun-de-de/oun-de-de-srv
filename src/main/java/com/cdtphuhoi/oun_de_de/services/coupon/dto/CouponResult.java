@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class CreateCouponResult {
+public class CouponResult {
     private String id;
 
     private Date date;
@@ -20,5 +20,5 @@ public class CreateCouponResult {
 
     private CouponEmployeeResult employee;
 
-    private List<CouponWeightRecordResponse> weightRecords;
+    private List<CouponWeightRecordResult> weightRecords;
 }

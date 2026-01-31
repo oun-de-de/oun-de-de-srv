@@ -24,6 +24,7 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = SWAGGER_SECURITY_SCHEME_NAME)
 @RequestMapping("/api/v1/customers")
 public class CustomerController {
+
     private final CustomerService customerService;
 
     @GetMapping

@@ -6,7 +6,7 @@ import com.cdtphuhoi.oun_de_de.entities.Coupon;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
-import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponResult;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -22,7 +22,9 @@ public interface CouponMapper {
 
     CreateCouponData toCreateCouponData(CreateCouponRequest request);
 
-    CreateCouponResult toCouponResult(Coupon coupon);
+    CouponResult toCouponResult(Coupon coupon);
+
+    List<CouponResult> toListCouponResult(List<Coupon> coupon);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employee.orgId")

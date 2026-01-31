@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Data
 @Builder
-public class CouponWeightRecordResponse {
+public class CouponWeightRecordResult {
     private String id;
 
     private BigDecimal price;
