@@ -2,7 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.employee.CreateEmployeeRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.employee.QueryEmployeeResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.employee.EmployeeResponse;
 import com.cdtphuhoi.oun_de_de.exceptions.ForbiddenException;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.employee.EmployeeService;
@@ -33,7 +33,7 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @GetMapping
-    public ResponseEntity<List<QueryEmployeeResponse>> listEmployees() {
+    public ResponseEntity<List<EmployeeResponse>> listEmployees() {
         return ResponseEntity.ok(
             EmployeeMapper.INSTANCE.toListEmployeeResponse(employeeService.findAll())
         );

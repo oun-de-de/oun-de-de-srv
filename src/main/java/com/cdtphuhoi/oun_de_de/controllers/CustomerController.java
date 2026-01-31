@@ -2,7 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.customer.QueryCustomerResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CustomerResponse;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +27,7 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<List<QueryCustomerResponse>> listCustomers() {
+    public ResponseEntity<List<CustomerResponse>> listCustomers() {
         var customers = customerService.findAll();
         return ResponseEntity.ok(
             CustomerMapper.INSTANCE.toListCustomerResponse(customers)
@@ -36,7 +36,7 @@ public class CustomerController {
 
 
     @PostMapping
-    public ResponseEntity<QueryCustomerResponse> createCustomer(
+    public ResponseEntity<CustomerResponse> createCustomer(
         @Valid @RequestBody CreateCustomerRequest request) {
         var customer = customerService.create(CustomerMapper.INSTANCE.toCreateCustomerData(request));
         return ResponseEntity

@@ -2,7 +2,7 @@ package com.cdtphuhoi.oun_de_de.utils.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.customer.QueryCustomerResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CustomerResponse;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.User;
@@ -44,9 +44,9 @@ public interface CustomerMapper {
 
     CreateCustomerData toCreateCustomerData(CreateCustomerRequest request);
 
-    QueryCustomerResponse toCustomerResponse(Customer customer);
+    CustomerResponse toCustomerResponse(Customer customer);
 
-    List<QueryCustomerResponse> toListCustomerResponse(List<Customer> customers);
+    List<CustomerResponse> toListCustomerResponse(List<Customer> customers);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employeeUser.orgId")

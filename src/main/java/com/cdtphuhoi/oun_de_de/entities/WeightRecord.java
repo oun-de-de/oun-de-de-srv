@@ -32,9 +32,11 @@ public class WeightRecord extends OrgManaged {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Date timeOut;
+    private BigDecimal price;
 
     private BigDecimal weight;
+
+    private Date outTime;
 
     private boolean isManual;
 

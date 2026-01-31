@@ -43,11 +43,6 @@ public class Coupon extends OrgManaged {
 
     private String driverName;
 
-    private BigDecimal price;
-
-    // TODO: clarify KgPerProd
-    private BigDecimal weight;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User employee;
