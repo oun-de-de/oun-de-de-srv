@@ -34,9 +34,9 @@ public class EmployeeService {
         var employee = User.builder()
             .username(createEmployeeData.getUsername())
             .password(passwordEncoder.encode(createEmployeeData.getPassword()))
+            .orgId(createdByUser.getOrgId()) // must be same org
+            .createdBy(createdByUser)
             .build();
-        // must be same org
-        employee.setOrgId(createdByUser.getOrgId());
         userRepository.save(employee);
     }
 }
