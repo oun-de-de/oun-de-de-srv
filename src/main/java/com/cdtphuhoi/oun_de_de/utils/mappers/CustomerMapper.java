@@ -35,7 +35,7 @@ public interface CustomerMapper {
     ) {
         customer.setEmployee(employeeUser);
         customer.setContact(toContact(request, employeeUser));
-        customer.setVehicles(toListVehicles(request.getVehicles(), employeeUser));
+        customer.setVehicles(toListVehicles(request.getVehicles(), employeeUser, customer));
     }
 
     @Mapping(target = "id", ignore = true)
@@ -50,16 +50,20 @@ public interface CustomerMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employeeUser.orgId")
-    Vehicle toVehicle(CreateVehicleData createVehicleData, User employeeUser);
+    Vehicle toVehicle(CreateVehicleData createVehicleData, User employeeUser, Customer customer);
 
-    default List<Vehicle> toListVehicles(List<CreateVehicleData> vehicleDataList, User employeeUser) {
-        if (vehicleDataList == null || employeeUser == null) {
+    default List<Vehicle> toListVehicles(
+        List<CreateVehicleData> vehicleDataList,
+        User employeeUser,
+        Customer customer
+    ) {
+        if (vehicleDataList == null || employeeUser == null || customer == null) {
             return null;
         }
 
         var list = new ArrayList<Vehicle>(vehicleDataList.size());
         for (var createVehicleData : vehicleDataList) {
-            list.add(toVehicle(createVehicleData, employeeUser));
+            list.add(toVehicle(createVehicleData, employeeUser, customer));
         }
 
         return list;
