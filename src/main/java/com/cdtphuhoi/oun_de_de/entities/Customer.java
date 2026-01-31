@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.util.Date;
+import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +22,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -67,6 +69,9 @@ public class Customer extends OrgManaged {
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Contact contact;
+
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private List<Vehicle> vehicles;
 
     // TODO: need to confirm
     @Column(length = DEFAULT_URL_FIELD_LENGTH)

@@ -15,6 +15,7 @@ public class Constants {
     public static final int DEFAULT_STRING_FIELD_LENGTH = 255;
     public static final int DEFAULT_DESCRIPTION_FIELD_LENGTH = 1000;
     public static final int DEFAULT_URL_FIELD_LENGTH = 2000;
+    public static final int DEFAULT_VEHICLE_FIELD_LENGTH = 30;
 
     public static final String ORG_FILTER_NAME = "orgFilter";
     public static final String ORG_FILTER_PARAM = "orgId";

@@ -5,7 +5,9 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_STRING_FIELD_LENG
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_URL_FIELD_LENGTH;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -47,9 +49,15 @@ public class CreateCustomerRequest {
     @Size(max = DEFAULT_URL_FIELD_LENGTH)
     private String shopBannerUrl;
 
+    /*
+     * USER
+     */
     @NotNull
     private UUID employeeId;
 
+    /*
+     * CONTACT
+     */
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String telephone;
 
@@ -73,4 +81,10 @@ public class CreateCustomerRequest {
 
     @Size(max = DEFAULT_DESCRIPTION_FIELD_LENGTH)
     private String deliveryAddress;
+
+    /*
+     * VEHICLES
+     */
+    @Valid
+    private List<CreateVehicleRequest> vehicles;
 }

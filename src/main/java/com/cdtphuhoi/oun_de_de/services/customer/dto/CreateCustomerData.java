@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.customer.dto;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -32,8 +33,15 @@ public class CreateCustomerData {
     // TODO: need to confirm
     private String shopBannerUrl;
 
+    /*
+     * USER
+     */
     private String employeeId;
 
+
+    /*
+     * CONTACT
+     */
     private String telephone;
 
     private String email;
@@ -49,4 +57,10 @@ public class CreateCustomerData {
     private String billingAddress;
 
     private String deliveryAddress;
+
+    /*
+     * VEHICLES
+     */
+    private List<CreateVehicleData> vehicles;
+
 }

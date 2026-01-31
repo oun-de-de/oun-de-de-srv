@@ -30,6 +30,7 @@ security:
 logging:
   level:
     ccom.cdtphuhoi.oun_de_de: DEBUG
+#    root: trace
 
 springdoc:
   api-docs:
