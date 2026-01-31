@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.utils;
 
 import lombok.experimental.UtilityClass;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -19,5 +20,13 @@ public class Utils {
             sb.append(ThreadLocalRandom.current().nextInt(0, 10));
         }
         return sb.toString();
+    }
+
+    public static Optional<UUID> toUUID(String value) {
+        try {
+            return Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException e) {
+            return Optional.empty();
+        }
     }
 }

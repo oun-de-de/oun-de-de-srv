@@ -18,7 +18,7 @@ import java.util.stream.StreamSupport;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomerManagementService implements OrgManagementService {
+public class CustomerService implements OrgManagementService {
 
     private final CustomerRepository customerRepository;
 

@@ -14,18 +14,16 @@ import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
-import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-class CustomerManagementServiceTest {
+class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
@@ -33,7 +31,7 @@ class CustomerManagementServiceTest {
     private UserRepository userRepository;
 
     @InjectMocks
-    private CustomerManagementService customerManagementService;
+    private CustomerService customerService;
 
 
     @Test
@@ -46,7 +44,7 @@ class CustomerManagementServiceTest {
         var customer = mock(Customer.class);
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
-        var result = customerManagementService.create(data);
+        var result = customerService.create(data);
 
         assertNotNull(result);
         verify(customerRepository).save(any(Customer.class));
@@ -59,7 +57,7 @@ class CustomerManagementServiceTest {
         when(data.getEmployeeId()).thenReturn(mockId);
         when(userRepository.findById(mockId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> customerManagementService.create(data));
+        assertThrows(ResourceNotFoundException.class, () -> customerService.create(data));
     }
 
     @Test
@@ -68,7 +66,7 @@ class CustomerManagementServiceTest {
         var customer2 = mock(Customer.class);
         when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
 
-        var customers = customerManagementService.findBy();
+        var customers = customerService.findBy();
 
         assertEquals(2, customers.size());
         verify(customerRepository).findAll();
