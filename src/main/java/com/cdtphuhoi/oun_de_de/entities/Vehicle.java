@@ -12,10 +12,13 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -35,4 +38,8 @@ public class Vehicle extends OrgManaged {
 
     @Column(length = DEFAULT_VEHICLE_FIELD_LENGTH)
     private String licensePlate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Customer customer;
 }

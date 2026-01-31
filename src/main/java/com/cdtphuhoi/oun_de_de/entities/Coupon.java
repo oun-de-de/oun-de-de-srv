@@ -8,14 +8,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -27,24 +30,34 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(indexes = @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME))
-public class User extends OrgManaged {
+public class Coupon extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
-
-    @Column(nullable = false)
-    private String password;
-
-    private String firstName;
-
-    private String lastName;
+    private Date date;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User createdBy;
+    @JoinColumn(nullable = false)
+    private Vehicle vehicle;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    private List<User> createdUsers;
+    private String driverName;
+
+    private BigDecimal price;
+
+    // TODO: clarify KgPerProd
+    private BigDecimal weight;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private User employee;
+
+    private String remark;
+
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "coupon")
+    private List<WeightRecord> weightRecords;
+
+    // AccNo
+    // Del_AccNo
+    // Del_Date
 }

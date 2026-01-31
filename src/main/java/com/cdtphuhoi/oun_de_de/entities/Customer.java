@@ -70,7 +70,7 @@ public class Customer extends OrgManaged {
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Contact contact;
 
-    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "customer")
     private List<Vehicle> vehicles;
 
     // TODO: need to confirm

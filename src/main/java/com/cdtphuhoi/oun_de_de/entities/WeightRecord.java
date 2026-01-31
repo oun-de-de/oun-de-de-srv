@@ -8,16 +8,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import java.util.List;
-import jakarta.persistence.Column;
+import java.math.BigDecimal;
+import java.util.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,24 +27,21 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(indexes = @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME))
-public class User extends OrgManaged {
+public class WeightRecord extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+    private Date timeOut;
 
-    @Column(nullable = false)
-    private String password;
+    private BigDecimal weight;
 
-    private String firstName;
-
-    private String lastName;
+    private boolean isManual;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User createdBy;
+    @JoinColumn
+    private Coupon coupon;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    private List<User> createdUsers;
+    // KgPerProd
+    // Price
 }
