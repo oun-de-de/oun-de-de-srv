@@ -4,21 +4,28 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ConflictException;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.employee.dto.CreateEmployeeData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmployeeService {
+public class EmployeeService implements OrgManagementService {
 
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 
     @Transactional
     public void createEmployee(CreateEmployeeData createEmployeeData) {

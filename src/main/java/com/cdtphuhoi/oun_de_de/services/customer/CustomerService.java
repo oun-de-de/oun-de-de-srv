@@ -39,7 +39,7 @@ public class CustomerService implements OrgManagementService {
     }
 
     @Transactional(readOnly = true)
-    public List<Customer> findBy() {
+    public List<Customer> findAll() {
         return StreamSupport
             .stream(
                 customerRepository.findAll().spliterator(), false

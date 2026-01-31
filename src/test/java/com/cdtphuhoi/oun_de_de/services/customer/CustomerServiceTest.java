@@ -66,7 +66,7 @@ class CustomerServiceTest {
         var customer2 = mock(Customer.class);
         when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
 
-        var customers = customerService.findBy();
+        var customers = customerService.findAll();
 
         assertEquals(2, customers.size());
         verify(customerRepository).findAll();

@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Data
 @Builder
-public class CustomerRequestResponse {
+public class QueryCustomerResponse {
     private String id;
 
     private Date registerDate;
