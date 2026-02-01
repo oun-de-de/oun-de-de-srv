@@ -1,12 +1,14 @@
-package com.cdtphuhoi.oun_de_de.controllers.dto.customer;
+package com.cdtphuhoi.oun_de_de.services.customer.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Date;
 
 @Data
 @Builder
-public class CustomerResponse {
+@AllArgsConstructor
+public class CustomerResult {
     private String id;
 
     private Date registerDate;
