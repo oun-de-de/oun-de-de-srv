@@ -52,6 +52,8 @@ services:
     # restart: unless-stopped
     networks:
       - app-network
+    volumes:
+      - mysql_data:/var/lib/mysql
 
   srv:
     image: dacnguyen9101/oun-de-de:$IMAGE_TAG
@@ -88,6 +90,9 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  mysql_data:
 EOF
 
 docker compose down
