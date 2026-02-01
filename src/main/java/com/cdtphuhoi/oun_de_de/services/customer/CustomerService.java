@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CustomerService implements OrgManagementService {
 
     private final CustomerRepository customerRepository;
@@ -25,7 +26,7 @@ public class CustomerService implements OrgManagementService {
     private final UserRepository userRepository;
 
     public CustomerResult create(CreateCustomerData createCustomerData) {
-        var employee = userRepository.findById(createCustomerData.getEmployeeId())
+        var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
@@ -38,7 +39,6 @@ public class CustomerService implements OrgManagementService {
         return CustomerMapper.INSTANCE.toCustomerResult(customerDb);
     }
 
-    @Transactional(readOnly = true)
     public Page<CustomerResult> findBy(String name, Pageable pageable) {
         if (StringUtils.isBlank(name)) {
             name = "";

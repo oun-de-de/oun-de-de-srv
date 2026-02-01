@@ -16,18 +16,17 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EmployeeService implements OrgManagementService {
 
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional(readOnly = true)
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    @Transactional
     public void createEmployee(CreateEmployeeData createEmployeeData) {
         if (!createEmployeeData.getPassword().equals(createEmployeeData.getReEnteredPassword())) {
             throw new BadRequestException("Passwords do not match");
@@ -35,7 +34,7 @@ public class EmployeeService implements OrgManagementService {
         if (userRepository.existsByUsername(createEmployeeData.getUsername())) {
             throw new ConflictException("Username already exists");
         }
-        var createdByUser = userRepository.findById(createEmployeeData.getCreateById().toString())
+        var createdByUser = userRepository.findOneById(createEmployeeData.getCreateById().toString())
             .orElseThrow(() -> new BadRequestException("Created by user does not exist"));
 
         var employee = User.builder()

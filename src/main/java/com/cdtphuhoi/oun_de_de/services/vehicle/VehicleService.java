@@ -13,10 +13,10 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class VehicleService implements OrgManagementService {
     private final VehicleRepository vehicleRepository;
 
-    @Transactional(readOnly = true)
     public List<VehicleResult> findAll() {
         return VehicleMapper.INSTANCE.toListVehicleResult(vehicleRepository.findAll());
     }

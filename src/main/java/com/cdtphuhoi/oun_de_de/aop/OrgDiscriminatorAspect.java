@@ -24,7 +24,7 @@ public class OrgDiscriminatorAspect {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    @Pointcut("execution(* com.cdtphuhoi.oun_de_de.services..OrgManagementService+.find*(..))")
+    @Pointcut("execution(* com.cdtphuhoi.oun_de_de.services..OrgManagementService+.*(..))")
     public void pointcut() {
     }
 

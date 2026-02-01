@@ -70,7 +70,7 @@ public interface CustomerMapper {
     }
 
     @ValueMapping(target = "TRUCK", source = "truck")
-    @ValueMapping(target = "TUK_TUK", source = "tuk tuk")
+    @ValueMapping(target = "TUK_TUK", source = "tuk_tuk")
     @ValueMapping(target = "OTHERS", source = "others")
     VehicleType stringToVehicleType(String source);
 }

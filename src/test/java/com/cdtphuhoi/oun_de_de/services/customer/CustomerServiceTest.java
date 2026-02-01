@@ -37,7 +37,7 @@ class CustomerServiceTest {
         var mockId = "mockId";
         when(data.getEmployeeId()).thenReturn(mockId);
         var employee = mock(User.class);
-        when(userRepository.findById(mockId)).thenReturn(Optional.of(employee));
+        when(userRepository.findOneById(mockId)).thenReturn(Optional.of(employee));
         var customer = mock(Customer.class);
         when(customerRepository.save(any(Customer.class))).thenReturn(customer);
 
@@ -52,7 +52,7 @@ class CustomerServiceTest {
         var data = mock(CreateCustomerData.class);
         var mockId = "mockId";
         when(data.getEmployeeId()).thenReturn(mockId);
-        when(userRepository.findById(mockId)).thenReturn(Optional.empty());
+        when(userRepository.findOneById(mockId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> customerService.create(data));
     }

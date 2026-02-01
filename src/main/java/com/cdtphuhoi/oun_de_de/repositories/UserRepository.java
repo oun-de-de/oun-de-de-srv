@@ -7,7 +7,15 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
+    /**
+     * direct fetching.
+     * Filters apply to entity queries, but not to direct fetching.
+     * @param id
+     * @return
+     */
     Optional<User> findById(String id);
+
+    Optional<User> findOneById(String id);
 
     Optional<User> findByUsername(String username);
 
