@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.customer.dto;
 
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Date;
