@@ -8,7 +8,9 @@ import java.util.Date;
 @Data
 @Builder
 public class CreateWeightRecordData {
-    private BigDecimal price;
+    private BigDecimal pricePerProduct;
+
+    private BigDecimal weightPerProduct;
 
     private BigDecimal weight;
 

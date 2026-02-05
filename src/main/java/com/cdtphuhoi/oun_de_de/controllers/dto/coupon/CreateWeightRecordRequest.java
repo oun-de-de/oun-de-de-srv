@@ -9,7 +9,10 @@ import jakarta.validation.constraints.DecimalMin;
 public class CreateWeightRecordRequest {
 
     @DecimalMin(value = "0.00", inclusive = true)
-    private BigDecimal price;
+    private BigDecimal pricePerProduct;
+
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal weightPerProduct;
 
     @DecimalMin(value = "0.00", inclusive = true)
     private BigDecimal weight;

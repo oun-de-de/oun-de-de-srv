@@ -32,7 +32,9 @@ public class WeightRecord extends OrgManaged {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private BigDecimal price;
+    private BigDecimal pricePerProduct;
+
+    private BigDecimal weightPerProduct;
 
     private BigDecimal weight;
 
