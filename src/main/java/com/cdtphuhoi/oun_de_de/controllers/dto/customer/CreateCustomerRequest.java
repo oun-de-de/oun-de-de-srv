@@ -28,9 +28,10 @@ public class CreateCustomerRequest {
     @NotNull
     private Boolean status;
 
-    // TODO: CodeList enhancement
-    @NotBlank
-    private String customerType;
+    /*
+     * REFERER
+     */
+    private UUID referredById;
 
     // TODO: CodeList enhancement
     private String defaultPrice;

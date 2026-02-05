@@ -20,9 +20,6 @@ public class CustomerResult {
     private Boolean status;
 
     // TODO: CodeList enhancement
-    private String customerType;
-
-    // TODO: CodeList enhancement
     private String defaultPrice;
 
     // TODO: CodeList enhancement
@@ -33,4 +30,6 @@ public class CustomerResult {
     private String profileUrl;
 
     private String shopBannerUrl;
+
+    private String referredBy;
 }

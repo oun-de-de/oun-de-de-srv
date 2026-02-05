@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -17,8 +18,10 @@ public class CreateCustomerData {
 
     private Boolean status;
 
-    // TODO: CodeList enhancement
-    private String customerType;
+    /*
+     * REFERER
+     */
+    private String referredById;
 
     // TODO: CodeList enhancement
     private String defaultPrice;

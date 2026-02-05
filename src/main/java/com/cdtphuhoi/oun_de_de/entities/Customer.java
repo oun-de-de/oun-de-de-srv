@@ -50,9 +50,11 @@ public class Customer extends OrgManaged {
     @Column(nullable = false)
     private Boolean status;
 
-    // TODO: CodeList enhancement
-    @Column(nullable = false)
-    private String customerType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Customer referredBy;
+
+    @OneToMany(mappedBy = "referredBy", fetch = FetchType.LAZY)
+    private List<Customer> referredCustomers;
 
     // TODO: CodeList enhancement
     private String defaultPrice;

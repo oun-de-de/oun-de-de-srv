@@ -13,7 +13,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(
-    uses = MapperHelpers.class
+    uses = {VehicleMapper.class}
 )
 public interface CustomerMapper {
 
@@ -42,5 +42,6 @@ public interface CustomerMapper {
 
     CreateCustomerData toCreateCustomerData(CreateCustomerRequest request);
 
+    @Mapping(target = "referredBy", source = "customer.referredBy.name")
     CustomerResult toCustomerResult(Customer customer);
 }

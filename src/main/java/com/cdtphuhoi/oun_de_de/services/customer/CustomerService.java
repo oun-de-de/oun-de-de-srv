@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -32,7 +33,17 @@ public class CustomerService implements OrgManagementService {
                     String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
                 )
             );
+        var referer = Optional.ofNullable(createCustomerData.getReferredById())
+            .map(referredById -> customerRepository.findOneById(referredById)
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Customer [id=%s] not found", referredById)
+                    )
+                )
+            )
+            .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
+        customer.setReferredBy(referer);
         log.info("Creating customer {}", customer.getName());
         var customerDb = customerRepository.save(customer);
         log.info("Created customer, id = {}", customerDb.getId());
