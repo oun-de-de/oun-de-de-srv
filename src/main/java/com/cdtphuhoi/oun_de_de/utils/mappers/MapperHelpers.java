@@ -22,4 +22,8 @@ public class MapperHelpers {
         return VehicleMapper.INSTANCE;
     }
 
+    public static ProductMapper getProductMapper() {
+        return ProductMapper.INSTANCE;
+    }
+
 }
