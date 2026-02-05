@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.utils.mappers.VehicleMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +24,11 @@ public class VehicleService implements OrgManagementService {
     private final CustomerRepository customerRepository;
 
     public List<VehicleResult> findAll() {
-        return VehicleMapper.INSTANCE.toListVehicleResult(vehicleRepository.findAll());
+        return MapperHelpers.getVehicleMapper().toListVehicleResult(vehicleRepository.findAll());
     }
 
     public List<VehicleResult> findByCustomer(String customerId) {
-        return VehicleMapper.INSTANCE.toListVehicleResult(
+        return MapperHelpers.getVehicleMapper().toListVehicleResult(
             vehicleRepository.findAllByCustomerId(customerId)
         );
     }
@@ -40,10 +41,10 @@ public class VehicleService implements OrgManagementService {
                 )
             );
 
-        var vehicle = VehicleMapper.INSTANCE.toVehicle(createVehicleData, customer);
+        var vehicle = MapperHelpers.getVehicleMapper().toVehicle(createVehicleData, customer);
         log.info("Creating vehicle for customer {}", customer.getName());
         var vehicleDb = vehicleRepository.save(vehicle);
         log.info("Created vehicle, id = {}", vehicleDb.getId());
-        return VehicleMapper.INSTANCE.toVehicleResult(vehicleDb);
+        return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);
     }
 }

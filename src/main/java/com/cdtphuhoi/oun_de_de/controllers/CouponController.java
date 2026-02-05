@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
 import com.cdtphuhoi.oun_de_de.services.coupon.CouponService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CouponMapper;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,9 @@ public class CouponController {
     @PostMapping
     public ResponseEntity<CouponResult> createCoupon(
         @Valid @RequestBody CreateCouponRequest request) {
-        var response = couponService.create(CouponMapper.INSTANCE.toCreateCouponData(request));
+        var response = couponService.create(
+            MapperHelpers.getCouponMapper().toCreateCouponData(request)
+        );
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(response);

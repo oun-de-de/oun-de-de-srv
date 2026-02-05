@@ -3,7 +3,9 @@ package com.cdtphuhoi.oun_de_de.services.customer;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -12,11 +14,18 @@ import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
+import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,15 +66,23 @@ class CustomerServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> customerService.create(data));
     }
 
-//    @Test
-//    void findBy_shouldReturnAllCustomers() {
-//        var customer1 = mock(Customer.class);
-//        var customer2 = mock(Customer.class);
-//        when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
-//
-//        var customers = customerService.findBy(name);
-//
-//        assertEquals(2, customers.size());
-//        verify(customerRepository).findAll();
-//    }
+    @Test
+    void findBy_shouldReturnCustomerResults() {
+        var customer = mock(Customer.class);
+        var pageable = mock(Pageable.class);
+        var page = new PageImpl<>(List.of(customer));
+        when(customerRepository.findByNameContainingIgnoreCase(anyString(), any(Pageable.class))).thenReturn(page);
+
+        try (MockedStatic<MapperHelpers> mapperMock = mockStatic(MapperHelpers.class)) {
+            var customerResult = mock(CustomerResult.class);
+            var customerMapperMock = mock(CustomerMapper.class);
+            mapperMock.when(MapperHelpers::getCustomerMapper).thenReturn(customerMapperMock);
+            when(customerMapperMock.toCustomerResult(any())).thenReturn(customerResult);
+
+            var resultPage = customerService.findBy("test", pageable);
+
+            assertNotNull(resultPage);
+            assertNotNull(resultPage.getContent());
+        }
+    }
 }

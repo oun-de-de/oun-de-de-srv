@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CouponMapper;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ public class CouponService implements OrgManagementService {
     private final VehicleRepository vehicleRepository;
 
     public List<CouponResult> findAll() {
-        return CouponMapper.INSTANCE.toListCouponResult(couponRepository.findAll());
+        return MapperHelpers.getCouponMapper().toListCouponResult(couponRepository.findAll());
     }
 
     public CouponResult create(CreateCouponData createCouponData) {
@@ -43,10 +44,10 @@ public class CouponService implements OrgManagementService {
                     String.format("Vehicle [id=%s] not found", createCouponData.getVehicleId())
                 )
             );
-        var coupon = CouponMapper.INSTANCE.toCoupon(createCouponData, employee, vehicle);
+        var coupon = MapperHelpers.getCouponMapper().toCoupon(createCouponData, employee, vehicle);
         log.info("Creating coupon");
         var couponDb = couponRepository.save(coupon);
         log.info("Created coupon, id = {}", couponDb.getId());
-        return CouponMapper.INSTANCE.toCouponResult(couponDb);
+        return MapperHelpers.getCouponMapper().toCouponResult(couponDb);
     }
 }

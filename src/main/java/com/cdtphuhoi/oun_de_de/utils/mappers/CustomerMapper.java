@@ -13,7 +13,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(
-    uses = VehicleMapper.class
+    uses = MapperHelpers.class
 )
 public interface CustomerMapper {
 
@@ -32,7 +32,7 @@ public interface CustomerMapper {
         customer.setEmployee(employeeUser);
         customer.setContact(toContact(request, employeeUser));
         customer.setVehicles(
-            VehicleMapper.INSTANCE.toListVehicles(request.getVehicles(), customer)
+            MapperHelpers.getVehicleMapper().toListVehicles(request.getVehicles(), customer)
         );
     }
 

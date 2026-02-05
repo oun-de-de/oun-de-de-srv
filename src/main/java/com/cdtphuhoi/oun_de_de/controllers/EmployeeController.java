@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.employee.dto.CreateEmployeeData;
 import com.cdtphuhoi.oun_de_de.utils.SecurityContextUtils;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
 import com.cdtphuhoi.oun_de_de.utils.mappers.EmployeeMapper;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,7 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<List<EmployeeResponse>> listEmployees() {
         return ResponseEntity.ok(
-            EmployeeMapper.INSTANCE.toListEmployeeResponse(employeeService.findAll())
+            MapperHelpers.getEmployeeMapper().toListEmployeeResponse(employeeService.findAll())
         );
     }
 

@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.services.vehicle.VehicleService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.utils.mappers.VehicleMapper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +51,9 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity<CustomerResult> createCustomer(
         @Valid @RequestBody CreateCustomerRequest request) {
-        var result = customerService.create(CustomerMapper.INSTANCE.toCreateCustomerData(request));
+        var result = customerService.create(
+            MapperHelpers.getCustomerMapper().toCreateCustomerData(request)
+        );
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
@@ -69,7 +72,7 @@ public class CustomerController {
         @Valid @RequestBody CreateVehicleRequest request) {
         var result = vehicleService.createVehicle(
             customerId,
-            VehicleMapper.INSTANCE.toCreateVehicleData(request)
+            MapperHelpers.getVehicleMapper().toCreateVehicleData(request)
         );
         return ResponseEntity
             .status(HttpStatus.CREATED)

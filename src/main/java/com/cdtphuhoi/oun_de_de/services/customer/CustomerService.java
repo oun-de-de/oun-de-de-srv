@@ -6,7 +6,7 @@ import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
-import com.cdtphuhoi.oun_de_de.utils.mappers.CustomerMapper;
+import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -32,11 +32,11 @@ public class CustomerService implements OrgManagementService {
                     String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
                 )
             );
-        var customer = CustomerMapper.INSTANCE.toCustomer(createCustomerData, employee);
+        var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
         log.info("Creating customer {}", customer.getName());
         var customerDb = customerRepository.save(customer);
         log.info("Created customer, id = {}", customerDb.getId());
-        return CustomerMapper.INSTANCE.toCustomerResult(customerDb);
+        return MapperHelpers.getCustomerMapper().toCustomerResult(customerDb);
     }
 
     public Page<CustomerResult> findBy(String name, Pageable pageable) {
@@ -44,6 +44,6 @@ public class CustomerService implements OrgManagementService {
             name = "";
         }
         var page = customerRepository.findByNameContainingIgnoreCase(name, pageable);
-        return page.map(CustomerMapper.INSTANCE::toCustomerResult);
+        return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
     }
 }
