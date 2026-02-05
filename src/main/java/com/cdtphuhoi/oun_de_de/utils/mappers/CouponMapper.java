@@ -1,13 +1,13 @@
 package com.cdtphuhoi.oun_de_de.utils.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateWeightRecordRequest;
 import com.cdtphuhoi.oun_de_de.entities.Coupon;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -48,7 +48,7 @@ public interface CouponMapper {
     }
 
     default List<WeightRecord> toListWeightRecords(
-        List<CreateWeightRecordRequest> weightRecords,
+        List<CreateWeightRecordData> weightRecords,
         User employee,
         Coupon coupon) {
         if (weightRecords == null || employee == null) {
@@ -65,5 +65,5 @@ public interface CouponMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employee.orgId")
-    WeightRecord toWeightRecord(CreateWeightRecordRequest weightRecord, User employee, Coupon coupon);
+    WeightRecord toWeightRecord(CreateWeightRecordData weightRecord, User employee, Coupon coupon);
 }

@@ -14,6 +14,9 @@ public class CreateWeightRecordRequest {
     @DecimalMin(value = "0.00", inclusive = true)
     private BigDecimal weight;
 
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal quantity;
+
     private Date outTime;
 
     private boolean isManual;

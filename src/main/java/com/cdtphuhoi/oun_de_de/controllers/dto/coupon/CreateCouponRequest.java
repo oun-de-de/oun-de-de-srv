@@ -33,4 +33,17 @@ public class CreateCouponRequest {
      */
     @Valid
     private List<CreateWeightRecordRequest> weightRecords;
+
+    /*
+     * these fields for weighing software synchronization
+     */
+    private Long couponNo;
+
+    private Long couponId;
+
+    private String accNo;
+
+    private String delAccNo;
+
+    private Date delDate;
 }

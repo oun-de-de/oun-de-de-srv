@@ -36,6 +36,8 @@ public class WeightRecord extends OrgManaged {
 
     private BigDecimal weight;
 
+    private BigDecimal quantity;
+
     private Date outTime;
 
     private boolean isManual;
@@ -43,7 +45,4 @@ public class WeightRecord extends OrgManaged {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private Coupon coupon;
-
-    // KgPerProd
-    // Price
 }

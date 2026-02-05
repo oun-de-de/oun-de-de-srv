@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.Date;
 import java.util.List;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -51,7 +52,18 @@ public class Coupon extends OrgManaged {
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "coupon")
     private List<WeightRecord> weightRecords;
 
-    // AccNo
-    // Del_AccNo
-    // Del_Date
+    /*
+     * these fields for weighing software synchronization
+     */
+    private Long couponNo;
+
+    private Long couponId;
+
+    @Column(length = 20)
+    private String accNo;
+
+    @Column(length = 20)
+    private String delAccNo;
+
+    private Date delDate;
 }

@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.coupon.dto;
 
-import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateWeightRecordRequest;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Date;
@@ -27,5 +26,18 @@ public class CreateCouponData {
     /*
      * WeightRecord
      */
-    private List<CreateWeightRecordRequest> weightRecords;
+    private List<CreateWeightRecordData> weightRecords;
+
+    /*
+     * these fields for weighing software synchronization
+     */
+    private Long couponNo;
+
+    private Long couponId;
+
+    private String accNo;
+
+    private String delAccNo;
+
+    private Date delDate;
 }

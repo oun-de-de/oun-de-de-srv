@@ -21,4 +21,17 @@ public class CouponResult {
     private CouponEmployeeResult employee;
 
     private List<CouponWeightRecordResult> weightRecords;
+
+    /*
+     * these fields for weighing software synchronization
+     */
+    private Long couponNo;
+
+    private Long couponId;
+
+    private String accNo;
+
+    private String delAccNo;
+
+    private Date delDate;
 }
