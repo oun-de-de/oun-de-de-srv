@@ -4,7 +4,6 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
 import com.cdtphuhoi.oun_de_de.services.coupon.CouponService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
-import com.cdtphuhoi.oun_de_de.utils.mappers.CouponMapper;
 import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
