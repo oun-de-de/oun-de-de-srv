@@ -1,0 +1,2 @@
+ALTER TABLE customer
+    ADD test VARCHAR(255) NULL;
