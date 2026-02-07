@@ -26,7 +26,7 @@ public class CreateCustomerData {
     private String defaultPrice;
 
     // TODO: CodeList enhancement
-    private String warehouse;
+    private String warehouseId;
 
     private String memo;
 

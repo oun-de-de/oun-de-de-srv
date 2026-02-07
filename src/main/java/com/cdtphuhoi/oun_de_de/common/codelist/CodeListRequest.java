@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.common;
+package com.cdtphuhoi.oun_de_de.common.codelist;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DESCRIPTION_FIELD_LENGTH;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_STRING_FIELD_LENGTH;

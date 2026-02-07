@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.customer.dto;
 
 import com.cdtphuhoi.oun_de_de.services.employee.dto.EmployeeResult;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,9 +26,6 @@ public class CustomerDetailsResult {
     // TODO: CodeList enhancement
     private String defaultPrice;
 
-    // TODO: CodeList enhancement
-    private String warehouse;
-
     private String memo;
 
     private String profileUrl;
@@ -41,4 +39,6 @@ public class CustomerDetailsResult {
     private EmployeeResult employee;
 
     private List<VehicleResult> vehicles;
+
+    private WarehouseResult warehouse;
 }

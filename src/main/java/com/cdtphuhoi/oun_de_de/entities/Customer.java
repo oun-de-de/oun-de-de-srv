@@ -59,8 +59,11 @@ public class Customer extends OrgManaged {
     // TODO: CodeList enhancement
     private String defaultPrice;
 
-    // TODO: CodeList enhancement
-    private String warehouse;
+    /*
+     * WAREHOUSE
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Warehouse warehouse;
 
     @Column(length = DEFAULT_DESCRIPTION_FIELD_LENGTH)
     private String memo;

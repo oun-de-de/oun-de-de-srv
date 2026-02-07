@@ -22,9 +22,6 @@ public class CustomerResult {
     // TODO: CodeList enhancement
     private String defaultPrice;
 
-    // TODO: CodeList enhancement
-    private String warehouse;
-
     private String memo;
 
     private String profileUrl;

@@ -17,8 +17,10 @@ public class UpdateCustomerData {
     // TODO: CodeList enhancement
     private String defaultPrice;
 
-    // TODO: CodeList enhancement
-    private String warehouse;
+    /*
+     * WAREHOUSE
+     */
+    private String warehouseId;
 
     private String memo;
 

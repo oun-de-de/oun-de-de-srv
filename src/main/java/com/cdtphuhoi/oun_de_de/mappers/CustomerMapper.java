@@ -25,7 +25,8 @@ import org.mapstruct.factory.Mappers;
 @Mapper(
     uses = {
         VehicleMapper.class,
-        EmployeeMapper.class
+        EmployeeMapper.class,
+        SettingMapper.class
     },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )

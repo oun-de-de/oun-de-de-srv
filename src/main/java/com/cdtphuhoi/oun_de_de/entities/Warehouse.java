@@ -26,4 +26,6 @@ public class Warehouse extends OrgManagedCodeList {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    private String location;
 }

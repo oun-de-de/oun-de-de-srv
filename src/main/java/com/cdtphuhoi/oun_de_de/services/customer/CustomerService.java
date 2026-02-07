@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductSettingRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateProductSettingData;
@@ -37,6 +38,8 @@ public class CustomerService implements OrgManagementService {
 
     private final ProductSettingRepository productSettingRepository;
 
+    private final WarehouseRepository warehouseRepository;
+
     public CustomerResult create(CreateCustomerData createCustomerData) {
         var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
             .orElseThrow(
@@ -53,8 +56,18 @@ public class CustomerService implements OrgManagementService {
                 )
             )
             .orElse(null);
+        var warehouse = Optional.ofNullable(createCustomerData.getWarehouseId())
+            .map(warehouseId -> warehouseRepository.findOneById(warehouseId)
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Warehouse [id=%s] not found", warehouseId)
+                    )
+                )
+            )
+            .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
         customer.setReferredBy(referer);
+        customer.setWarehouse(warehouse);
         log.info("Creating customer {}", customer.getName());
         var customerDb = customerRepository.save(customer);
         log.info("Created customer, id = {}", customerDb.getId());
@@ -106,6 +119,17 @@ public class CustomerService implements OrgManagementService {
                     )
                 );
             customer.setReferredBy(referer);
+        }
+        if (updateCustomerData.getWarehouseId() != null &&
+            (customer.getWarehouse() == null ||
+                !customer.getWarehouse().getId().equals(updateCustomerData.getWarehouseId()))) {
+            var warehouse = warehouseRepository.findOneById(updateCustomerData.getWarehouseId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Warehouse [id=%s] not found", updateCustomerData.getWarehouseId())
+                    )
+                );
+            customer.setWarehouse(warehouse);
         }
         MapperHelpers.getCustomerMapper().updateCustomer(customer, updateCustomerData);
         var updatedCustomer = customerRepository.save(customer);

@@ -23,8 +23,10 @@ public class UpdateCustomerRequest {
     // TODO: CodeList enhancement
     private String defaultPrice;
 
-    // TODO: CodeList enhancement
-    private String warehouse;
+    /*
+     * WAREHOUSE
+     */
+    private UUID warehouseId;
 
     @Size(max = DEFAULT_DESCRIPTION_FIELD_LENGTH)
     private String memo;
