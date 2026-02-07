@@ -83,7 +83,7 @@ jobs:
           tags: dacnguyen9101/oun-de-de:dev-${{ github.sha }}
 
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1
         env:
           IMAGE_TAG: dev-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
@@ -95,5 +95,6 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          timeout: 300s
           envs: IMAGE_TAG,GIT_SHA,DB_PASSWORD,DB_URL,DB_USRNAME,JWT_SECRET
           script_path: infra/script.sh
