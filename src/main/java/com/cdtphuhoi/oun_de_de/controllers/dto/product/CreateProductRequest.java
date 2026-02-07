@@ -4,9 +4,11 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class CreateProductRequest {
+    @NotBlank
     private String name;
 
     private Date date;

@@ -2,9 +2,11 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.settings.SettingService;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class SettingController {
     @GetMapping("/units")
     public ResponseEntity<List<UnitResult>> listProducts() {
         return ResponseEntity.ok(
-            settingService.findAll()
+            settingService.findAllUnits()
         );
     }
 
@@ -43,6 +45,26 @@ public class SettingController {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = settingService.createUnit(
             MapperHelpers.getSettingMapper().toCreateUnitData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
+
+    @GetMapping("/warehouses")
+    public ResponseEntity<List<WarehouseResult>> listWarehouses() {
+        return ResponseEntity.ok(
+            settingService.findAllWarehouses()
+        );
+    }
+
+    @PostMapping("/warehouses")
+    public ResponseEntity<WarehouseResult> createWarehouse(
+        @Valid @RequestBody CreateWarehouseRequest request) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = settingService.createWarehouse(
+            MapperHelpers.getSettingMapper().toWarehouseDate(request),
             usr
         );
         return ResponseEntity

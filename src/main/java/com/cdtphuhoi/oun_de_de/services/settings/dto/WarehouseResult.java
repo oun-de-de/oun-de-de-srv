@@ -1,7 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.settings.dto;
 
 import com.cdtphuhoi.oun_de_de.common.CodeListResult;
-import com.cdtphuhoi.oun_de_de.common.UnitType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +8,5 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UnitResult extends CodeListResult {
-    private UnitType type;
+public class WarehouseResult extends CodeListResult {
 }
