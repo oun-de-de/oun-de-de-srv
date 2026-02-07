@@ -26,4 +26,7 @@ public class MapperHelpers {
         return ProductMapper.INSTANCE;
     }
 
+    public static SettingMapper getSettingMapper() {
+        return SettingMapper.INSTANCE;
+    }
 }
