@@ -26,6 +26,6 @@ import jakarta.persistence.MappedSuperclass;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrgManaged {
-    @Column(name = "org_id", nullable = false)
+    @Column(name = "org_id", nullable = false, length = 20)
     private String orgId;
 }
