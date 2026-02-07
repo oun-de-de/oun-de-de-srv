@@ -10,7 +10,6 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
-import org.apache.commons.collections4.CollectionUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
