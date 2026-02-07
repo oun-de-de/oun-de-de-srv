@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.mappers.CustomerMapper;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.utils.mappers;
+package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.product.CreateProductRequest;
 import com.cdtphuhoi.oun_de_de.entities.Product;

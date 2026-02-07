@@ -3,11 +3,12 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.vehicle.VehicleService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
-import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +57,19 @@ public class CustomerController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PutMapping("/{customerId}")
+    public ResponseEntity<CustomerResult> updateCustomer(
+        @PathVariable String customerId,
+        @Valid @RequestBody UpdateCustomerRequest request
+    ) {
+        var result = customerService.update(
+            customerId,
+            MapperHelpers.getCustomerMapper().toUpdateCustomerData(request)
+        );
+        return ResponseEntity
+            .ok(result);
     }
 
     @GetMapping("/{customerId}/vehicles")

@@ -7,6 +7,8 @@ import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.mappers.VehicleMapper;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import org.junit.jupiter.api.Test;
 import java.util.List;

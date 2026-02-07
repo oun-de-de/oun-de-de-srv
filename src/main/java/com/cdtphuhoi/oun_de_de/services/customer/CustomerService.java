@@ -6,7 +6,8 @@ import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
-import com.cdtphuhoi.oun_de_de.utils.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -56,5 +57,37 @@ public class CustomerService implements OrgManagementService {
         }
         var page = customerRepository.findByNameContainingIgnoreCase(name, pageable);
         return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
+    }
+
+    public CustomerResult update(String customerId, UpdateCustomerData updateCustomerData) {
+        var customer = customerRepository.findOneById(customerId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Customer [id=%s] not found", customerId)
+                )
+            );
+        if (!customer.getEmployee().getId().equals(updateCustomerData.getEmployeeId())) {
+            var employee = userRepository.findOneById(updateCustomerData.getEmployeeId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Employee [id=%s] not found", updateCustomerData.getEmployeeId())
+                    )
+                );
+            customer.setEmployee(employee);
+        }
+        if (updateCustomerData.getReferredById() != null &&
+            (customer.getReferredBy() == null ||
+                !customer.getReferredBy().getId().equals(updateCustomerData.getReferredById()))) {
+            var referer = customerRepository.findOneById(updateCustomerData.getReferredById())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Customer [id=%s] not found", updateCustomerData.getReferredById())
+                    )
+                );
+            customer.setReferredBy(referer);
+        }
+        MapperHelpers.getCustomerMapper().updateCustomer(customer, updateCustomerData);
+        var updatedCustomer = customerRepository.save(customer);
+        return MapperHelpers.getCustomerMapper().toCustomerResult(updatedCustomer);
     }
 }

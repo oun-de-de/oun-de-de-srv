@@ -1,4 +1,4 @@
-package com.cdtphuhoi.oun_de_de.utils.mappers;
+package com.cdtphuhoi.oun_de_de.mappers;
 
 
 public class MapperHelpers {
