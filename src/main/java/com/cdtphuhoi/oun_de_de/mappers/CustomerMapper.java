@@ -1,12 +1,17 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.Product;
+import com.cdtphuhoi.oun_de_de.entities.ProductSetting;
+import com.cdtphuhoi.oun_de_de.entities.ProductSettingId;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.ContactResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateProductSettingData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
@@ -82,4 +87,31 @@ public interface CustomerMapper {
     CustomerDetailsResult toCustomerDetailsResult(Customer customer);
 
     ContactResult toContactResult(Contact contact);
+
+    CreateProductSettingData toCreateProductSettingData(CreateProductSettingRequest request);
+
+    @Mapping(target = "orgId", source = "customer.orgId")
+    @Mapping(target = "price", source = "createProductSettingData.price")
+    @Mapping(target = "weight", source = "createProductSettingData.weight")
+    @Mapping(target = "customer", source = "customer")
+    @Mapping(target = "product", source = "product")
+    ProductSetting toProductSetting(
+        CreateProductSettingData createProductSettingData,
+        Customer customer,
+        Product product
+    );
+
+    @AfterMapping
+    default void afterMapping(
+        @MappingTarget ProductSetting productSetting,
+        Customer customer,
+        Product product
+    ) {
+        productSetting.setProductSettingId(
+            ProductSettingId.builder()
+                .customerId(customer.getId())
+                .productId(product.getId())
+                .build()
+        );
+    }
 }

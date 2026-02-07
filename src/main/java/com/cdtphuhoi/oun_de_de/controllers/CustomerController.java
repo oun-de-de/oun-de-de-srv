@@ -2,11 +2,13 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.ProductSettingResult;
 import com.cdtphuhoi.oun_de_de.services.vehicle.VehicleService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -100,11 +102,23 @@ public class CustomerController {
     }
 
     @PostMapping("/{customerId}/product-settings")
-    public ResponseEntity<?> createProductSetting(
-        @PathVariable String customerId) {
-
+    public ResponseEntity<ProductSettingResult> createProductSetting(
+        @PathVariable String customerId,
+        @Valid @RequestBody CreateProductSettingRequest createProductSetting) {
+        var result = customerService.createProductSetting(
+            customerId,
+            MapperHelpers.getCustomerMapper().toCreateProductSettingData(createProductSetting)
+        );
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(null);
+            .body(result);
+    }
+
+    @GetMapping("/{customerId}/product-settings")
+    public ResponseEntity<List<ProductSettingResult>> getProductSettings(@PathVariable String customerId) {
+        var results = customerService.getProductSettings(customerId);
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(results);
     }
 }
