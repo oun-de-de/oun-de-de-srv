@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
@@ -59,6 +60,16 @@ public class CustomerService implements OrgManagementService {
         return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
     }
 
+    public CustomerDetailsResult getCustomerDetails(String customerId) {
+        var customer = customerRepository.findOneById(customerId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Customer [id=%s] not found", customerId)
+                )
+            );
+        return MapperHelpers.getCustomerMapper().toCustomerDetailsResult(customer);
+    }
+
     public CustomerResult update(String customerId, UpdateCustomerData updateCustomerData) {
         var customer = customerRepository.findOneById(customerId)
             .orElseThrow(
@@ -66,7 +77,8 @@ public class CustomerService implements OrgManagementService {
                     String.format("Customer [id=%s] not found", customerId)
                 )
             );
-        if (!customer.getEmployee().getId().equals(updateCustomerData.getEmployeeId())) {
+        if (updateCustomerData.getEmployeeId() != null &&
+            !customer.getEmployee().getId().equals(updateCustomerData.getEmployeeId())) {
             var employee = userRepository.findOneById(updateCustomerData.getEmployeeId())
                 .orElseThrow(
                     () -> new ResourceNotFoundException(

@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.vehicle.VehicleService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
@@ -59,6 +60,12 @@ public class CustomerController {
             .body(result);
     }
 
+    @GetMapping("/{customerId}")
+    public ResponseEntity<CustomerDetailsResult> getCustomerDetails(@PathVariable String customerId) {
+        return ResponseEntity
+            .ok(customerService.getCustomerDetails(customerId));
+    }
+
     @PutMapping("/{customerId}")
     public ResponseEntity<CustomerResult> updateCustomer(
         @PathVariable String customerId,
@@ -90,5 +97,14 @@ public class CustomerController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PostMapping("/{customerId}/product-settings")
+    public ResponseEntity<?> createProductSetting(
+        @PathVariable String customerId) {
+
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(null);
     }
 }

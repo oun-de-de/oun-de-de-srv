@@ -5,9 +5,12 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.ContactResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
+import org.apache.commons.collections4.CollectionUtils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,7 +19,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(
-    uses = {VehicleMapper.class},
+    uses = {
+        VehicleMapper.class,
+        EmployeeMapper.class
+    },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface CustomerMapper {
@@ -71,4 +77,10 @@ public interface CustomerMapper {
     CustomerResult toCustomerResult(Customer customer);
 
     UpdateCustomerData toUpdateCustomerData(UpdateCustomerRequest request);
+
+    @Mapping(target = "customerReference.id", source = "customer.referredBy.id")
+    @Mapping(target = "customerReference.name", source = "customer.referredBy.name")
+    CustomerDetailsResult toCustomerDetailsResult(Customer customer);
+
+    ContactResult toContactResult(Contact contact);
 }
