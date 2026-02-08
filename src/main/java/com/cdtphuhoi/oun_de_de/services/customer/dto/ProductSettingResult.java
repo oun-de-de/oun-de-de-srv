@@ -15,5 +15,5 @@ public class ProductSettingResult {
 
     private BigDecimal price;
 
-    private BigDecimal weight;
+    private BigDecimal quantity;
 }

@@ -162,7 +162,7 @@ public class CustomerService implements OrgManagementService {
             .productId(product.getId())
             .customerId(customer.getId())
             .price(productSettingDb.getPrice())
-            .weight(productSettingDb.getWeight())
+            .quantity(productSettingDb.getQuantity())
             .build();
     }
 
@@ -172,7 +172,7 @@ public class CustomerService implements OrgManagementService {
                 .productId(proSet.getProductSettingId().getProductId())
                 .customerId(proSet.getProductSettingId().getCustomerId())
                 .price(proSet.getPrice())
-                .weight(proSet.getWeight())
+                .quantity(proSet.getQuantity())
                 .build())
             .toList();
     }

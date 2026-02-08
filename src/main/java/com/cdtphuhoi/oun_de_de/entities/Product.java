@@ -46,4 +46,7 @@ public class Product extends OrgManaged {
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private Unit unit;
+
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private DefaultProductSetting defaultProductSetting;
 }

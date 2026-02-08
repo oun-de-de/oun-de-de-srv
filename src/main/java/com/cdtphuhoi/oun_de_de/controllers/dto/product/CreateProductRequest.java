@@ -30,4 +30,13 @@ public class CreateProductRequest {
      * UNIT
      */
     private UUID unitId;
+
+    /*
+     * DEFAULT PRODUCT SETTING
+     */
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal defaultPrice;
+
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal defaultQuantity;
 }

@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.UUID;
 
 @Data
 @Builder
@@ -25,4 +24,11 @@ public class CreateProductData {
      * UNIT
      */
     private String unitId;
+
+    /*
+     * DEFAULT PRODUCT SETTING
+     */
+    private BigDecimal defaultPrice;
+
+    private BigDecimal defaultQuantity;
 }

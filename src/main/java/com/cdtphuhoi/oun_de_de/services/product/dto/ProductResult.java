@@ -28,4 +28,6 @@ public class ProductResult {
     private BigDecimal price;
 
     private UnitResult unit;
+
+    private DefaultProductSettingResult defaultProductSetting;
 }

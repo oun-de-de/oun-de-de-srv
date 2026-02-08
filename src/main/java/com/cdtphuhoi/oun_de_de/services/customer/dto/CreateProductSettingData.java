@@ -13,5 +13,5 @@ public class CreateProductSettingData {
 
     private BigDecimal price;
 
-    private BigDecimal weight;
+    private BigDecimal quantity;
 }

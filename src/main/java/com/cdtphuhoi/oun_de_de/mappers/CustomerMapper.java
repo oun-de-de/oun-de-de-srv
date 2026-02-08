@@ -93,7 +93,7 @@ public interface CustomerMapper {
 
     @Mapping(target = "orgId", source = "customer.orgId")
     @Mapping(target = "price", source = "createProductSettingData.price")
-    @Mapping(target = "weight", source = "createProductSettingData.weight")
+    @Mapping(target = "quantity", source = "createProductSettingData.quantity")
     @Mapping(target = "customer", source = "customer")
     @Mapping(target = "product", source = "product")
     ProductSetting toProductSetting(
