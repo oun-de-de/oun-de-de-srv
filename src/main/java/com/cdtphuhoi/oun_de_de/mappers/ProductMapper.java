@@ -52,9 +52,39 @@ public interface ProductMapper {
 
     UpdateProductData toUpdateProductData(UpdateProductRequest request);
 
-    void updateProduct(
+    void updateProductInternal(
         @MappingTarget Product product,
         UpdateProductData updateProductData
+    );
+
+    default void updateProduct(
+        @MappingTarget Product product,
+        UpdateProductData updateProductData
+    ) {
+        updateProductInternal(product, updateProductData);
+
+        if (product.getDefaultProductSetting() == null) {
+            product.setDefaultProductSetting(
+                DefaultProductSetting.builder()
+                    .orgId(product.getOrgId())
+                    .build()
+            );
+        }
+
+        updateDefaultProductSetting(
+            product.getDefaultProductSetting(),
+            toDefaultProductSetting(updateProductData)
+        );
+    }
+
+    @Mapping(target = "price", source = "request.defaultPrice")
+    @Mapping(target = "quantity", source = "request.defaultQuantity")
+    DefaultProductSetting toDefaultProductSetting(UpdateProductData request);
+
+
+    void updateDefaultProductSetting(
+        @MappingTarget DefaultProductSetting defaultProductSetting,
+        DefaultProductSetting updateProductSetting
     );
 
     DefaultProductSettingResult toDefaultProductSettingResult(DefaultProductSetting defaultProductSetting);

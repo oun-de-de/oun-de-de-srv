@@ -24,4 +24,11 @@ public class UpdateProductData {
      * UNIT
      */
     private String unitId;
+
+    /*
+     * DEFAULT PRODUCT SETTING
+     */
+    private BigDecimal defaultPrice;
+
+    private BigDecimal defaultQuantity;
 }
