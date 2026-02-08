@@ -1,0 +1,32 @@
+package com.cdtphuhoi.oun_de_de.controllers.dto.product;
+
+import lombok.Data;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.UUID;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Size;
+
+@Data
+public class UpdateProductRequest {
+    @Size(min = 1)
+    private String name;
+
+    private Date date;
+
+    private String refNo;
+
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal quantity;
+
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal cost;
+
+    @DecimalMin(value = "0.00", inclusive = true)
+    private BigDecimal price;
+
+    /*
+     * UNIT
+     */
+    private UUID unitId;
+}

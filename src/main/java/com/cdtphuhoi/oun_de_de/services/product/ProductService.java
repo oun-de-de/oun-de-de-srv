@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.product.dto.CreateProductData;
 import com.cdtphuhoi.oun_de_de.services.product.dto.ProductResult;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.services.product.dto.UpdateProductData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,5 +47,29 @@ public class ProductService implements OrgManagementService {
         var productDb = productRepository.save(product);
         log.info("Created product, id = {}", productDb.getId());
         return MapperHelpers.getProductMapper().toProductResult(productDb);
+    }
+
+    public ProductResult updateProduct(String productId, UpdateProductData updateProductData) {
+        var product = productRepository.findOneById(productId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Product [id=%s] not found", productId)
+                )
+            );
+        if (updateProductData.getUnitId() != null &&
+            (product.getUnit() == null ||
+                !product.getUnit().getId().equals(updateProductData.getUnitId()))
+        ) {
+            var unit = unitRepository.findOneById(updateProductData.getUnitId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Unit [id=%s] not found", updateProductData.getUnitId())
+                    )
+                );
+            product.setUnit(unit);
+        }
+        MapperHelpers.getProductMapper().updateProduct(product, updateProductData);
+        var updatedProduct = productRepository.save(product);
+        return MapperHelpers.getProductMapper().toProductResult(updatedProduct);
     }
 }
