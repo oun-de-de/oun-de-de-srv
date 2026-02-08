@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.util.Date;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +33,7 @@ public class Product extends OrgManaged {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(nullable = false)
     private String name;
 
     private Date date;

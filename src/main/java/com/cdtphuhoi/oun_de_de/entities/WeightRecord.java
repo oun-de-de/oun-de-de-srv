@@ -32,6 +32,10 @@ public class WeightRecord extends OrgManaged {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    private String productName;
+
+    private String unit;
+
     private BigDecimal pricePerProduct;
 
     private BigDecimal weightPerProduct;
@@ -43,6 +47,8 @@ public class WeightRecord extends OrgManaged {
     private Date outTime;
 
     private boolean isManual;
+
+    private String memo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
