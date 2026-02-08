@@ -36,9 +36,9 @@ public class WeightRecord extends OrgManaged {
 
     private BigDecimal weightPerProduct;
 
-    private BigDecimal weight;
-
     private BigDecimal quantity;
+
+    private BigDecimal weight;
 
     private Date outTime;
 

@@ -11,7 +11,9 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(
-    uses = MapperHelpers.class
+    uses = {
+        SettingMapper.class
+    }
 )
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);

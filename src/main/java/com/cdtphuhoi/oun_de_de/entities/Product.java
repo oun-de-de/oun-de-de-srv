@@ -10,11 +10,14 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.util.Date;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -40,4 +43,7 @@ public class Product extends OrgManaged {
     private BigDecimal cost;
 
     private BigDecimal price;
+
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private Unit unit;
 }

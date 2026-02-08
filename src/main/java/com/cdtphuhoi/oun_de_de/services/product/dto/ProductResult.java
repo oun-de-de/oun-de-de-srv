@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.product.dto;
 
+import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,4 +26,6 @@ public class ProductResult {
     private BigDecimal cost;
 
     private BigDecimal price;
+
+    private UnitResult unit;
 }

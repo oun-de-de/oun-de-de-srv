@@ -3,8 +3,10 @@ package com.cdtphuhoi.oun_de_de.controllers.dto.product;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 public class CreateProductRequest {
@@ -23,4 +25,9 @@ public class CreateProductRequest {
 
     @DecimalMin(value = "0.00", inclusive = true)
     private BigDecimal price;
+
+    /*
+     * UNIT
+     */
+    private UUID unitId;
 }

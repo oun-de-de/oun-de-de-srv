@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -19,4 +20,9 @@ public class CreateProductData {
     private BigDecimal cost;
 
     private BigDecimal price;
+
+    /*
+     * UNIT
+     */
+    private String unitId;
 }

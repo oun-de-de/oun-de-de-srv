@@ -1,7 +1,9 @@
 package com.cdtphuhoi.oun_de_de.services.product;
 
 import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
+import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.product.dto.CreateProductData;
 import com.cdtphuhoi.oun_de_de.services.product.dto.ProductResult;
@@ -11,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -20,13 +23,25 @@ public class ProductService implements OrgManagementService {
 
     private final ProductRepository productRepository;
 
+    private final UnitRepository unitRepository;
+
     public List<ProductResult> findAll() {
         var result = productRepository.findAll();
         return MapperHelpers.getProductMapper().toListProductResults(result);
     }
 
     public ProductResult createProduct(CreateProductData createProductData, User usr) {
+        var unit = Optional.ofNullable(createProductData.getUnitId())
+            .map(unitId -> unitRepository.findOneById(unitId)
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Unit [id=%s] not found", createProductData.getUnitId())
+                    )
+                )
+            )
+            .orElse(null);
         var product = MapperHelpers.getProductMapper().toProduct(createProductData, usr);
+        product.setUnit(unit);
         log.info("Creating product");
         var productDb = productRepository.save(product);
         log.info("Created product, id = {}", productDb.getId());

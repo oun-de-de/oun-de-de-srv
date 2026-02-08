@@ -1,0 +1,5 @@
+ALTER TABLE product
+    ADD unit_id VARCHAR(255) NULL;
+
+ALTER TABLE product
+    ADD CONSTRAINT FK_PRODUCT_ON_UNIT FOREIGN KEY (unit_id) REFERENCES unit (id);
