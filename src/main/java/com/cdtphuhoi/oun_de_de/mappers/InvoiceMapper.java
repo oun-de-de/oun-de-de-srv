@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
+import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
@@ -15,7 +16,9 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Mapper(
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
@@ -45,10 +48,39 @@ public interface InvoiceMapper {
 
     void updateInvoice(@MappingTarget Invoice invoice, UpdateInvoicesData updateInvoicesData);
 
-    @Mapping(target = "weightRecords", source = "invoice.coupon.weightRecords")
-    InvoiceExportLineResult toInvoiceExportLineResult(Invoice invoice);
+    InvoiceExportLineResult toInvoiceExportLineResult(Invoice invoice, WeightRecord weightRecord);
 
-    List<InvoiceExportLineResult> toListInvoiceExportLineResult(List<Invoice> invoices);
+    default List<InvoiceExportLineResult> toInvoiceExportLineResult(Invoice invoice, List<WeightRecord> weightRecords) {
+        if (weightRecords.isEmpty()) {
+            return List.of();
+        }
+
+        var result = new ArrayList<InvoiceExportLineResult>();
+
+        for (var weightRecord : weightRecords) {
+            result.add(toInvoiceExportLineResult(invoice, weightRecord));
+        }
+
+        return result;
+    }
+
+    default List<InvoiceExportLineResult> toListInvoiceExportLineResult(
+        List<Invoice> invoices,
+        Map<String, List<WeightRecord>> weightRecordsByCouponId
+    ) {
+        if (invoices.isEmpty()) {
+            return List.of();
+        }
+
+        var result = new ArrayList<InvoiceExportLineResult>();
+
+        for (var invoice : invoices) {
+            var weightRecords = weightRecordsByCouponId.get(invoice.getCoupon().getId());
+            result.addAll(toInvoiceExportLineResult(invoice, weightRecords));
+        }
+
+        return result;
+    }
 
     ExportInvoicesRequestData toExportInvoicesRequestData(ExportInvoicesRequest request);
 }

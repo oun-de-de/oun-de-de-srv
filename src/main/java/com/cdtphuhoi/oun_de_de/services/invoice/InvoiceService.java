@@ -2,12 +2,16 @@ package com.cdtphuhoi.oun_de_de.services.invoice;
 
 import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
+import com.cdtphuhoi.oun_de_de.entities.Coupon;
+import com.cdtphuhoi.oun_de_de.entities.Coupon_;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
+import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
+import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,6 +35,8 @@ import java.util.List;
 public class InvoiceService implements OrgManagementService {
 
     private final InvoiceRepository invoiceRepository;
+
+    private final WeightRecordRepository weightRecordRepository;
 
     public Page<InvoiceResult> findBy(
         String customerId,
@@ -76,7 +83,21 @@ public class InvoiceService implements OrgManagementService {
         sameRequestSizeValidator(invoices, exportInvoicesData.getInvoiceIds().size());
         sameBuyerValidator(invoices);
         sameTypeValidator(invoices);
-        return MapperHelpers.getInvoiceMapper().toListInvoiceExportLineResult(invoices);
+        var couponIds = invoices.stream()
+            .map(Invoice::getCoupon)
+            .map(Coupon::getId)
+            .collect(Collectors.toSet());
+        var weightRecords = weightRecordRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> root.get(WeightRecord_.COUPON).get(Coupon_.ID).in(couponIds),
+                (root, query, cb) -> root.get(WeightRecord_.PRODUCT_NAME).isNotNull()
+            )
+        );
+        var weightRecordsByCouponId = weightRecords.stream()
+            .collect(
+                Collectors.groupingBy(weightRecord -> weightRecord.getCoupon().getId())
+            );
+        return MapperHelpers.getInvoiceMapper().toListInvoiceExportLineResult(invoices, weightRecordsByCouponId);
     }
 
     private void sameRequestSizeValidator(List<Invoice> invoices, int size) {
