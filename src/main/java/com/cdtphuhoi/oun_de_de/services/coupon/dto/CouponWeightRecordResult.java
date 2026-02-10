@@ -10,13 +10,21 @@ import java.util.Date;
 public class CouponWeightRecordResult {
     private String id;
 
-    private BigDecimal price;
+    private String productName;
 
-    private BigDecimal weight;
+    private String unit;
+
+    private BigDecimal pricePerProduct;
+
+    private BigDecimal quantityPerProduct;
 
     private BigDecimal quantity;
+
+    private BigDecimal weight;
 
     private Date outTime;
 
     private boolean isManual;
+
+    private String memo;
 }

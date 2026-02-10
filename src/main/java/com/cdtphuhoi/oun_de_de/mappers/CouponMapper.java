@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
+import com.cdtphuhoi.oun_de_de.utils.Utils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,7 +17,11 @@ import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper
+@Mapper(
+    imports = {
+        Utils.class
+    }
+)
 public interface CouponMapper {
     CouponMapper INSTANCE = Mappers.getMapper(CouponMapper.class);
 
@@ -28,6 +33,7 @@ public interface CouponMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employee.orgId")
+    @Mapping(target = "date", source = "createCouponData.date", defaultExpression = "java(Utils.cambodiaNow())")
     Coupon toCoupon(CreateCouponData createCouponData, User employee, Vehicle vehicle);
 
     @AfterMapping

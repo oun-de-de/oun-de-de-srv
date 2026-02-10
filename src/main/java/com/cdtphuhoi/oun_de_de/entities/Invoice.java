@@ -2,22 +2,25 @@ package com.cdtphuhoi.oun_de_de.entities;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
+import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
+import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import java.math.BigDecimal;
 import java.util.Date;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,30 +30,34 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(indexes = @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME))
-public class WeightRecord extends OrgManaged {
+public class Invoice extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private String productName;
+    @Column(nullable = false)
+    private String refNo;
 
-    private String unit;
+    // add reference to customer
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private Customer customer;
 
-    private BigDecimal pricePerProduct;
+    @Column(nullable = false)
+    private String customerName;
 
-    private BigDecimal quantityPerProduct;
+    @Column(nullable = false)
+    private Date date;
 
-    private BigDecimal quantity;
+    @Column(nullable = false)
+    private InvoiceType type;
 
-    private BigDecimal weight;
+    @Column(nullable = false)
+    private InvoiceStatus status;
 
-    private Date outTime;
-
-    private boolean isManual;
-
-    private String memo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn
+    @OneToOne(
+        cascade = CascadeType.PERSIST,
+        fetch = FetchType.LAZY,
+        optional = false
+    )
     private Coupon coupon;
 }

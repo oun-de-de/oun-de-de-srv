@@ -29,4 +29,8 @@ public class MapperHelpers {
     public static SettingMapper getSettingMapper() {
         return SettingMapper.INSTANCE;
     }
+
+    public static InvoiceMapper getInvoiceMapper() {
+        return InvoiceMapper.INSTANCE;
+    }
 }

@@ -1,6 +1,10 @@
 package com.cdtphuhoi.oun_de_de.utils;
 
 import lombok.experimental.UtilityClass;
+import java.math.BigInteger;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -28,5 +32,19 @@ public class Utils {
         } catch (IllegalArgumentException e) {
             return Optional.empty();
         }
+    }
+
+    public static String paddingZero(BigInteger value, int paddingLength) {
+        var s = value.toString();
+        return s.length() < paddingLength
+            ? "0".repeat(paddingLength - s.length()) + s
+            : s;
+    }
+
+    public static Date cambodiaNow() {
+        return Date.from(
+            ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"))
+                .toInstant()
+        );
     }
 }

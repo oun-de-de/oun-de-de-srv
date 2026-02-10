@@ -8,15 +8,21 @@ import java.util.Date;
 @Data
 @Builder
 public class CreateWeightRecordData {
+    private String productName;
+
+    private String unit;
+
     private BigDecimal pricePerProduct;
 
-    private BigDecimal weightPerProduct;
-
-    private BigDecimal weight;
+    private BigDecimal quantityPerProduct;
 
     private BigDecimal quantity;
+
+    private BigDecimal weight;
 
     private Date outTime;
 
     private boolean isManual;
+
+    private String memo;
 }

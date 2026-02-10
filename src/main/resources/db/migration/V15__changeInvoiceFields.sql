@@ -1,0 +1,11 @@
+ALTER TABLE invoice
+    ADD type SMALLINT NULL;
+
+ALTER TABLE invoice
+    MODIFY type SMALLINT NOT NULL;
+
+ALTER TABLE invoice
+    MODIFY date datetime NOT NULL;
+
+ALTER TABLE invoice
+    MODIFY ref_no VARCHAR (255) NOT NULL;

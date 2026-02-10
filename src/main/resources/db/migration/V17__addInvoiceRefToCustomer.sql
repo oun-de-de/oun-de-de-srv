@@ -1,0 +1,8 @@
+ALTER TABLE invoice
+    ADD customer_id VARCHAR(255) NULL;
+
+ALTER TABLE invoice
+    MODIFY customer_id VARCHAR (255) NOT NULL;
+
+ALTER TABLE invoice
+    ADD CONSTRAINT FK_INVOICE_ON_CUSTOMER FOREIGN KEY (customer_id) REFERENCES customer (id);

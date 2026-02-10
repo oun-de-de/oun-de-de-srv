@@ -18,5 +18,5 @@ public class CreateProductSettingRequest {
     private BigDecimal price;
 
     @DecimalMin(value = "0.00", inclusive = true)
-    private BigDecimal weight;
+    private BigDecimal quantity;
 }
