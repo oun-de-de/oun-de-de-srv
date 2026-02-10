@@ -4,6 +4,7 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.UpdateInvoicesData;
 import org.mapstruct.Mapper;
@@ -41,4 +42,9 @@ public interface InvoiceMapper {
     }
 
     void updateInvoice(@MappingTarget Invoice invoice, UpdateInvoicesData updateInvoicesData);
+
+    @Mapping(target = "weightRecords", source = "invoice.coupon.weightRecords")
+    InvoiceDetailsResult toInvoiceDetailsResult(Invoice invoice);
+
+    List<InvoiceDetailsResult> toListInvoiceDetailsResult(List<Invoice> invoices);
 }

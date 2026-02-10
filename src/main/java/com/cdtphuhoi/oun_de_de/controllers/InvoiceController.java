@@ -6,7 +6,9 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ListInvoiceDetailsRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +17,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 import jakarta.validation.Valid;
 
 @Slf4j
@@ -60,6 +65,18 @@ public class InvoiceController {
                 pageable
             )
         );
+    }
+
+    @PostMapping("/export")
+    public ResponseEntity<List<InvoiceDetailsResult>> listInvoiceDetails(
+        @Valid @RequestBody ListInvoiceDetailsRequest request
+        ) {
+        var result = invoiceService.listInvoiceDetails(
+            request.getInvoiceIds().stream()
+                .map(UUID::toString)
+                .toList()
+        );
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping("/update-batch")

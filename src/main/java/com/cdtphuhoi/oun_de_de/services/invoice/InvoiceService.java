@@ -9,6 +9,7 @@ import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.UpdateInvoicesData;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -49,9 +51,7 @@ public class InvoiceService implements OrgManagementService {
     }
 
     public void updateInvoices(UpdateInvoicesData updateInvoicesData) {
-        if (updateInvoicesData.getInvoiceIds().isEmpty()) {
-            throw new BadRequestException("Empty invoice id");
-        }
+        // only allowed update when type is INVOICE
         var invoices = invoiceRepository.findAll(
             Specification.allOf(
                 (root, query, cb) -> root.get(Invoice_.ID).in(updateInvoicesData.getInvoiceIds()),
@@ -78,5 +78,40 @@ public class InvoiceService implements OrgManagementService {
         MapperHelpers.getInvoiceMapper().updateInvoices(invoices, updateInvoicesData);
         var updatedInvoices = invoiceRepository.saveAll(invoices);
         log.info("Update invoice successfully, affected rows {}", updatedInvoices.size());
+    }
+
+    public List<InvoiceDetailsResult> listInvoiceDetails(List<String> invoiceIds) {
+        var invoices = invoiceRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> root.get(Invoice_.ID).in(invoiceIds)
+            )
+        );
+        if (invoices.size() != invoiceIds.size()) {
+            throw new BadRequestException(
+                String.format(
+                    "Invalid ids not correct, given %d, found %d",
+                    invoiceIds.size(),
+                    invoices.size()
+                )
+            );
+        }
+        var isSameCustomer = invoices.stream()
+            .map(Invoice::getCustomer)
+            .map(Customer::getId)
+            .distinct()
+            .count() == 1;
+        if (!isSameCustomer) {
+            throw new BadRequestException("Invoices must be same customer");
+        }
+        var isSameType = invoices.stream()
+            .map(Invoice::getType)
+            .map(InvoiceType::getValue)
+            .distinct()
+            .count() == 1;
+        if (!isSameType) {
+            throw new BadRequestException("Invoices must be same type");
+        }
+
+        return MapperHelpers.getInvoiceMapper().toListInvoiceDetailsResult(invoices);
     }
 }
