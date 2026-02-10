@@ -38,7 +38,6 @@ public class Invoice extends OrgManaged {
     @Column(nullable = false)
     private String refNo;
 
-    // add reference to customer
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Customer customer;
 

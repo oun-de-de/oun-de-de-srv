@@ -17,6 +17,8 @@ public class InvoiceResult {
 
     private String customerName;
 
+    private String customerId;
+
     private LocalDateTime date;
 
     private InvoiceType type;
