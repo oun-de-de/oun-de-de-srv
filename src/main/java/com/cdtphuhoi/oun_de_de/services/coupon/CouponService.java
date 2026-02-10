@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CouponRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
@@ -13,16 +14,11 @@ import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
-import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Slf4j
