@@ -17,9 +17,9 @@ public class InvoiceSpecifications {
         return (root, query, cb) ->
             Optional.ofNullable(customerId)
                 .map(
-                    cId -> cb.equal(
+                    cusId -> cb.equal(
                         root.get(Invoice_.CUSTOMER).get(Customer_.ID),
-                        cId
+                        cusId
                     )
                 )
                 .orElse(null);
