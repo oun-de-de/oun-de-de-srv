@@ -1,7 +1,7 @@
 package com.cdtphuhoi.oun_de_de.controllers.dto.coupon;
 
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 @Data
 public class CreateCouponRequest {
 
-    private Date date;
+    private LocalDateTime date;
 
     /*
      * Vehicle
@@ -45,5 +45,5 @@ public class CreateCouponRequest {
 
     private String delAccNo;
 
-    private Date delDate;
+    private LocalDateTime delDate;
 }

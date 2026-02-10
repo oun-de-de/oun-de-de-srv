@@ -2,7 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers.dto.product;
 
 import lombok.Data;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
@@ -12,7 +12,7 @@ public class UpdateProductRequest {
     @Size(min = 1)
     private String name;
 
-    private Date date;
+    private LocalDateTime date;
 
     private String refNo;
 

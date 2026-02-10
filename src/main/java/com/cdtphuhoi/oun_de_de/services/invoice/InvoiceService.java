@@ -17,8 +17,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
@@ -54,15 +52,15 @@ public class InvoiceService implements OrgManagementService {
                 if (optFrom != null && optTo != null) {
                     return cb.between(
                         date,
-                        Date.from(optFrom.atZone(ZoneOffset.UTC).toInstant()),
-                        Date.from(optTo.atZone(ZoneOffset.UTC).toInstant())
+                        optFrom,
+                        optTo
                     );
                 }
                 if (optFrom != null) {
-                    return cb.greaterThanOrEqualTo(date, Date.from(optFrom.atZone(ZoneOffset.UTC).toInstant()));
+                    return cb.greaterThanOrEqualTo(date, optFrom);
                 }
                 if (optTo != null) {
-                    return cb.lessThanOrEqualTo(date, Date.from(optTo.atZone(ZoneOffset.UTC).toInstant()));
+                    return cb.lessThanOrEqualTo(date, optTo);
                 }
                 return null;
             };

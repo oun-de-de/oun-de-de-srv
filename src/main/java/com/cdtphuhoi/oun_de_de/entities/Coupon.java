@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -35,7 +35,7 @@ public class Coupon extends OrgManaged {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    private Date date;
+    private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
@@ -65,5 +65,5 @@ public class Coupon extends OrgManaged {
     @Column(length = 20)
     private String delAccNo;
 
-    private Date delDate;
+    private LocalDateTime delDate;
 }

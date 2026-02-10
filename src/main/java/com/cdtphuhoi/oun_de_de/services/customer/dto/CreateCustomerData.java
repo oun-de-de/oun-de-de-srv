@@ -3,13 +3,13 @@ package com.cdtphuhoi.oun_de_de.services.customer.dto;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import lombok.Builder;
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
 public class CreateCustomerData {
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     private String code;
 

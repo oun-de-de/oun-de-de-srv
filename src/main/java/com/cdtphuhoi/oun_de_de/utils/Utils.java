@@ -2,9 +2,8 @@ package com.cdtphuhoi.oun_de_de.utils;
 
 import lombok.experimental.UtilityClass;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,10 +40,7 @@ public class Utils {
             : s;
     }
 
-    public static Date cambodiaNow() {
-        return Date.from(
-            ZonedDateTime.now(ZoneId.of("Asia/Phnom_Penh"))
-                .toInstant()
-        );
+    public static LocalDateTime cambodiaNow() {
+        return  LocalDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
     }
 }

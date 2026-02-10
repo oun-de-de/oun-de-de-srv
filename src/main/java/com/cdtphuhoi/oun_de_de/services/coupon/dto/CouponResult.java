@@ -2,7 +2,7 @@ package com.cdtphuhoi.oun_de_de.services.coupon.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -10,7 +10,7 @@ import java.util.List;
 public class CouponResult {
     private String id;
 
-    private Date date;
+    private LocalDateTime date;
 
     private String driverName;
 
@@ -33,5 +33,5 @@ public class CouponResult {
 
     private String delAccNo;
 
-    private Date delDate;
+    private LocalDateTime delDate;
 }

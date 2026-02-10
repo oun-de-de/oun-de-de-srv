@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,7 +39,7 @@ public class Customer extends OrgManaged {
     private String id;
 
     @Column(nullable = false)
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     @Column(nullable = false)
     private String code;

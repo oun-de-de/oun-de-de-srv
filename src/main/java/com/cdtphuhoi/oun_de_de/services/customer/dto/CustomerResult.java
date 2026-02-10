@@ -3,7 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.customer.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -11,7 +11,7 @@ import java.util.Date;
 public class CustomerResult {
     private String id;
 
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     private String code;
 

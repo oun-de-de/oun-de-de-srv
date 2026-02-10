@@ -3,14 +3,14 @@ package com.cdtphuhoi.oun_de_de.services.product.dto;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class CreateProductData {
     private String name;
 
-    private Date date;
+    private LocalDateTime date;
 
     private String refNo;
 

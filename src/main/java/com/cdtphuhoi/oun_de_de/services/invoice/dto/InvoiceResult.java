@@ -5,7 +5,7 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -17,7 +17,7 @@ public class InvoiceResult {
 
     private String customerName;
 
-    private Date date;
+    private LocalDateTime date;
 
     private InvoiceType type;
 

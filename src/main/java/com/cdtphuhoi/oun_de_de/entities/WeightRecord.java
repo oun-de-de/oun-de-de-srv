@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -44,7 +44,7 @@ public class WeightRecord extends OrgManaged {
 
     private BigDecimal weight;
 
-    private Date outTime;
+    private LocalDateTime outTime;
 
     private boolean isManual;
 

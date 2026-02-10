@@ -6,7 +6,7 @@ import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -15,7 +15,7 @@ import java.util.List;
 public class CustomerDetailsResult {
     private String id;
 
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     private String code;
 

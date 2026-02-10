@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,7 +36,7 @@ public class Product extends OrgManaged {
     @Column(nullable = false)
     private String name;
 
-    private Date date;
+    private LocalDateTime date;
 
     private String refNo;
 

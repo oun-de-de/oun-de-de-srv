@@ -4,7 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DESCRIPTION_FIELD
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_STRING_FIELD_LENGTH;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_URL_FIELD_LENGTH;
 import lombok.Data;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import jakarta.validation.Valid;
@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Size;
 @Data
 public class CreateCustomerRequest {
     @NotNull
-    private Date registerDate;
+    private LocalDateTime registerDate;
 
     @NotBlank
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
