@@ -5,13 +5,13 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.ProductSettingResult;
 import com.cdtphuhoi.oun_de_de.services.vehicle.VehicleService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
-import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +44,10 @@ public class CustomerController {
     @GetMapping
     public ResponseEntity<Page<CustomerResult>> listCustomers(
         @RequestParam(required = false) String name,
+        @RequestParam(name = "payment_term", required = false) Integer paymentTerm,
         Pageable pageable
     ) {
-        var result = customerService.findBy(name, pageable);
+        var result = customerService.findBy(name, paymentTerm, pageable);
         return ResponseEntity.ok(result);
     }
 

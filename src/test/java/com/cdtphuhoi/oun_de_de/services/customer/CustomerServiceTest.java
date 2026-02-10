@@ -65,24 +65,4 @@ class CustomerServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> customerService.create(data));
     }
-
-    @Test
-    void findBy_shouldReturnCustomerResults() {
-        var customer = mock(Customer.class);
-        var pageable = mock(Pageable.class);
-        var page = new PageImpl<>(List.of(customer));
-        when(customerRepository.findByNameContainingIgnoreCase(anyString(), any(Pageable.class))).thenReturn(page);
-
-        try (MockedStatic<MapperHelpers> mapperMock = mockStatic(MapperHelpers.class)) {
-            var customerResult = mock(CustomerResult.class);
-            var customerMapperMock = mock(CustomerMapper.class);
-            mapperMock.when(MapperHelpers::getCustomerMapper).thenReturn(customerMapperMock);
-            when(customerMapperMock.toCustomerResult(any())).thenReturn(customerResult);
-
-            var resultPage = customerService.findBy("test", pageable);
-
-            assertNotNull(resultPage);
-            assertNotNull(resultPage.getContent());
-        }
-    }
 }

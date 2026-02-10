@@ -16,9 +16,9 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.ProductSettingResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -74,11 +74,14 @@ public class CustomerService implements OrgManagementService {
         return MapperHelpers.getCustomerMapper().toCustomerResult(customerDb);
     }
 
-    public Page<CustomerResult> findBy(String name, Pageable pageable) {
-        if (StringUtils.isBlank(name)) {
-            name = "";
-        }
-        var page = customerRepository.findByNameContainingIgnoreCase(name, pageable);
+    public Page<CustomerResult> findBy(String name, Integer paymentTerm, Pageable pageable) {
+        var page = customerRepository.findAll(
+            Specification.allOf(
+                CustomerSpecifications.containName(name),
+                CustomerSpecifications.hasPaymentTerm(paymentTerm)
+            ),
+            pageable
+        );
         return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
     }
 
