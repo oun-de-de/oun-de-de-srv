@@ -2,9 +2,11 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
-import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.UpdateInvoicesData;
 import org.mapstruct.Mapper;
@@ -44,7 +46,9 @@ public interface InvoiceMapper {
     void updateInvoice(@MappingTarget Invoice invoice, UpdateInvoicesData updateInvoicesData);
 
     @Mapping(target = "weightRecords", source = "invoice.coupon.weightRecords")
-    InvoiceDetailsResult toInvoiceDetailsResult(Invoice invoice);
+    InvoiceExportLineResult toInvoiceExportLineResult(Invoice invoice);
 
-    List<InvoiceDetailsResult> toListInvoiceDetailsResult(List<Invoice> invoices);
+    List<InvoiceExportLineResult> toListInvoiceExportLineResult(List<Invoice> invoices);
+
+    ExportInvoicesRequestData toExportInvoicesRequestData(ExportInvoicesRequest request);
 }

@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class InvoiceDetailsResult {
+public class InvoiceExportLineResult {
     private String id;
 
     private String refNo;

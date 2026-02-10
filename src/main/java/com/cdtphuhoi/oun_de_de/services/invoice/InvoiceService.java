@@ -9,7 +9,8 @@ import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
-import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.UpdateInvoicesData;
 import lombok.RequiredArgsConstructor;
@@ -58,51 +59,39 @@ public class InvoiceService implements OrgManagementService {
                 (root, query, cb) -> cb.equal(root.get(Invoice_.TYPE), InvoiceType.INVOICE)
             )
         );
-        if (invoices.size() != updateInvoicesData.getInvoiceIds().size()) {
-            throw new BadRequestException(
-                String.format(
-                    "Updated ids not correct, given %d, found %d",
-                    updateInvoicesData.getInvoiceIds().size(),
-                    invoices.size()
-                )
-            );
-        }
-        var isSameCustomer = invoices.stream()
-            .map(Invoice::getCustomer)
-            .map(Customer::getId)
-            .distinct()
-            .count() == 1;
-        if (!isSameCustomer) {
-            throw new BadRequestException("Updated invoices must be same customer");
-        }
+        sameRequestSizeValidator(invoices, updateInvoicesData.getInvoiceIds().size());
+        sameBuyerValidator(invoices);
         MapperHelpers.getInvoiceMapper().updateInvoices(invoices, updateInvoicesData);
         var updatedInvoices = invoiceRepository.saveAll(invoices);
         log.info("Update invoice successfully, affected rows {}", updatedInvoices.size());
     }
 
-    public List<InvoiceDetailsResult> listInvoiceDetails(List<String> invoiceIds) {
+    public List<InvoiceExportLineResult> queryForExport(ExportInvoicesRequestData exportInvoicesData) {
         var invoices = invoiceRepository.findAll(
             Specification.allOf(
-                (root, query, cb) -> root.get(Invoice_.ID).in(invoiceIds)
+                (root, query, cb) -> root.get(Invoice_.ID).in(exportInvoicesData.getInvoiceIds()),
+                InvoiceSpecifications.createBetween(exportInvoicesData.getFrom(), exportInvoicesData.getTo())
             )
         );
-        if (invoices.size() != invoiceIds.size()) {
+        sameRequestSizeValidator(invoices, exportInvoicesData.getInvoiceIds().size());
+        sameBuyerValidator(invoices);
+        sameTypeValidator(invoices);
+        return MapperHelpers.getInvoiceMapper().toListInvoiceExportLineResult(invoices);
+    }
+
+    private void sameRequestSizeValidator(List<Invoice> invoices, int size) {
+        if (invoices.size() != size) {
             throw new BadRequestException(
                 String.format(
-                    "Invalid ids not correct, given %d, found %d",
-                    invoiceIds.size(),
+                    "Request ids are not correct, given %d, found %d",
+                    size,
                     invoices.size()
                 )
             );
         }
-        var isSameCustomer = invoices.stream()
-            .map(Invoice::getCustomer)
-            .map(Customer::getId)
-            .distinct()
-            .count() == 1;
-        if (!isSameCustomer) {
-            throw new BadRequestException("Invoices must be same customer");
-        }
+    }
+
+    private void sameTypeValidator(List<Invoice> invoices) {
         var isSameType = invoices.stream()
             .map(Invoice::getType)
             .map(InvoiceType::getValue)
@@ -111,7 +100,16 @@ public class InvoiceService implements OrgManagementService {
         if (!isSameType) {
             throw new BadRequestException("Invoices must be same type");
         }
+    }
 
-        return MapperHelpers.getInvoiceMapper().toListInvoiceDetailsResult(invoices);
+    private void sameBuyerValidator(List<Invoice> invoices) {
+        var isSameCustomer = invoices.stream()
+            .map(Invoice::getCustomer)
+            .map(Customer::getId)
+            .distinct()
+            .count() == 1;
+        if (!isSameCustomer) {
+            throw new BadRequestException("Invoices must be same customer");
+        }
     }
 }

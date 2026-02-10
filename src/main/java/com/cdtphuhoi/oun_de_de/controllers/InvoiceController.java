@@ -6,9 +6,9 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
-import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceDetailsResult;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
-import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ListInvoiceDetailsRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,13 +68,11 @@ public class InvoiceController {
     }
 
     @PostMapping("/export")
-    public ResponseEntity<List<InvoiceDetailsResult>> listInvoiceDetails(
-        @Valid @RequestBody ListInvoiceDetailsRequest request
-        ) {
-        var result = invoiceService.listInvoiceDetails(
-            request.getInvoiceIds().stream()
-                .map(UUID::toString)
-                .toList()
+    public ResponseEntity<List<InvoiceExportLineResult>> listInvoiceDetails(
+        @Valid @RequestBody ExportInvoicesRequest request
+    ) {
+        var result = invoiceService.queryForExport(
+            MapperHelpers.getInvoiceMapper().toExportInvoicesRequestData(request)
         );
         return ResponseEntity.ok(result);
     }
