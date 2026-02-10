@@ -47,6 +47,7 @@
         <!-- util libs -->
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <common-collection.version>4.5.0</common-collection.version>
+        <hibernate-jpamodelgen.version>6.6.39.Final</hibernate-jpamodelgen.version>
     </properties>
 
     <repositories>
@@ -76,6 +77,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+            <scope>provided</scope>
+            <version>${hibernate-jpamodelgen.version}</version>
+        </dependency>
+
 
         <!-- lombok	-->
         <dependency>

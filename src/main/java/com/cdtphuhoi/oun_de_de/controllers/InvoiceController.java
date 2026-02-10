@@ -1,6 +1,8 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
+import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
+import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -8,10 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.LocalDateTime;
 
 @Slf4j
 @RestController
@@ -23,7 +28,32 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping
-    public ResponseEntity<Page<InvoiceResult>> listInvoices(Pageable pageable) {
-        return ResponseEntity.ok(invoiceService.findBy(pageable));
+    public ResponseEntity<Page<InvoiceResult>> listInvoices(
+        @RequestParam(
+            name = "customer_id",
+            required = false
+        ) String customerId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+        @RequestParam(
+            name = "type",
+            required = false
+        ) InvoiceType invoiceType,
+        @RequestParam(
+            name = "status",
+            required = false
+        ) InvoiceStatus status,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            invoiceService.findBy(
+                customerId,
+                from,
+                to,
+                invoiceType,
+                status,
+                pageable
+            )
+        );
     }
 }
