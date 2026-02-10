@@ -23,6 +23,8 @@ public class CustomerDetailsResult {
 
     private Boolean status;
 
+    private Integer paymentTerm;
+
     // TODO: CodeList enhancement
     private String defaultPrice;
 

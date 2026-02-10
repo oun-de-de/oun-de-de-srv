@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+import jakarta.validation.constraints.Min;
 
 @Data
 @Builder
@@ -16,6 +17,8 @@ public class CreateCustomerData {
     private String name;
 
     private Boolean status;
+
+    private Integer paymentTerm;
 
     /*
      * REFERER

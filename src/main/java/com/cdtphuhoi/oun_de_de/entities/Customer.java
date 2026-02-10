@@ -50,6 +50,8 @@ public class Customer extends OrgManaged {
     @Column(nullable = false)
     private Boolean status;
 
+    private Integer paymentTerm;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer referredBy;
 
