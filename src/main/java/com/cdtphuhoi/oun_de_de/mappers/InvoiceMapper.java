@@ -18,7 +18,6 @@ import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Mapper(
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
@@ -50,7 +49,7 @@ public interface InvoiceMapper {
 
     InvoiceExportLineResult toInvoiceExportLineResult(Invoice invoice, WeightRecord weightRecord);
 
-    default List<InvoiceExportLineResult> toInvoiceExportLineResult(Invoice invoice, List<WeightRecord> weightRecords) {
+    default List<InvoiceExportLineResult> toListInvoiceExportLineResultWithFlattenWeightRecords(Invoice invoice, List<WeightRecord> weightRecords) {
         if (weightRecords.isEmpty()) {
             return List.of();
         }
@@ -65,8 +64,7 @@ public interface InvoiceMapper {
     }
 
     default List<InvoiceExportLineResult> toListInvoiceExportLineResult(
-        List<Invoice> invoices,
-        Map<String, List<WeightRecord>> weightRecordsByCouponId
+        List<Invoice> invoices
     ) {
         if (invoices.isEmpty()) {
             return List.of();
@@ -75,8 +73,7 @@ public interface InvoiceMapper {
         var result = new ArrayList<InvoiceExportLineResult>();
 
         for (var invoice : invoices) {
-            var weightRecords = weightRecordsByCouponId.get(invoice.getCoupon().getId());
-            result.addAll(toInvoiceExportLineResult(invoice, weightRecords));
+            result.addAll(toListInvoiceExportLineResultWithFlattenWeightRecords(invoice, invoice.getWeightRecords()));
         }
 
         return result;

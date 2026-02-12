@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
+import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +21,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -53,10 +54,6 @@ public class Invoice extends OrgManaged {
     @Column(nullable = false)
     private InvoiceStatus status;
 
-    @OneToOne(
-        cascade = CascadeType.PERSIST,
-        fetch = FetchType.LAZY,
-        optional = false
-    )
-    private Coupon coupon;
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "invoice")
+    private List<WeightRecord> weightRecords;
 }

@@ -1,0 +1,13 @@
+ALTER TABLE invoice
+DROP
+FOREIGN KEY FK_INVOICE_ON_COUPON;
+
+ALTER TABLE weight_record
+    ADD invoice_id VARCHAR(255) NULL;
+
+ALTER TABLE weight_record
+    ADD CONSTRAINT FK_WEIGHTRECORD_ON_INVOICE FOREIGN KEY (invoice_id) REFERENCES invoice (id);
+
+ALTER TABLE invoice
+DROP
+COLUMN coupon_id;
