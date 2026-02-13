@@ -19,8 +19,6 @@ public class CustomerResult {
 
     private Boolean status;
 
-    private Integer paymentTerm;
-
     // TODO: CodeList enhancement
     private String defaultPrice;
 

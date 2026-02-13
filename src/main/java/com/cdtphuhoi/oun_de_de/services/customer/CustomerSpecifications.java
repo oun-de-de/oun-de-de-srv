@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.services.customer;
 
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTerm_;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 import java.util.Optional;
@@ -26,8 +27,8 @@ public class CustomerSpecifications {
             Optional.ofNullable(paymentTermOpt)
                 .map(
                     paymentTerm -> cb.equal(
-                        root.get(Customer_.PAYMENT_TERM),
-                        paymentTermOpt
+                        root.get(Customer_.PAYMENT_TERM).get(PaymentTerm_.DURATION),
+                        paymentTerm
                     )
                 )
                 .orElse(null);

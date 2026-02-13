@@ -9,8 +9,6 @@ public class UpdateCustomerData {
 
     private Boolean status;
 
-    private Integer paymentTerm;
-
     /*
      * REFERER
      */

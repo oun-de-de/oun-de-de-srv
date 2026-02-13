@@ -5,7 +5,6 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_STRING_FIELD_LENG
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_URL_FIELD_LENGTH;
 import lombok.Data;
 import java.util.UUID;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 @Data
@@ -15,9 +14,6 @@ public class UpdateCustomerRequest {
     private String name;
 
     private Boolean status;
-
-    @Min(0)
-    private Integer paymentTerm;
 
     /*
      * REFERER

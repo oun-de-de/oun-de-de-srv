@@ -50,8 +50,6 @@ public class Customer extends OrgManaged {
     @Column(nullable = false)
     private Boolean status;
 
-    private Integer paymentTerm;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer referredBy;
 
@@ -60,6 +58,12 @@ public class Customer extends OrgManaged {
 
     // TODO: CodeList enhancement
     private String defaultPrice;
+
+    /*
+     * PAYMENT TERM
+     */
+    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = true)
+    private PaymentTerm paymentTerm;
 
     /*
      * WAREHOUSE

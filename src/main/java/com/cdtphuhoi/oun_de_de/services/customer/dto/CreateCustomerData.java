@@ -17,8 +17,6 @@ public class CreateCustomerData {
 
     private Boolean status;
 
-    private Integer paymentTerm;
-
     /*
      * REFERER
      */
