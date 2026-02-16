@@ -3,10 +3,8 @@ package com.cdtphuhoi.oun_de_de.mappers;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpsertPaymentTermRequest;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
-import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
 import com.cdtphuhoi.oun_de_de.entities.Product;
 import com.cdtphuhoi.oun_de_de.entities.ProductSetting;
 import com.cdtphuhoi.oun_de_de.entities.ProductSettingId;
@@ -17,7 +15,6 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateProductSettingData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
-import com.cdtphuhoi.oun_de_de.services.customer.dto.UpsertPaymentTermData;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -26,13 +23,13 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import java.util.Optional;
-import jakarta.validation.constraints.NotNull;
 
 @Mapper(
     uses = {
         VehicleMapper.class,
         EmployeeMapper.class,
-        SettingMapper.class
+        SettingMapper.class,
+        PaymentMapper.class
     },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     builder = @Builder(disableBuilder = true)
@@ -55,7 +52,7 @@ public interface CustomerMapper {
         customer.setContact(createOrgManagedContact(createCustomerData, customer));
         customer.setPaymentTerm(
             Optional.ofNullable(createCustomerData.getPaymentTerm())
-                .map(upsertPaymentTerm -> createOrgManagedPaymentTerm(upsertPaymentTerm, customer))
+                .map(upsertPaymentTerm -> MapperHelpers.getPaymentMapper().createOrgManagedPaymentTerm(upsertPaymentTerm, customer))
                 .orElse(null)
         );
         customer.setVehicles(
@@ -67,13 +64,6 @@ public interface CustomerMapper {
         var contact = toContact(data);
         contact.setOrgId(customer.getOrgId());
         return contact;
-    }
-
-    default PaymentTerm createOrgManagedPaymentTerm(UpsertPaymentTermData data, Customer customer) {
-        var paymentTerm = toPaymentTerm(data);
-        paymentTerm.setCustomer(customer);
-        paymentTerm.setOrgId(customer.getOrgId());
-        return paymentTerm;
     }
 
     @Mapping(target = "paymentTerm", ignore = true)
@@ -91,30 +81,17 @@ public interface CustomerMapper {
         if (updateCustomerData != null) {
             customer.setContact(
                 Optional.ofNullable(customer.getContact())
-                    .orElse(new Contact())
-            );
-            updateContact(customer.getContact(), updateCustomerData);
-        }
-
-        if (updateCustomerData != null && updateCustomerData.getPaymentTerm() != null) {
-            customer.setPaymentTerm(
-                Optional.ofNullable(customer.getPaymentTerm())
                     .orElse(
-                        PaymentTerm.builder()
-                            .customer(customer)
+                        Contact.builder()
                             .orgId(customer.getOrgId())
                             .build()
                     )
             );
-            updatePaymentTerm(customer.getPaymentTerm(), updateCustomerData.getPaymentTerm());
+            updateContact(customer.getContact(), updateCustomerData);
         }
     }
 
-    void updatePaymentTerm(@MappingTarget PaymentTerm paymentTerm, UpsertPaymentTermData data);
-
     void updateContact(@MappingTarget Contact contact, UpdateCustomerData updateCustomerData);
-
-    PaymentTerm toPaymentTerm(UpsertPaymentTermData request);
 
     Contact toContact(CreateCustomerData request);
 
@@ -157,6 +134,4 @@ public interface CustomerMapper {
                 .build()
         );
     }
-
-    UpsertPaymentTermData toUpsertPaymentTermData(UpsertPaymentTermRequest paymentTerm);
 }

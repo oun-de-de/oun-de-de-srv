@@ -1,8 +1,13 @@
 package com.cdtphuhoi.oun_de_de.services.customer;
 
+import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
+import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductSettingRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
@@ -14,6 +19,8 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.ProductSettingResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.UpsertPaymentTermData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +47,10 @@ public class CustomerService implements OrgManagementService {
     private final ProductSettingRepository productSettingRepository;
 
     private final WarehouseRepository warehouseRepository;
+
+    private final PaymentTermService paymentTermService;
+
+    private final PaymentTermCycleRepository paymentTermCycleRepository;
 
     public CustomerResult create(CreateCustomerData createCustomerData) {
         var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
@@ -66,6 +78,11 @@ public class CustomerService implements OrgManagementService {
             )
             .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
+        if (customer.getPaymentTerm() != null) {
+            customer.getPaymentTerm().setStartDate(
+                startOfDayInCambodia(customer.getPaymentTerm().getStartDate())
+            );
+        }
         customer.setReferredBy(referer);
         customer.setWarehouse(warehouse);
         log.info("Creating customer {}", customer.getName());
@@ -135,6 +152,8 @@ public class CustomerService implements OrgManagementService {
             customer.setWarehouse(warehouse);
         }
         MapperHelpers.getCustomerMapper().updateCustomer(customer, updateCustomerData);
+        updatePaymentTermInMemory(customer, updateCustomerData.getPaymentTerm());
+
         var updatedCustomer = customerRepository.save(customer);
         return MapperHelpers.getCustomerMapper().toCustomerResult(updatedCustomer);
     }
@@ -178,5 +197,46 @@ public class CustomerService implements OrgManagementService {
                 .quantity(proSet.getQuantity())
                 .build())
             .toList();
+    }
+
+    public void updatePaymentTermInMemory(Customer customer, UpsertPaymentTermData upsertPaymentTermData) {
+        if (upsertPaymentTermData == null) {
+            return;
+        }
+        customer.setPaymentTerm(
+            Optional.ofNullable(customer.getPaymentTerm())
+                .orElse(
+                    MapperHelpers.getPaymentMapper().createOrgManagedPaymentTerm(
+                        upsertPaymentTermData,
+                        customer
+                    )
+                )
+        );
+        MapperHelpers.getPaymentMapper().updatePaymentTerm(customer.getPaymentTerm(), upsertPaymentTermData);
+        var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
+        customer.getPaymentTerm().setStartDate(newStartDay);
+
+        updatePaymentTermCycle(customer.getId(), upsertPaymentTermData);
+    }
+
+    private void updatePaymentTermCycle(
+        String customerId,
+        UpsertPaymentTermData upsertPaymentTermData
+    ) {
+        var activePaymentTermCycle = paymentTermService.getActiveCurrentCycle(customerId);
+        if (activePaymentTermCycle == null) {
+            return;
+        }
+
+        var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
+        if (newStartDay.isAfter(activePaymentTermCycle.getStartDate())) {
+            throw new BadRequestException("Start date of new term must be before or equal current start date cycle");
+        }
+
+        activePaymentTermCycle.setStartDate(newStartDay);
+        activePaymentTermCycle.setEndDate(
+            endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration()))
+        );
+        paymentTermCycleRepository.save(activePaymentTermCycle);
     }
 }

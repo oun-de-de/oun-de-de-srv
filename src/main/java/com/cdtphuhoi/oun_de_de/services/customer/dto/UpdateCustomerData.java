@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.customer.dto;
 
+import com.cdtphuhoi.oun_de_de.services.payment.dto.UpsertPaymentTermData;
 import lombok.Data;
 
 @Data

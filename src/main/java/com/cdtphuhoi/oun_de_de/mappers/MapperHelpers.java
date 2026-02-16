@@ -33,4 +33,8 @@ public class MapperHelpers {
     public static InvoiceMapper getInvoiceMapper() {
         return InvoiceMapper.INSTANCE;
     }
+
+    public static PaymentMapper getPaymentMapper() {
+        return PaymentMapper.INSTANCE;
+    }
 }

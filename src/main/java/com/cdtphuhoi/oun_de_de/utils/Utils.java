@@ -10,6 +10,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @UtilityClass
 public class Utils {
+
+    private static final ZoneId PHNOMPENH_ZONE_ID = ZoneId.of("Asia/Phnom_Penh");
+
     public static String generateShortString(int length) {
         if (length > 36) {
             throw new IllegalArgumentException("Should be shorter than uuid length");
@@ -41,6 +44,21 @@ public class Utils {
     }
 
     public static LocalDateTime cambodiaNow() {
-        return  LocalDateTime.now(ZoneId.of("Asia/Phnom_Penh"));
+        return  LocalDateTime.now(PHNOMPENH_ZONE_ID);
+    }
+
+    public static LocalDateTime startOfDayInCambodia(LocalDateTime localDateTime) {
+        return localDateTime
+            .atZone(PHNOMPENH_ZONE_ID)
+            .toLocalDate()
+            .atStartOfDay(PHNOMPENH_ZONE_ID)
+            .toLocalDateTime();
+    }
+
+    public static LocalDateTime endOfDayInCambodia(LocalDateTime localDateTime) {
+        return localDateTime
+            .atZone(PHNOMPENH_ZONE_ID)
+            .toLocalDate()
+            .atTime(23, 59, 59);
     }
 }
