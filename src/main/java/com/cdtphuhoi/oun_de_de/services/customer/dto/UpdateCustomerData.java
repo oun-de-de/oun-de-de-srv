@@ -10,6 +10,11 @@ public class UpdateCustomerData {
     private Boolean status;
 
     /*
+     * PAYMENT TERM
+     */
+    private UpsertPaymentTermData paymentTerm;
+
+    /*
      * REFERER
      */
     private String referredById;

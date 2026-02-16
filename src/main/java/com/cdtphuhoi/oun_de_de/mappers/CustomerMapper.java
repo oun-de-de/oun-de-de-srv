@@ -26,6 +26,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import java.util.Optional;
+import jakarta.validation.constraints.NotNull;
 
 @Mapper(
     uses = {
@@ -75,6 +76,7 @@ public interface CustomerMapper {
         return paymentTerm;
     }
 
+    @Mapping(target = "paymentTerm", ignore = true)
     void updateCustomerInternal(
         @MappingTarget Customer customer,
         UpdateCustomerData updateCustomerData
@@ -86,12 +88,29 @@ public interface CustomerMapper {
     ) {
         updateCustomerInternal(customer, updateCustomerData);
 
-        if (customer.getContact() == null) {
-            return;
+        if (updateCustomerData != null) {
+            customer.setContact(
+                Optional.ofNullable(customer.getContact())
+                    .orElse(new Contact())
+            );
+            updateContact(customer.getContact(), updateCustomerData);
         }
 
-        updateContact(customer.getContact(), updateCustomerData);
+        if (updateCustomerData != null && updateCustomerData.getPaymentTerm() != null) {
+            customer.setPaymentTerm(
+                Optional.ofNullable(customer.getPaymentTerm())
+                    .orElse(
+                        PaymentTerm.builder()
+                            .customer(customer)
+                            .orgId(customer.getOrgId())
+                            .build()
+                    )
+            );
+            updatePaymentTerm(customer.getPaymentTerm(), updateCustomerData.getPaymentTerm());
+        }
     }
+
+    void updatePaymentTerm(@MappingTarget PaymentTerm paymentTerm, UpsertPaymentTermData data);
 
     void updateContact(@MappingTarget Contact contact, UpdateCustomerData updateCustomerData);
 
