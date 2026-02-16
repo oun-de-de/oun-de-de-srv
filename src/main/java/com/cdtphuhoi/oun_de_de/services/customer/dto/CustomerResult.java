@@ -29,4 +29,6 @@ public class CustomerResult {
     private String shopBannerUrl;
 
     private String referredBy;
+
+    private PaymentTermResult paymentTerm;
 }
