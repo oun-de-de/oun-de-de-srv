@@ -69,7 +69,11 @@ public class CouponService implements OrgManagementService {
 
     private void createInvoice(Customer customer, List<WeightRecord> weightRecords) {
         var productWeightRecords = weightRecords.stream()
-            .filter(weightRecord -> weightRecord.getProductName() != null)
+            .filter(
+                weightRecord -> weightRecord.getProductName() != null &&
+                    weightRecord.getPricePerProduct() != null &&
+                    weightRecord.getQuantity() != null
+            )
             .toList();
         var maxCurrentRefNo = Optional.ofNullable(invoiceRepository.findMaxRefNo(customer.getOrgId()))
             .orElse(0L);

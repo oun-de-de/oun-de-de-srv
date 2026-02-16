@@ -22,7 +22,7 @@ class CustomerMapperTest {
 
     @Test
     void testToCustomer() {
-        var data = CreateCustomerData.builder().build();
+        var data = new CreateCustomerData();
         var employee = new User();
         employee.setOrgId("123");
         var customer = mapper.toCustomer(data, employee);
@@ -33,7 +33,7 @@ class CustomerMapperTest {
 
     @Test
     void testAfterMappingSetsContactAndVehicles() {
-        var data = CreateCustomerData.builder().build();
+        var data = new CreateCustomerData();
         var employee = new User();
         employee.setOrgId("456");
         var customer = mapper.toCustomer(data, employee);
@@ -43,7 +43,7 @@ class CustomerMapperTest {
 
     @Test
     void testToContact() {
-        var data = CreateCustomerData.builder().build();
+        var data = new CreateCustomerData();
         var employee = new User();
         employee.setOrgId("789");
         var contact = mapper.toContact(data, employee);

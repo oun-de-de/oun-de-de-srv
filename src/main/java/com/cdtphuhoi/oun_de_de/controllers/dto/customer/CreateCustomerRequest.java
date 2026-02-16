@@ -29,6 +29,12 @@ public class CreateCustomerRequest {
     private Boolean status;
 
     /*
+     * PAYMENT TERM
+     */
+    @Valid
+    private UpsertPaymentTermRequest paymentTerm;
+
+    /*
      * REFERER
      */
     private UUID referredById;

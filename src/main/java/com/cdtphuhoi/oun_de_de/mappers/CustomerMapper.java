@@ -3,8 +3,10 @@ package com.cdtphuhoi.oun_de_de.mappers;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpsertPaymentTermRequest;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
 import com.cdtphuhoi.oun_de_de.entities.Product;
 import com.cdtphuhoi.oun_de_de.entities.ProductSetting;
 import com.cdtphuhoi.oun_de_de.entities.ProductSettingId;
@@ -15,6 +17,7 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateProductSettingData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
+import com.cdtphuhoi.oun_de_de.services.customer.dto.UpsertPaymentTermData;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -46,6 +49,7 @@ public interface CustomerMapper {
     ) {
         customer.setEmployee(employeeUser);
         customer.setContact(toContact(request, employeeUser));
+        customer.setPaymentTerm(toPaymentTerm(request.getPaymentTerm(), customer, employeeUser));
         customer.setVehicles(
             MapperHelpers.getVehicleMapper().toListVehicles(request.getVehicles(), customer)
         );
@@ -71,6 +75,9 @@ public interface CustomerMapper {
 
     void updateContact(@MappingTarget Contact contact, UpdateCustomerData updateCustomerData);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "orgId", source = "employeeUser.orgId")
+    PaymentTerm toPaymentTerm(UpsertPaymentTermData request, Customer customer, User employeeUser);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employeeUser.orgId")
@@ -115,4 +122,6 @@ public interface CustomerMapper {
                 .build()
         );
     }
+
+    UpsertPaymentTermData toUpsertPaymentTermData(UpsertPaymentTermRequest paymentTerm);
 }
