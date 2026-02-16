@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -20,7 +21,8 @@ import java.util.List;
 @Mapper(
     imports = {
         Utils.class
-    }
+    },
+    builder = @Builder(disableBuilder = true)
 )
 public interface CouponMapper {
     CouponMapper INSTANCE = Mappers.getMapper(CouponMapper.class);

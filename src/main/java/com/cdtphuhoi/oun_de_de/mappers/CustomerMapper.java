@@ -19,11 +19,13 @@ import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerResult;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpdateCustomerData;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.UpsertPaymentTermData;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
+import java.util.Optional;
 
 @Mapper(
     uses = {
@@ -31,7 +33,8 @@ import org.mapstruct.factory.Mappers;
         EmployeeMapper.class,
         SettingMapper.class
     },
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+    builder = @Builder(disableBuilder = true)
 )
 public interface CustomerMapper {
 
@@ -44,15 +47,32 @@ public interface CustomerMapper {
     @AfterMapping
     default void afterMapping(
         @MappingTarget Customer customer,
-        CreateCustomerData request,
+        CreateCustomerData createCustomerData,
         User employeeUser
     ) {
         customer.setEmployee(employeeUser);
-        customer.setContact(toContact(request, employeeUser));
-        customer.setPaymentTerm(toPaymentTerm(request.getPaymentTerm(), customer, employeeUser));
-        customer.setVehicles(
-            MapperHelpers.getVehicleMapper().toListVehicles(request.getVehicles(), customer)
+        customer.setContact(createOrgManagedContact(createCustomerData, customer));
+        customer.setPaymentTerm(
+            Optional.ofNullable(createCustomerData.getPaymentTerm())
+                .map(upsertPaymentTerm -> createOrgManagedPaymentTerm(upsertPaymentTerm, customer))
+                .orElse(null)
         );
+        customer.setVehicles(
+            MapperHelpers.getVehicleMapper().toListVehicles(createCustomerData.getVehicles(), customer)
+        );
+    }
+
+    default Contact createOrgManagedContact(CreateCustomerData data, Customer customer) {
+        var contact = toContact(data);
+        contact.setOrgId(customer.getOrgId());
+        return contact;
+    }
+
+    default PaymentTerm createOrgManagedPaymentTerm(UpsertPaymentTermData data, Customer customer) {
+        var paymentTerm = toPaymentTerm(data);
+        paymentTerm.setCustomer(customer);
+        paymentTerm.setOrgId(customer.getOrgId());
+        return paymentTerm;
     }
 
     void updateCustomerInternal(
@@ -75,13 +95,9 @@ public interface CustomerMapper {
 
     void updateContact(@MappingTarget Contact contact, UpdateCustomerData updateCustomerData);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "orgId", source = "employeeUser.orgId")
-    PaymentTerm toPaymentTerm(UpsertPaymentTermData request, Customer customer, User employeeUser);
+    PaymentTerm toPaymentTerm(UpsertPaymentTermData request);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "orgId", source = "employeeUser.orgId")
-    Contact toContact(CreateCustomerData request, User employeeUser);
+    Contact toContact(CreateCustomerData request);
 
     CreateCustomerData toCreateCustomerData(CreateCustomerRequest request);
 

@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.UpdateInvoicesData;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -20,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+    builder = @Builder(disableBuilder = true)
 )
 public interface InvoiceMapper {
     InvoiceMapper INSTANCE = Mappers.getMapper(InvoiceMapper.class);

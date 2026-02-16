@@ -44,11 +44,8 @@ class CustomerMapperTest {
     @Test
     void testToContact() {
         var data = new CreateCustomerData();
-        var employee = new User();
-        employee.setOrgId("789");
-        var contact = mapper.toContact(data, employee);
+        var contact = mapper.toContact(data);
         assertNotNull(contact);
-        assertEquals(employee.getOrgId(), contact.getOrgId());
     }
 
     @Test

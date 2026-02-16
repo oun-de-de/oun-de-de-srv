@@ -47,7 +47,7 @@ class VehicleMapperTest {
 
     @Test
     void testToVehicle() {
-        var data = CreateVehicleData.builder().build();
+        var data = new CreateVehicleData();
         var customer = new Customer();
         customer.setOrgId("org123");
         var vehicle = mapper.toVehicle(data, customer);
@@ -58,7 +58,7 @@ class VehicleMapperTest {
 
     @Test
     void testAfterMappingSetsCustomer() {
-        var data = CreateVehicleData.builder().build();
+        var data = new CreateVehicleData();
         var customer = new Customer();
         var vehicle = mapper.toVehicle(data, customer);
         assertEquals(customer, vehicle.getCustomer());
@@ -66,7 +66,7 @@ class VehicleMapperTest {
 
     @Test
     void testToListVehicles() {
-        var data = CreateVehicleData.builder().build();
+        var data = new CreateVehicleData();
         var customer = new Customer();
         var vehicles = mapper.toListVehicles(List.of(data), customer);
         assertNotNull(vehicles);

@@ -7,6 +7,7 @@ import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -15,7 +16,9 @@ import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mapper
+@Mapper(
+    builder = @Builder(disableBuilder = true)
+)
 public interface VehicleMapper {
     VehicleMapper INSTANCE = Mappers.getMapper(VehicleMapper.class);
 

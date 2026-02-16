@@ -1,12 +1,12 @@
 package com.cdtphuhoi.oun_de_de.services.product.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class CreateProductData {
     private String name;
 

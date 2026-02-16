@@ -1,11 +1,11 @@
 package com.cdtphuhoi.oun_de_de.services.product.dto;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class DefaultProductSettingResult {
     private String id;
 

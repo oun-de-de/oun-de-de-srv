@@ -1,10 +1,10 @@
 package com.cdtphuhoi.oun_de_de.controllers.dto.employee;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class EmployeeResponse {
     private String id;
 

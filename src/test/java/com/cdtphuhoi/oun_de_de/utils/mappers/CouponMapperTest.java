@@ -42,7 +42,7 @@ class CouponMapperTest {
 
     @Test
     void testToCouponAndAfterMapping() {
-        var data = CreateCouponData.builder().build();
+        var data = new CreateCouponData();
         var employee = new User();
         employee.setOrgId("123L");
         var vehicle = new Vehicle();
@@ -55,7 +55,7 @@ class CouponMapperTest {
 
     @Test
     void testToListWeightRecords() {
-        var wrData = CreateWeightRecordData.builder().build();
+        var wrData = new CreateWeightRecordData();
         var employee = new User();
         employee.setOrgId("1L");
         var coupon = new Coupon();
@@ -66,7 +66,7 @@ class CouponMapperTest {
 
     @Test
     void testToWeightRecord() {
-        var wrData = CreateWeightRecordData.builder().build();
+        var wrData = new CreateWeightRecordData();
         var employee = new User();
         employee.setOrgId("2L");
         var coupon = new Coupon();

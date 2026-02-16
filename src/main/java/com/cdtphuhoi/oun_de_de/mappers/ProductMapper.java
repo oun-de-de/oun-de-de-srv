@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.product.dto.DefaultProductSettingResult;
 import com.cdtphuhoi.oun_de_de.services.product.dto.ProductResult;
 import com.cdtphuhoi.oun_de_de.services.product.dto.UpdateProductData;
 import org.mapstruct.AfterMapping;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -21,7 +22,8 @@ import java.util.List;
     uses = {
         SettingMapper.class
     },
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+    builder = @Builder(disableBuilder = true)
 )
 public interface ProductMapper {
     ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);

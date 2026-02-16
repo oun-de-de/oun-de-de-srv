@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
+import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ValueMapping;
@@ -17,7 +18,8 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(
-    uses = MapperHelpers.class
+    uses = MapperHelpers.class,
+    builder = @Builder(disableBuilder = true)
 )
 public interface SettingMapper {
     SettingMapper INSTANCE = Mappers.getMapper(SettingMapper.class);

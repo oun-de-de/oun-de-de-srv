@@ -1,11 +1,11 @@
 package com.cdtphuhoi.oun_de_de.services.vehicle.dto;
 
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class VehicleResult {
     private String id;
 
