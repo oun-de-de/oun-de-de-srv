@@ -234,7 +234,8 @@ public class CustomerService implements OrgManagementService {
 
         activePaymentTermCycle.setStartDate(newStartDay);
         activePaymentTermCycle.setEndDate(
-            endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration()))
+            // if start in 13th, duration 10, should end in 23:59:59 22nd
+            endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration() - 1))
         );
         paymentTermCycleRepository.save(activePaymentTermCycle);
     }
