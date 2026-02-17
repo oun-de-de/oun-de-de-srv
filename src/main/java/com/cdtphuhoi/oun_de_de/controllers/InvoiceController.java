@@ -9,6 +9,8 @@ import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
+import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +33,36 @@ import jakarta.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @SecurityRequirement(name = SWAGGER_SECURITY_SCHEME_NAME)
-@RequestMapping("/api/v1/invoices")
+@RequestMapping("/api/v1")
 public class InvoiceController {
 
     private final InvoiceService invoiceService;
 
-    @GetMapping
+    private final PaymentTermService paymentTermService;
+
+    @GetMapping("/cycles")
+    public ResponseEntity<Page<PaymentTermCycleResult>> listCycles(
+        @RequestParam(
+            name = "customer_id",
+            required = false
+        ) String customerId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+        @RequestParam(required = false) Integer duration,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            paymentTermService.findPaymentTermCyclesBy(
+                customerId,
+                from,
+                to,
+                duration,
+                pageable
+            )
+        );
+    }
+
+    @GetMapping("/invoices")
     public ResponseEntity<Page<InvoiceResult>> listInvoices(
         @RequestParam(
             name = "customer_id",
@@ -66,7 +92,7 @@ public class InvoiceController {
         );
     }
 
-    @PostMapping("/export")
+    @PostMapping("/invoices/export")
     public ResponseEntity<List<InvoiceExportLineResult>> listInvoiceDetails(
         @Valid @RequestBody ExportInvoicesRequest request
     ) {
@@ -76,7 +102,7 @@ public class InvoiceController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/update-batch")
+    @PutMapping("/invoices/update-batch")
     public ResponseEntity<String> updateInvoices(
         @Valid @RequestBody UpdateInvoicesRequest request
     ) {

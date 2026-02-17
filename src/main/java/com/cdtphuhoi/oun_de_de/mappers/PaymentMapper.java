@@ -3,10 +3,13 @@ package com.cdtphuhoi.oun_de_de.mappers;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpsertPaymentTermRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.PaymentTermResult;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.UpsertPaymentTermData;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
@@ -32,4 +35,8 @@ public interface PaymentMapper {
     UpsertPaymentTermData toUpsertPaymentTermData(UpsertPaymentTermRequest paymentTerm);
 
     PaymentTermResult toPaymentTermResult(PaymentTerm paymentTerm);
+
+    @Mapping(target = "customerId", source = "cycle.customer.id")
+    @Mapping(target = "customerName", source = "cycle.customer.name")
+    PaymentTermCycleResult toPaymentTermCycleResult(PaymentTermCycle cycle);
 }

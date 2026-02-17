@@ -32,7 +32,7 @@ import java.util.Optional;
 @Transactional
 public class CouponService implements OrgManagementService {
 
-    private final static int DEFAULT_PAYMENT_TERM_DURATION = 1;
+    private final static int DEFAULT_PAYMENT_TERM_DURATION = 0;
 
     private final CouponRepository couponRepository;
 

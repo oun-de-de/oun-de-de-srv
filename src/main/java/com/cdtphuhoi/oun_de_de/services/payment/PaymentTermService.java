@@ -8,14 +8,20 @@ import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -62,5 +68,27 @@ public class PaymentTermService implements OrgManagementService {
             .endDate(endOfDayInCambodia(paymentTerm.getStartDate().plusDays(paymentTerm.getDuration())))
             .build();
         return paymentTermCycleRepository.save(cycle);
+    }
+
+    public Page<PaymentTermCycleResult> findPaymentTermCyclesBy(
+        String customerId,
+        LocalDateTime from,
+        LocalDateTime to,
+        Integer duration,
+        Pageable pageable
+    ) {
+        var page = paymentTermCycleRepository.findAll(
+            Specification.allOf(
+                PaymentTermCycleSpecifications.hasCustomerId(customerId),
+                PaymentTermCycleSpecifications.hasStartDateBetween(from, to),
+                PaymentTermCycleSpecifications.hasDuration(duration),
+                (root, query, cb) -> {
+                    root.fetch(PaymentTermCycle_.CUSTOMER, JoinType.INNER);
+                    return null;
+                }
+            ),
+            pageable
+        );
+        return page.map(MapperHelpers.getPaymentMapper()::toPaymentTermCycleResult);
     }
 }
