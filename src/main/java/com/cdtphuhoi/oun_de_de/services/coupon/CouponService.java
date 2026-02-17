@@ -14,10 +14,10 @@ import com.cdtphuhoi.oun_de_de.repositories.CouponRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
-import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
+import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,8 @@ import java.util.Optional;
 @Transactional
 public class CouponService implements OrgManagementService {
 
+    private final static int DEFAULT_PAYMENT_TERM_DURATION = 1;
+
     private final CouponRepository couponRepository;
 
     private final UserRepository userRepository;
@@ -40,7 +42,7 @@ public class CouponService implements OrgManagementService {
 
     private final InvoiceRepository invoiceRepository;
 
-    private final WeightRecordRepository weightRecordRepository;
+    private final PaymentTermService paymentTermService;
 
     public List<CouponResult> findAll() {
         return MapperHelpers.getCouponMapper().toListCouponResult(couponRepository.findAll());
@@ -75,6 +77,10 @@ public class CouponService implements OrgManagementService {
                     weightRecord.getQuantity() != null
             )
             .toList();
+        var cycle = Optional.ofNullable(paymentTermService.getActiveCurrentCycle(customer.getId()))
+            .orElseGet(
+                () -> paymentTermService.createNewCycle(customer, DEFAULT_PAYMENT_TERM_DURATION)
+            );
         var maxCurrentRefNo = Optional.ofNullable(invoiceRepository.findMaxRefNo(customer.getOrgId()))
             .orElse(0L);
         var invoice = Invoice.builder()
@@ -88,8 +94,10 @@ public class CouponService implements OrgManagementService {
             .weightRecords(
                 productWeightRecords
             )
+            .cycle(cycle)
             .build();
         productWeightRecords.forEach(weightRecord -> weightRecord.setInvoice(invoice));
+
         log.info("Creating invoice");
         var invoiceDb = invoiceRepository.save(invoice);
         log.info("Created invoice, id = {}", invoiceDb.getId());

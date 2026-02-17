@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @UtilityClass
 public class Utils {
 
-    private static final ZoneId PHNOMPENH_ZONE_ID = ZoneId.of("Asia/Phnom_Penh");
+    public static final ZoneId PHNOMPENH_ZONE_ID = ZoneId.of("Asia/Phnom_Penh");
 
     public static String generateShortString(int length) {
         if (length > 36) {
