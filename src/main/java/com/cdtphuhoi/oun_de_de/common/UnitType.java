@@ -10,7 +10,7 @@ public enum UnitType implements ValueBasedEnum<String> {
     LENGTH("length"),
     WEIGHT("weight"),
     VOLUME("volume"),
-    TIME("time")
+    TIME("time"),
     ;
     private final String value;
 }

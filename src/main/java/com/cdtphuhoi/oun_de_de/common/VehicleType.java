@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum VehicleType implements ValueBasedEnum<String> {
     TRUCK("truck"),
     TUK_TUK("tuk_tuk"),
-    OTHERS("others")
+    OTHERS("others"),
     ;
 
     private final String value;

@@ -5,9 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum InvoiceType implements ValueBasedEnum<String> {
-    INVOICE("invoice"),
-    RECEIPT("receipt"),
+public enum StockTransactionReason implements ValueBasedEnum<String> {
+    PURCHASE("purchase"),
+    CONSUME("consume"),
+    BORROW("borrow"),
+    RETURN("return"),
     ;
 
     private final String value;

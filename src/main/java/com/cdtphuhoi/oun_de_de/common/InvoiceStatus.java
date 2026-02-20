@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum InvoiceStatus implements ValueBasedEnum<String> {
     OPEN("open"),
     CLOSED("closed"),
-    OVERDUE("overdue")
+    OVERDUE("overdue"),
     ;
 
     private final String value;
