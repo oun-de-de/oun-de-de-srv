@@ -4,9 +4,11 @@ import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import org.mapstruct.Builder;
@@ -16,6 +18,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @Mapper(
     uses = {
@@ -53,4 +56,6 @@ public interface InventoryMapper {
     StockTransactionResult toStockTransactionResult(StockTransaction transaction);
 
     List<StockTransactionResult> toListStockTransactionResult(List<StockTransaction> transactions);
+
+    CreateStockTransactionData toCreateStockTransactionData(CreateStockTransactionRequest request);
 }
