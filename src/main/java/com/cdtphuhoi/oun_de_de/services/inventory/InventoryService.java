@@ -230,4 +230,45 @@ public class InventoryService implements OrgManagementService {
         );
         return MapperHelpers.getInventoryMapper().toListEquipmentBorrowResult(equipmentBorrows);
     }
+
+    public StockTransactionResult returnBorrowing(String itemId, String borrowingId, User usr) {
+        var item = inventoryItemRepository.findOneById(itemId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Item [id=%s] not found", itemId)
+                )
+            );
+        if (!ItemType.EQUIPMENT.equals(item.getType())) {
+            throw new BadRequestException(
+                String.format("Item [id=%s] is not equipment", itemId)
+            );
+        }
+        var equipmentBorrow = equipmentBorrowRepository.findOneById(borrowingId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("EquipmentBorrow [id=%s] not found", borrowingId)
+                )
+            );
+        if (!equipmentBorrow.getItem().getId().equals(itemId)) {
+            throw new BadRequestException("Item with borrowing not match");
+        }
+        equipmentBorrow.setActualReturnDate(cambodiaNow());
+        equipmentBorrow.setStatus(BorrowStatus.RETURNED);
+
+        updateItemQuantity(StockTransactionType.IN, equipmentBorrow.getQuantity(), item);
+
+        var stockTransaction = StockTransaction.builder()
+            .orgId(item.getOrgId())
+            .item(item)
+            .equipmentBorrow(equipmentBorrow)
+            .quantity(equipmentBorrow.getQuantity())
+            .type(StockTransactionType.IN)
+            .reason(StockTransactionReason.RETURN)
+            .createdAt(cambodiaNow())
+            .createdBy(usr)
+            .build();
+
+        var stockTransactionDb = persistStockTransaction(stockTransaction);
+        return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
+    }
 }

@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,7 +66,7 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.findTransactionsByItem(itemId));
     }
 
-    @PutMapping("/{itemId}/update-stock")
+    @PostMapping("/{itemId}/update-stock")
     public ResponseEntity<StockTransactionResult> updateStockTransaction(
         @PathVariable String itemId,
         @Valid @RequestBody UpdateStockTransactionRequest request
@@ -104,5 +103,14 @@ public class InventoryController {
         @PathVariable String itemId
     ) {
         return ResponseEntity.ok(inventoryService.findEquipmentBorrowingsByItem(itemId));
+    }
+
+    @PostMapping("/{itemId}/borrowings/{borrowingId}/return")
+    public ResponseEntity<StockTransactionResult> returnBorrowing(
+        @PathVariable String itemId,
+        @PathVariable String borrowingId
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        return ResponseEntity.ok(inventoryService.returnBorrowing(itemId, borrowingId, usr));
     }
 }
