@@ -1,12 +1,15 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
+import com.cdtphuhoi.oun_de_de.common.BorrowStatus;
 import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateStockTransactionRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateEquipmentBorrowData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
@@ -18,7 +21,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
-import jakarta.validation.Valid;
 
 @Mapper(
     uses = {
@@ -50,6 +52,10 @@ public interface InventoryMapper {
     @ValueMapping(target = "OUT", source = "out")
     StockTransactionType stringToStockTransactionType(String source);
 
+    @ValueMapping(target = "BORROWED", source = "borrowed")
+    @ValueMapping(target = "RETURNED", source = "returned")
+    BorrowStatus stringToBorrowStatus(String source);
+
     @Mapping(target = "itemId", source = "transaction.item.id")
     @Mapping(target = "equipmentBorrowId", source = "transaction.equipmentBorrow.id")
     @Mapping(target = "createdById", source = "transaction.createdBy.id")
@@ -57,5 +63,7 @@ public interface InventoryMapper {
 
     List<StockTransactionResult> toListStockTransactionResult(List<StockTransaction> transactions);
 
-    CreateStockTransactionData toCreateStockTransactionData(CreateStockTransactionRequest request);
+    CreateStockTransactionData toCreateStockTransactionData(UpdateStockTransactionRequest request);
+
+    CreateEquipmentBorrowData toCreateEquipmentBorrowData(CreateEquipmentBorrowRequest equipmentBorrowRequest);
 }

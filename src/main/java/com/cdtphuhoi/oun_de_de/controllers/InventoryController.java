@@ -1,8 +1,9 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
-import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateStockTransactionRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.inventory.InventoryService;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -64,13 +66,10 @@ public class InventoryController {
         return ResponseEntity.ok(inventoryService.findTransactionsByItem(itemId));
     }
 
-    /*
-     * update item via transaction
-     */
-    @PostMapping("/{itemId}/transactions")
-    public ResponseEntity<StockTransactionResult> createStockTransaction(
+    @PutMapping("/{itemId}/update-stock")
+    public ResponseEntity<StockTransactionResult> updateStockTransaction(
         @PathVariable String itemId,
-        @Valid @RequestBody CreateStockTransactionRequest request
+        @Valid @RequestBody UpdateStockTransactionRequest request
     ) {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = inventoryService.updateStockTransaction(
@@ -83,7 +82,24 @@ public class InventoryController {
             .body(result);
     }
 
+    @PostMapping("/{itemId}/borrowings")
+    public ResponseEntity<StockTransactionResult> createBorrowing(
+        @PathVariable String itemId,
+        @Valid @RequestBody CreateEquipmentBorrowRequest request
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = inventoryService.createEquipmentBorrowing(
+            itemId,
+            MapperHelpers.getInventoryMapper().toCreateEquipmentBorrowData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
+
     /*
      * list borrowings
      */
+
 }

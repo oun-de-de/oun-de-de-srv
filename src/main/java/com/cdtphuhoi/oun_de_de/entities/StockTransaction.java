@@ -53,7 +53,7 @@ public class StockTransaction extends OrgManaged {
      * equipment borrow referenceId
      * One borrow = 1 EquipmentBorrow + 2 StockTransactions (out + in)
      */
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.PERSIST)
     private EquipmentBorrow equipmentBorrow;
 
     @Column(nullable = false)

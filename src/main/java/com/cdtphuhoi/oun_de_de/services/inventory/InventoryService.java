@@ -3,8 +3,11 @@ package com.cdtphuhoi.oun_de_de.services.inventory;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
+import com.cdtphuhoi.oun_de_de.common.BorrowStatus;
+import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
+import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
@@ -12,10 +15,12 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InventoryItemRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateEquipmentBorrowData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
@@ -39,6 +44,8 @@ public class InventoryService implements OrgManagementService {
     private final InventoryItemRepository inventoryItemRepository;
 
     private final StockTransactionRepository stockTransactionRepository;
+
+    private final CustomerRepository customerRepository;
 
     private final UnitRepository unitRepository;
 
@@ -114,52 +121,18 @@ public class InventoryService implements OrgManagementService {
 
     public StockTransactionResult updateStockTransaction(String itemId, CreateStockTransactionData createStockTransactionData, User usr) {
         var transactionType = switch (createStockTransactionData.getReason()) {
-            case PURCHASE, RETURN -> StockTransactionType.IN;
-            case CONSUME, BORROW -> StockTransactionType.OUT;
+            case PURCHASE -> StockTransactionType.IN;
+            case CONSUME -> StockTransactionType.OUT;
+            default -> throw new IllegalArgumentException("Invalid argument");
         };
-        return switch (createStockTransactionData.getReason()) {
-            case PURCHASE, CONSUME -> {
-                log.info("Internal stock in out {}, reason {}", itemId, createStockTransactionData.getReason());
-                yield updateStockForInternalUsage(itemId, transactionType, createStockTransactionData, usr);
-            }
-            case BORROW, RETURN -> {
-                log.info("External stock in out {}, reason {}", itemId, createStockTransactionData.getReason());
-                yield updateStockForExternalUsage(itemId, transactionType, createStockTransactionData, usr);
-            }
-        };
-    }
-
-    private StockTransactionResult updateStockForExternalUsage(
-        String itemId,
-        StockTransactionType transactionType,
-        CreateStockTransactionData createStockTransactionData,
-        User usr
-    ) {
-        return null;
-    }
-
-    private StockTransactionResult updateStockForInternalUsage(
-        String itemId,
-        StockTransactionType transactionType,
-        CreateStockTransactionData createStockTransactionData,
-        User usr
-    ) {
+        log.info("Internal stock in out {}, reason {}", itemId, createStockTransactionData.getReason());
         var item = inventoryItemRepository.findOneById(itemId)
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Item [id=%s] not found", itemId)
                 )
             );
-        var quantityForUpdate = StockTransactionType.IN.equals(transactionType) ?
-            createStockTransactionData.getQuantity() :
-            createStockTransactionData.getQuantity().multiply(BigDecimal.valueOf(-1));
-        var newQuantity = item.getQuantityOnHand().add(quantityForUpdate);
-        if (newQuantity.compareTo(BigDecimal.ZERO) < 0) {
-            throw new BadRequestException(
-                String.format("Item [id=%s] out of stock", itemId)
-            );
-        }
-        item.setQuantityOnHand(newQuantity);
+        updateItemQuantity(transactionType, createStockTransactionData.getQuantity(), item);
 
         var stockTransaction = StockTransaction.builder()
             .orgId(item.getOrgId())
@@ -176,10 +149,72 @@ public class InventoryService implements OrgManagementService {
         return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
     }
 
+    private void updateItemQuantity(StockTransactionType transactionType, BigDecimal requestQuantity, InventoryItem item) {
+        var quantityForUpdate = StockTransactionType.IN.equals(transactionType) ?
+            requestQuantity : requestQuantity.multiply(BigDecimal.valueOf(-1));
+        var newQuantity = item.getQuantityOnHand().add(quantityForUpdate);
+        if (newQuantity.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequestException(
+                String.format("Item [id=%s] is out of stock", item.getId())
+            );
+        }
+        item.setQuantityOnHand(newQuantity);
+    }
+
     private StockTransaction persistStockTransaction(StockTransaction stockTransaction) {
         log.info("Creating stock transaction");
         var stockTransactionDb = stockTransactionRepository.save(stockTransaction);
         log.info("Created stock transaction, id = {}", stockTransactionDb.getId());
         return stockTransactionDb;
+    }
+
+    public StockTransactionResult createEquipmentBorrowing(
+        String itemId,
+        CreateEquipmentBorrowData createEquipmentBorrowData,
+        User usr
+    ) {
+        var customer = customerRepository.findOneById(createEquipmentBorrowData.getCustomerId())
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Customer [id=%s] not found", createEquipmentBorrowData.getCustomerId())
+                )
+            );
+        var item = inventoryItemRepository.findOneById(itemId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Item [id=%s] not found", itemId)
+                )
+            );
+        if (!ItemType.EQUIPMENT.equals(item.getType())) {
+            throw new BadRequestException(
+                String.format("Item [id=%s] is not equipment", itemId)
+            );
+        }
+        updateItemQuantity(StockTransactionType.OUT, createEquipmentBorrowData.getQuantity(), item);
+
+        var equipmentBorrow = EquipmentBorrow.builder()
+            .orgId(item.getOrgId())
+            .item(item)
+            .customer(customer)
+            .quantity(createEquipmentBorrowData.getQuantity())
+            .borrowDate(cambodiaNow())
+            .expectedReturnDate(createEquipmentBorrowData.getExpectedReturnDate())
+            .status(BorrowStatus.BORROWED)
+            .build();
+
+        var stockTransaction = StockTransaction.builder()
+            .orgId(item.getOrgId())
+            .item(item)
+            .equipmentBorrow(equipmentBorrow)
+            .quantity(equipmentBorrow.getQuantity())
+            .type(StockTransactionType.OUT)
+            .reason(StockTransactionReason.BORROW)
+            .memo(createEquipmentBorrowData.getMemo())
+            .createdAt(cambodiaNow())
+            .createdBy(usr)
+            .build();
+
+        var stockTransactionDb = persistStockTransaction(stockTransaction);
+        return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
     }
 }

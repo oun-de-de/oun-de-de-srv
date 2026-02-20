@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Data
-public class CreateStockTransactionRequest {
+public class UpdateStockTransactionRequest {
 
     @NotNull
     @DecimalMin(value = "0.00", inclusive = false)
@@ -17,6 +17,10 @@ public class CreateStockTransactionRequest {
 
     @NotBlank
     @ValueOfEnum(enumClass = StockTransactionReason.class)
+    /*
+     * PURCHASE("purchase"),
+     * CONSUME("consume")
+     */
     private String reason;
 
     private String memo;
