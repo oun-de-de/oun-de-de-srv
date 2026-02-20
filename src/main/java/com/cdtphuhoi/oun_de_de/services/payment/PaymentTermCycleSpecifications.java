@@ -7,7 +7,6 @@ import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import jakarta.persistence.criteria.Expression;
 
 @UtilityClass
 public class PaymentTermCycleSpecifications {
