@@ -9,6 +9,9 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(
+    uses = {
+        SettingMapper.class
+    },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     builder = @Builder(disableBuilder = true)
 )
