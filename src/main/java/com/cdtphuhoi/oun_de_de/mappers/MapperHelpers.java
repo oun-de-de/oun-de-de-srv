@@ -37,4 +37,8 @@ public class MapperHelpers {
     public static PaymentMapper getPaymentMapper() {
         return PaymentMapper.INSTANCE;
     }
+
+    public static InventoryMapper getInventoryMapper() {
+        return InventoryMapper.INSTANCE;
+    }
 }
