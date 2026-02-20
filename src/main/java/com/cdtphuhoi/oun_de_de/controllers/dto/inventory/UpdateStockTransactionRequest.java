@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.controllers.dto.inventory;
 
-import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.validators.ValueOfEnum;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -16,11 +15,7 @@ public class UpdateStockTransactionRequest {
     private BigDecimal quantity;
 
     @NotBlank
-    @ValueOfEnum(enumClass = StockTransactionReason.class)
-    /*
-     * PURCHASE("purchase"),
-     * CONSUME("consume")
-     */
+    @ValueOfEnum(enumClass = UpdateStockTransactionReasonAllowedEnum.class)
     private String reason;
 
     private String memo;

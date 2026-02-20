@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
+import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow_;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
@@ -16,6 +17,7 @@ import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
+import com.cdtphuhoi.oun_de_de.repositories.EquipmentBorrowRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InventoryItemRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
@@ -23,6 +25,7 @@ import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateEquipmentBorrowData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +47,8 @@ public class InventoryService implements OrgManagementService {
     private final InventoryItemRepository inventoryItemRepository;
 
     private final StockTransactionRepository stockTransactionRepository;
+
+    private final EquipmentBorrowRepository equipmentBorrowRepository;
 
     private final CustomerRepository customerRepository;
 
@@ -216,5 +221,13 @@ public class InventoryService implements OrgManagementService {
 
         var stockTransactionDb = persistStockTransaction(stockTransaction);
         return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
+    }
+
+    public List<EquipmentBorrowResult> findEquipmentBorrowingsByItem(String itemId) {
+        var equipmentBorrows = equipmentBorrowRepository.findByItemId(
+            itemId,
+            Sort.by(Sort.Direction.DESC, EquipmentBorrow_.BORROW_DATE)
+        );
+        return MapperHelpers.getInventoryMapper().toListEquipmentBorrowResult(equipmentBorrows);
     }
 }

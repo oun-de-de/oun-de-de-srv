@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.inventory.InventoryService;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
@@ -98,8 +99,10 @@ public class InventoryController {
             .body(result);
     }
 
-    /*
-     * list borrowings
-     */
-
+    @GetMapping("/{itemId}/borrowings")
+    public ResponseEntity<List<EquipmentBorrowResult>> createBorrowing(
+        @PathVariable String itemId
+    ) {
+        return ResponseEntity.ok(inventoryService.findEquipmentBorrowingsByItem(itemId));
+    }
 }
