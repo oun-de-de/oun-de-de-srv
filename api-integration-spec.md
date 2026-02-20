@@ -159,8 +159,6 @@ Retrieve available vehicles for a customer:
 
 ---
 
----
-
 ## Employee Selection
 
 Retrieve weighing staff:
