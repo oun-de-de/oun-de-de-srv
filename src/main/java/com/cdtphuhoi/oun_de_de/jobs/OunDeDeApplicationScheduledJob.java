@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ScheduledFixedRateExample {
+public class OunDeDeApplicationScheduledJob {
 
     private final LoanInstallmentRepository loanInstallmentRepository;
 
