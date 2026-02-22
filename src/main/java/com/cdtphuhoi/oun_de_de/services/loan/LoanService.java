@@ -4,10 +4,10 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
-import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow_;
 import com.cdtphuhoi.oun_de_de.entities.Loan;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment_;
+import com.cdtphuhoi.oun_de_de.entities.Loan_;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.BaseRepository;
@@ -22,6 +22,7 @@ import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -147,5 +148,30 @@ public class LoanService implements OrgManagementService {
             Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
         );
         return MapperHelpers.getLoanMapper().toListLoanInstallmentResult(installments);
+    }
+
+    public LoanInstallmentResult payInstallment(String loanId, String installmentId) {
+        var installments = loanInstallmentRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.ID), installmentId),
+                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.LOAN).get(Loan_.ID), loanId),
+                (root, query, cb) -> root.get(LoanInstallment_.STATUS).in(List.of(LoanInstallmentStatus.UNPAID, LoanInstallmentStatus.OVERDUE))
+            ),
+            PageRequest.of(
+                0,
+                1,
+                Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
+            )
+        );
+        if (installments.isEmpty()) {
+            throw new ResourceNotFoundException(
+                String.format("Loan Installment [id=%s], Loan [id=%s] not found", installmentId, loanId)
+            );
+        }
+        var installment = installments.stream().findFirst().get();
+        installment.setStatus(LoanInstallmentStatus.PAID);
+        installment.setPaidAt(cambodiaNow());
+        var updated = loanInstallmentRepository.save(installment);
+        return MapperHelpers.getLoanMapper().toLoanInstallmentResult(updated);
     }
 }

@@ -4,7 +4,6 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
-import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.loan.LoanService;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanInstallmentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
@@ -83,4 +82,13 @@ public class LoanController {
         return ResponseEntity.ok(loanService.findLoanInstallmentsByLoanId(loanId));
     }
 
+    @PostMapping("/{loanId}/installments/{installmentId}/pay")
+    public ResponseEntity<LoanInstallmentResult> payInstallment(
+        @PathVariable String loanId,
+        @PathVariable String installmentId
+    ) {
+        return ResponseEntity.ok(
+            loanService.payInstallment(loanId, installmentId)
+        );
+    }
 }
