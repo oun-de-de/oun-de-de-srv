@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum BorrowerType  implements ValueBasedEnum<String>{
+public enum BorrowerType implements ValueBasedEnum<String> {
     EMPLOYEE("employee"),
     CUSTOMER("customer"),
     ;

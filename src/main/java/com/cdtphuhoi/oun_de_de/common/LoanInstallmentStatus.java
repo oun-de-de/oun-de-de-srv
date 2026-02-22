@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum LoanInstallmentStatus implements ValueBasedEnum<String>{
+public enum LoanInstallmentStatus implements ValueBasedEnum<String> {
     UNPAID("unpaid"),
     OVERDUE("overdue"),
     PAID("paid"),
