@@ -41,4 +41,8 @@ public class MapperHelpers {
     public static InventoryMapper getInventoryMapper() {
         return InventoryMapper.INSTANCE;
     }
+
+    public static LoanMapper getLoanMapper() {
+        return LoanMapper.INSTANCE;
+    }
 }
