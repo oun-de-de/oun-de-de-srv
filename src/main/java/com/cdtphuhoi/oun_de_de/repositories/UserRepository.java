@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, String> {
+public interface UserRepository extends JpaRepository<User, String>, BaseRepository<User> {
     /**
      * direct fetching.
      * Filters apply to entity queries, but not to direct fetching.
@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, String> {
      */
     Optional<User> findById(String id);
 
-    Optional<User> findOneById(String id);
+//    Optional<User> findOneById(String id);
 
     Optional<User> findByUsername(String username);
 

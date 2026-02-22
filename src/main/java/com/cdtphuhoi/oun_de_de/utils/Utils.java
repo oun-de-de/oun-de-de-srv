@@ -44,8 +44,15 @@ public class Utils {
     }
 
     public static LocalDateTime cambodiaNow() {
-        return  LocalDateTime.now(PHNOMPENH_ZONE_ID);
+        return LocalDateTime.now(PHNOMPENH_ZONE_ID);
     }
+
+    public static LocalDateTime toCambodiaLocalDateTime(LocalDateTime localDateTime) {
+        return localDateTime
+            .atZone(PHNOMPENH_ZONE_ID)
+            .toLocalDateTime();
+    }
+
 
     public static LocalDateTime startOfDayInCambodia(LocalDateTime localDateTime) {
         return localDateTime
