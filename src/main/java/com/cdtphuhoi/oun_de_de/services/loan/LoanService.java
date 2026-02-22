@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.loan;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
@@ -44,8 +45,6 @@ import jakarta.annotation.PostConstruct;
 public class LoanService implements OrgManagementService {
 
     private static final int DAY_IN_MONTH = 30;
-
-    public static final int MONEY_SCALE = 5;
 
     private final LoanRepository loanRepository;
 
@@ -123,7 +122,7 @@ public class LoanService implements OrgManagementService {
                     .amount(
                         loan.getPrincipalAmount().divide(
                             BigDecimal.valueOf(termMonths),
-                            MONEY_SCALE,
+                            DEFAULT_DECIMAL_SCALE,
                             RoundingMode.HALF_EVEN
                         )
                     )

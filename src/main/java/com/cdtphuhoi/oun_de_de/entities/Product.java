@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
@@ -40,10 +42,13 @@ public class Product extends OrgManaged {
 
     private String refNo;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantity;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal cost;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal price;
 
     @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)

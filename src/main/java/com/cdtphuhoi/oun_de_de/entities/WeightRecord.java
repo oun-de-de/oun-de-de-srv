@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
@@ -10,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -36,12 +39,16 @@ public class WeightRecord extends OrgManaged {
 
     private String unit;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal pricePerProduct;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantityPerProduct;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantity;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal weight;
 
     private LocalDateTime outTime;

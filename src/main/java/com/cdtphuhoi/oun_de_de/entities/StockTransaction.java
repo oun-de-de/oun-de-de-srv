@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
@@ -38,7 +40,7 @@ public class StockTransaction extends OrgManaged {
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     private InventoryItem item;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantity;
 
     @Column(nullable = false)

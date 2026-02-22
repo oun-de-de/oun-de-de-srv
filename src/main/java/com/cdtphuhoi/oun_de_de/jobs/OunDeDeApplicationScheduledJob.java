@@ -23,10 +23,7 @@ public class OunDeDeApplicationScheduledJob {
     /*
      * run at: 00:00, 04:00, 08:00, 12:00, 16:00, 20:00
      */
-    @Scheduled(
-        cron = "0 0 0/4 * * *",
-        initialDelay = 60_000
-    )
+    @Scheduled(cron = "0 0 0/4 * * *")
     public void scheduleUpdateLoanInstallmentStatus() {
         long now = System.currentTimeMillis() / 1000;
         log.info("Update installment status - {}", now);
