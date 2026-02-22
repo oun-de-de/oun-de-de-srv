@@ -21,9 +21,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -76,15 +78,19 @@ public class CouponService implements OrgManagementService {
                     weightRecord.getQuantity() != null
             )
             .toList();
+        var totalProductAmount = new AtomicReference<>(BigDecimal.ZERO);
         productWeightRecords.forEach(
-            weightRecord -> weightRecord.setAmount(
-                weightRecord.getPricePerProduct().multiply(weightRecord.getQuantity())
-            )
+            weightRecord -> {
+                var amount = weightRecord.getPricePerProduct().multiply(weightRecord.getQuantity());
+                weightRecord.setAmount(amount);
+                totalProductAmount.updateAndGet(ca -> ca.add(amount));
+            }
         );
         var cycle = Optional.ofNullable(paymentTermService.getActiveCurrentCycle(customer.getId()))
             .orElseGet(
                 () -> paymentTermService.createNewCycle(customer, DEFAULT_PAYMENT_TERM_DURATION)
             );
+        cycle.setTotalAmount(cycle.getTotalAmount().add(totalProductAmount.get()));
         var maxCurrentRefNo = Optional.ofNullable(invoiceRepository.findMaxRefNo(customer.getOrgId()))
             .orElse(0L);
         var invoice = Invoice.builder()

@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION;
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
@@ -9,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.CascadeType;
@@ -47,6 +50,12 @@ public class PaymentTermCycle extends OrgManaged {
 
     @Column(nullable = false)
     private PaymentTermCycleStatus status;
+
+    @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal totalAmount;
+
+    @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal totalPaidAmount;
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "cycle")
     private List<Invoice> invoices;

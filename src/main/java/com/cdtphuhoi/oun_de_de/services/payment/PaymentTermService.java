@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import jakarta.persistence.criteria.JoinType;
@@ -76,6 +77,8 @@ public class PaymentTermService implements OrgManagementService {
             .startDate(cycleStart)
             .endDate(endOfDayInCambodia(cycleEnd))
             .status(PaymentTermCycleStatus.OPEN)
+            .totalAmount(BigDecimal.ZERO)
+            .totalPaidAmount(BigDecimal.ZERO)
             .build();
         return paymentTermCycleRepository.save(cycle);
     }
