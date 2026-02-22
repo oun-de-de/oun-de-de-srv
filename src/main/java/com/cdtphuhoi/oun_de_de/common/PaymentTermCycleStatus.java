@@ -5,11 +5,12 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum InvoiceStatus implements ValueBasedEnum<String> {
+public enum PaymentTermCycleStatus implements ValueBasedEnum<String> {
     OPEN("open"),
     CLOSED("closed"),
     OVERDUE("overdue"),
     ;
 
     private final String value;
+
 }

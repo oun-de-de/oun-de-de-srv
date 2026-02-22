@@ -1,7 +1,7 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
@@ -39,7 +39,7 @@ public interface InvoiceMapper {
     @ValueMapping(target = "OPEN", source = "open")
     @ValueMapping(target = "CLOSED", source = "closed")
     @ValueMapping(target = "OVERDUE", source = "overdue")
-    InvoiceStatus stringToInvoiceStatus(String source);
+    PaymentTermCycleStatus stringToPaymentTermCycleStatus(String source);
 
     default void updateInvoices(List<Invoice> invoices, UpdateInvoicesData updateInvoicesData) {
         for (var invoice : invoices) {

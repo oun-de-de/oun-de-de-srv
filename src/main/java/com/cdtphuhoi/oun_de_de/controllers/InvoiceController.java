@@ -1,8 +1,8 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -48,6 +48,10 @@ public class InvoiceController {
         ) String customerId,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+        @RequestParam(
+            name = "status",
+            required = false
+        ) PaymentTermCycleStatus status,
         @RequestParam(required = false) Integer duration,
         Pageable pageable
     ) {
@@ -57,6 +61,7 @@ public class InvoiceController {
                 from,
                 to,
                 duration,
+                status,
                 pageable
             )
         );
@@ -74,10 +79,6 @@ public class InvoiceController {
             name = "type",
             required = false
         ) InvoiceType invoiceType,
-        @RequestParam(
-            name = "status",
-            required = false
-        ) InvoiceStatus status,
         Pageable pageable
     ) {
         return ResponseEntity.ok(
@@ -86,7 +87,6 @@ public class InvoiceController {
                 from,
                 to,
                 invoiceType,
-                status,
                 pageable
             )
         );

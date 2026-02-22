@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.payment;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
@@ -66,6 +67,7 @@ public class PaymentTermService implements OrgManagementService {
             .orgId(customer.getOrgId())
             .startDate(paymentTerm.getStartDate())
             .endDate(endOfDayInCambodia(paymentTerm.getStartDate().plusDays(paymentTerm.getDuration())))
+            .status(PaymentTermCycleStatus.OPEN)
             .build();
         return paymentTermCycleRepository.save(cycle);
     }
@@ -75,6 +77,7 @@ public class PaymentTermService implements OrgManagementService {
         LocalDateTime from,
         LocalDateTime to,
         Integer duration,
+        PaymentTermCycleStatus status,
         Pageable pageable
     ) {
         var page = paymentTermCycleRepository.findAll(
@@ -82,6 +85,7 @@ public class PaymentTermService implements OrgManagementService {
                 PaymentTermCycleSpecifications.hasCustomerId(customerId),
                 PaymentTermCycleSpecifications.hasStartDateBetween(from, to),
                 PaymentTermCycleSpecifications.hasDuration(duration),
+                PaymentTermCycleSpecifications.hasStatus(status),
                 (root, query, cb) -> {
                     root.fetch(PaymentTermCycle_.CUSTOMER, JoinType.INNER);
                     return null;

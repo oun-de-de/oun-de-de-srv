@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.invoice;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
@@ -52,18 +51,6 @@ public class InvoiceSpecifications {
                     type -> cb.equal(
                         root.get(Invoice_.TYPE),
                         type
-                    )
-                )
-                .orElse(null);
-    }
-
-    public static Specification<Invoice> hasStatus(InvoiceStatus invoiceStatus) {
-        return (root, query, cb) ->
-            Optional.ofNullable(invoiceStatus)
-                .map(
-                    status -> cb.equal(
-                        root.get(Invoice_.STATUS),
-                        status
                     )
                 )
                 .orElse(null);

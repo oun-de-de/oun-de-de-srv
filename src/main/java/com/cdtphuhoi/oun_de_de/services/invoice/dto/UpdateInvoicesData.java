@@ -11,6 +11,4 @@ public class UpdateInvoicesData {
     private String customerName;
 
     private String type;
-
-    private String status;
 }

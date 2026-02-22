@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.invoice.dto;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +21,4 @@ public class InvoiceResult {
     private LocalDateTime date;
 
     private InvoiceType type;
-
-    private InvoiceStatus status;
 }

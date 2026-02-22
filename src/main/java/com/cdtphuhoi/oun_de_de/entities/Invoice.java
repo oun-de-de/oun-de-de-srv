@@ -2,7 +2,6 @@ package com.cdtphuhoi.oun_de_de.entities;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
 import lombok.AllArgsConstructor;
@@ -50,9 +49,6 @@ public class Invoice extends OrgManaged {
 
     @Column(nullable = false)
     private InvoiceType type;
-
-    @Column(nullable = false)
-    private InvoiceStatus status;
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "invoice")
     private List<WeightRecord> weightRecords;

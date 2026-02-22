@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.payment;
 
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
@@ -60,5 +61,17 @@ public class PaymentTermCycleSpecifications {
         };
 
 
+    }
+
+    public static Specification<PaymentTermCycle> hasStatus(PaymentTermCycleStatus status) {
+        return (root, query, cb) ->
+            Optional.ofNullable(status)
+                .map(
+                    cycleStatus -> cb.equal(
+                        root.get(PaymentTermCycle_.STATUS),
+                        cycleStatus
+                    )
+                )
+                .orElse(null);
     }
 }

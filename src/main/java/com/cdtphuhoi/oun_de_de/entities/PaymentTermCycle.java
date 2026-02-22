@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.entities;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,7 +45,9 @@ public class PaymentTermCycle extends OrgManaged {
     @Column(nullable = false)
     private LocalDateTime endDate;
 
+    @Column(nullable = false)
+    private PaymentTermCycleStatus status;
+
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "cycle")
     private List<Invoice> invoices;
-
 }

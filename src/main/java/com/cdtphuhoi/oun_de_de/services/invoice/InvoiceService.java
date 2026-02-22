@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.invoice;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
@@ -41,15 +40,13 @@ public class InvoiceService implements OrgManagementService {
         LocalDateTime from,
         LocalDateTime to,
         InvoiceType invoiceType,
-        InvoiceStatus invoiceStatus,
         Pageable pageable
     ) {
         var page = invoiceRepository.findAll(
             Specification.allOf(
                 InvoiceSpecifications.hasCustomerId(customerId),
                 InvoiceSpecifications.createBetween(from, to),
-                InvoiceSpecifications.hasType(invoiceType),
-                InvoiceSpecifications.hasStatus(invoiceStatus)
+                InvoiceSpecifications.hasType(invoiceType)
             ),
             pageable
         );

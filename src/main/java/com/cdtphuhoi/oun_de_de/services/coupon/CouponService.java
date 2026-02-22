@@ -3,7 +3,6 @@ package com.cdtphuhoi.oun_de_de.services.coupon;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
-import com.cdtphuhoi.oun_de_de.common.InvoiceStatus;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
@@ -89,7 +88,6 @@ public class CouponService implements OrgManagementService {
             .customer(customer)
             .date(cambodiaNow())
             .type(InvoiceType.INVOICE)
-            .status(InvoiceStatus.OPEN)
             .orgId(customer.getOrgId())
             .weightRecords(
                 productWeightRecords
