@@ -4,6 +4,7 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @ComponentScan(basePackages = {
     "com.cdtphuhoi.oun_de_de.configs.properties",
@@ -13,5 +14,6 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
     SwaggerConfig.class
 })
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
+@EnableScheduling
 public class ApplicationConfig {
 }

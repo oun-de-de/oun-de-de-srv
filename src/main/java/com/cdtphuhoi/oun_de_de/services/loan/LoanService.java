@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.loan;
 
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
@@ -111,7 +112,7 @@ public class LoanService implements OrgManagementService {
 
     private List<LoanInstallment> createLoanInstallments(Loan loan) {
         var termMonths = loan.getTermMonths();
-        var startDate = toCambodiaLocalDateTime(loan.getStartDate());
+        var startDate = startOfDayInCambodia(loan.getStartDate());
         return IntStream.rangeClosed(1, termMonths)
             .mapToObj(idx -> (LoanInstallment)
                 LoanInstallment.builder()
