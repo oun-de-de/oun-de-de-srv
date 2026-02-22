@@ -44,7 +44,10 @@ public class PaymentTermCycleSpecifications {
         };
     }
 
-    public static Specification<PaymentTermCycle> hasDuration(int duration) {
+    public static Specification<PaymentTermCycle> hasDuration(Integer duration) {
+        if (duration == null) {
+            return Specification.unrestricted();
+        }
         return (root, query, cb) -> {
             var days =
                 cb.sum(
