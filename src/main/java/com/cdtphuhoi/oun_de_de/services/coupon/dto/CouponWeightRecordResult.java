@@ -22,6 +22,8 @@ public class CouponWeightRecordResult {
 
     private BigDecimal weight;
 
+    private BigDecimal amount;
+
     private LocalDateTime outTime;
 
     private boolean isManual;

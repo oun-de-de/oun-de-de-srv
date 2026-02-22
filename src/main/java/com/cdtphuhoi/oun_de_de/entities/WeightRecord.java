@@ -51,6 +51,9 @@ public class WeightRecord extends OrgManaged {
     @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal weight;
 
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal amount;
+
     private LocalDateTime outTime;
 
     private boolean isManual;

@@ -76,6 +76,11 @@ public class CouponService implements OrgManagementService {
                     weightRecord.getQuantity() != null
             )
             .toList();
+        productWeightRecords.forEach(
+            weightRecord -> weightRecord.setAmount(
+                weightRecord.getPricePerProduct().multiply(weightRecord.getQuantity())
+            )
+        );
         var cycle = Optional.ofNullable(paymentTermService.getActiveCurrentCycle(customer.getId()))
             .orElseGet(
                 () -> paymentTermService.createNewCycle(customer, DEFAULT_PAYMENT_TERM_DURATION)
