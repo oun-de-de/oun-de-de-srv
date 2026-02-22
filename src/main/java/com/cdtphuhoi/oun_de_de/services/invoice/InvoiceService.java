@@ -36,6 +36,7 @@ public class InvoiceService implements OrgManagementService {
     private final WeightRecordRepository weightRecordRepository;
 
     public Page<InvoiceResult> findBy(
+        String cycleId,
         String customerId,
         LocalDateTime from,
         LocalDateTime to,
@@ -44,6 +45,7 @@ public class InvoiceService implements OrgManagementService {
     ) {
         var page = invoiceRepository.findAll(
             Specification.allOf(
+                InvoiceSpecifications.hasCycleId(cycleId),
                 InvoiceSpecifications.hasCustomerId(customerId),
                 InvoiceSpecifications.createBetween(from, to),
                 InvoiceSpecifications.hasType(invoiceType)

@@ -4,6 +4,7 @@ import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDateTime;
@@ -51,6 +52,18 @@ public class InvoiceSpecifications {
                     type -> cb.equal(
                         root.get(Invoice_.TYPE),
                         type
+                    )
+                )
+                .orElse(null);
+    }
+
+    public static Specification<Invoice> hasCycleId(String cycleIdOpt) {
+        return (root, query, cb) ->
+            Optional.ofNullable(cycleIdOpt)
+                .map(
+                    cycleId -> cb.equal(
+                        root.get(Invoice_.CYCLE).get(PaymentTermCycle_.ID),
+                        cycleId
                     )
                 )
                 .orElse(null);
