@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
@@ -63,11 +64,17 @@ public class PaymentTermService implements OrgManagementService {
                     .startDate(startOfDayInCambodia(cambodiaNow()))
                     .build()
             );
+        var now = cambodiaNow().toLocalDate();
+        var startDate = paymentTerm.getStartDate().toLocalDate();
+        var daysBetween = ChronoUnit.DAYS.between(startDate, now);
+        var cycleIndex = Math.floorDiv(daysBetween, paymentTerm.getDuration());
+        var cycleStart = paymentTerm.getStartDate().plusDays(cycleIndex * paymentTerm.getDuration());
+        var cycleEnd = cycleStart.plusDays(paymentTerm.getDuration() - 1); // for 23:59:59
         var cycle = PaymentTermCycle.builder()
             .customer(customer)
             .orgId(customer.getOrgId())
-            .startDate(paymentTerm.getStartDate())
-            .endDate(endOfDayInCambodia(paymentTerm.getStartDate().plusDays(paymentTerm.getDuration())))
+            .startDate(cycleStart)
+            .endDate(endOfDayInCambodia(cycleEnd))
             .status(PaymentTermCycleStatus.OPEN)
             .build();
         return paymentTermCycleRepository.save(cycle);
