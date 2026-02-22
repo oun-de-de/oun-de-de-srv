@@ -47,7 +47,8 @@ public class PaymentTermService implements OrgManagementService {
                 (root, query, cb) -> cb.greaterThanOrEqualTo(
                     root.get(PaymentTermCycle_.END_DATE),
                     cambodiaNow()
-                )
+                ),
+                PaymentTermCycleSpecifications.hasStatus(PaymentTermCycleStatus.OPEN)
             )
         );
         return activePaymentTermCycle.orElse(null);
