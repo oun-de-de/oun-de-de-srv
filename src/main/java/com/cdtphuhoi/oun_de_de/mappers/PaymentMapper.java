@@ -18,6 +18,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
+import java.util.List;
 
 @Mapper(
     imports = {
@@ -51,6 +52,8 @@ public interface PaymentMapper {
     @Mapping(target = "paymentDate", source = "request.paymentDate", defaultExpression = "java(Utils.cambodiaNow())")
     CreatePaymentData toCreatePaymentData(CreatePaymentRequest request);
 
-    @Mapping(target = "cycleId", source = "paymentDb.cycle.id")
-    PaymentResult toPaymentResult(Payment paymentDb);
+    @Mapping(target = "cycleId", source = "payment.cycle.id")
+    PaymentResult toPaymentResult(Payment payment);
+
+    List<PaymentResult> toListPaymentResults(List<Payment> payments);
 }

@@ -10,6 +10,8 @@ import com.cdtphuhoi.oun_de_de.entities.Payment;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
+import com.cdtphuhoi.oun_de_de.entities.Payment_;
+import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,5 +159,13 @@ public class PaymentTermService implements OrgManagementService {
             cycle.setStatus(PaymentTermCycleStatus.CLOSED);
         }
         return cycle;
+    }
+
+    public List<PaymentResult> findPaymentsByCycleId(String cycleId) {
+        var payments = paymentRepository.findAllByCycleId(
+            cycleId,
+            Sort.by(Sort.Direction.DESC, Payment_.PAYMENT_DATE)
+        );
+        return MapperHelpers.getPaymentMapper().toListPaymentResults(payments);
     }
 }
