@@ -151,6 +151,10 @@ public class PaymentTermService implements OrgManagementService {
             );
         }
         cycle.setTotalPaidAmount(cycle.getTotalPaidAmount().add(createPaymentData.getAmount()));
+        if (cycle.getStatus().equals(PaymentTermCycleStatus.OVERDUE) &&
+        cycle.getTotalPaidAmount().equals(cycle.getTotalAmount())) {
+            cycle.setStatus(PaymentTermCycleStatus.CLOSED);
+        }
         return cycle;
     }
 }

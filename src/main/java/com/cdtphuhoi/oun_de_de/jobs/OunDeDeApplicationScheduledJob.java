@@ -74,7 +74,13 @@ public class OunDeDeApplicationScheduledJob {
         }
         log.info("Overdue cycles size = {}", overdueCycles.size());
         overdueCycles.forEach(
-            cycle -> cycle.setStatus(PaymentTermCycleStatus.OVERDUE)
+            cycle -> {
+                if (cycle.getTotalPaidAmount().equals(cycle.getTotalAmount())) {
+                    cycle.setStatus(PaymentTermCycleStatus.CLOSED);
+                } else {
+                    cycle.setStatus(PaymentTermCycleStatus.OVERDUE);
+                }
+            }
         );
         var updated = paymentTermCycleRepository.saveAll(overdueCycles);
         log.info("Overdue cycles updated, affected row = {}", updated.size());
