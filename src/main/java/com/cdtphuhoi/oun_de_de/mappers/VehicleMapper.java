@@ -2,9 +2,11 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Builder;
@@ -28,6 +30,8 @@ public interface VehicleMapper {
 
     CreateVehicleData toCreateVehicleData(CreateVehicleRequest request);
 
+    UpdateVehicleData toUpdateVehicleData(UpdateVehicleRequest request);
+
     @ValueMapping(target = "TRUCK", source = "truck")
     @ValueMapping(target = "TUK_TUK", source = "tuk_tuk")
     @ValueMapping(target = "OTHERS", source = "others")
@@ -36,6 +40,8 @@ public interface VehicleMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "customer.orgId")
     Vehicle toVehicle(CreateVehicleData createVehicleData, Customer customer);
+
+    void updateVehicle(UpdateVehicleData updateVehicleData, @MappingTarget Vehicle vehicle);
 
     @AfterMapping
     default void afterMapping(
