@@ -3,12 +3,14 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.CreatePaymentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
+import com.cdtphuhoi.oun_de_de.services.invoice.dto.PaymentResult;
 import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -17,8 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -113,5 +117,19 @@ public class InvoiceController {
     ) {
         invoiceService.updateInvoices(MapperHelpers.getInvoiceMapper().toUpdateInvoicesData(request));
         return ResponseEntity.ok("Update successfully");
+    }
+
+    @PostMapping("/cycles/{cycleId}/payments")
+    public ResponseEntity<PaymentResult> createPayment(
+        @PathVariable String cycleId,
+        @Valid @RequestBody CreatePaymentRequest request
+    ) {
+        var result = paymentTermService.createPayment(
+            cycleId,
+            MapperHelpers.getPaymentMapper().toCreatePaymentData(request)
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
     }
 }

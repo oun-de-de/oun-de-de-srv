@@ -7,6 +7,7 @@ import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @UtilityClass
@@ -66,15 +67,11 @@ public class PaymentTermCycleSpecifications {
 
     }
 
-    public static Specification<PaymentTermCycle> hasStatus(PaymentTermCycleStatus status) {
+    public static Specification<PaymentTermCycle> hasStatus(List<PaymentTermCycleStatus> statuses) {
+        if (statuses.isEmpty()) {
+            return Specification.unrestricted();
+        }
         return (root, query, cb) ->
-            Optional.ofNullable(status)
-                .map(
-                    cycleStatus -> cb.equal(
-                        root.get(PaymentTermCycle_.STATUS),
-                        cycleStatus
-                    )
-                )
-                .orElse(null);
+            root.get(PaymentTermCycle_.STATUS).in(statuses);
     }
 }
