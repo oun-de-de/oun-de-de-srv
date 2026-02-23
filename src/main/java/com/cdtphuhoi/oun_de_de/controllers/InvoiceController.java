@@ -154,4 +154,11 @@ public class InvoiceController {
             .status(HttpStatus.CREATED)
             .body(result);
     }
+
+    @GetMapping("/cycles/{cycleId}")
+    public ResponseEntity<PaymentTermCycleResult> getCycleDetails(@PathVariable String cycleId) {
+        return ResponseEntity.ok(
+            paymentTermService.findCycleByCycleId(cycleId)
+        );
+    }
 }

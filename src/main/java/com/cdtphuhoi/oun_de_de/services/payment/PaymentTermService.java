@@ -160,7 +160,7 @@ public class PaymentTermService implements OrgManagementService {
         }
         cycle.setTotalPaidAmount(cycle.getTotalPaidAmount().add(createPaymentData.getAmount()));
         if (cycle.getStatus().equals(PaymentTermCycleStatus.OVERDUE) &&
-        cycle.getTotalPaidAmount().equals(cycle.getTotalAmount())) {
+            cycle.getTotalPaidAmount().equals(cycle.getTotalAmount())) {
             cycle.setStatus(PaymentTermCycleStatus.CLOSED);
         }
         return cycle;
@@ -202,5 +202,15 @@ public class PaymentTermService implements OrgManagementService {
         var updated = paymentTermCycleRepository.save(cycle);
         log.info("Close Cycle [id={}] successfully", updated.getId());
         return loanResult;
+    }
+
+    public PaymentTermCycleResult findCycleByCycleId(String cycleId) {
+        var result = paymentTermCycleRepository.findOneById(cycleId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Cycle [id=%s] is not found", cycleId)
+                )
+            );
+        return MapperHelpers.getPaymentMapper().toPaymentTermCycleResult(result);
     }
 }
