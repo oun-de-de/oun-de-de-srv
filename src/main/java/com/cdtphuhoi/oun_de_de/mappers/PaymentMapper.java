@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpsertPaymentTermRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ConvertToLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.CreatePaymentRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Payment;
@@ -9,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.PaymentTermResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.CreatePaymentData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.PaymentResult;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.ConvertToLoanData;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.UpsertPaymentTermData;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
@@ -56,4 +58,6 @@ public interface PaymentMapper {
     PaymentResult toPaymentResult(Payment payment);
 
     List<PaymentResult> toListPaymentResults(List<Payment> payments);
+
+    ConvertToLoanData toConvertToLoanData(ConvertToLoanRequest request);
 }

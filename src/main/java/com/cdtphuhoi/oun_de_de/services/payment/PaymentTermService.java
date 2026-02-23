@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.payment;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
@@ -11,7 +12,6 @@ import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import com.cdtphuhoi.oun_de_de.entities.Payment_;
-import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -21,6 +21,10 @@ import com.cdtphuhoi.oun_de_de.repositories.PaymentTermRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.CreatePaymentData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.PaymentResult;
+import com.cdtphuhoi.oun_de_de.services.loan.LoanService;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanData;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
+import com.cdtphuhoi.oun_de_de.services.payment.dto.ConvertToLoanData;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +38,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
@@ -48,6 +51,8 @@ public class PaymentTermService implements OrgManagementService {
     private final PaymentTermRepository paymentTermRepository;
 
     private final PaymentRepository paymentRepository;
+
+    private final LoanService loanService;
 
     /*
      * @return active PaymentTermCycle, or else null
@@ -167,5 +172,35 @@ public class PaymentTermService implements OrgManagementService {
             Sort.by(Sort.Direction.DESC, Payment_.PAYMENT_DATE)
         );
         return MapperHelpers.getPaymentMapper().toListPaymentResults(payments);
+    }
+
+    public LoanResult convertToLoan(String cycleId, ConvertToLoanData convertToLoanData) {
+        var cycleOpt = paymentTermCycleRepository.findOne(
+            Specification.allOf(
+                (root, query, cb) -> cb.equal(root.get(PaymentTermCycle_.ID), cycleId),
+                PaymentTermCycleSpecifications.hasStatus(List.of(PaymentTermCycleStatus.OPEN, PaymentTermCycleStatus.OVERDUE))
+            )
+        );
+        if (cycleOpt.isEmpty()) {
+            throw new ResourceNotFoundException(
+                String.format("Cycle [id=%s] is not found or has already closed", cycleId)
+            );
+        }
+        var cycle = cycleOpt.get();
+        var remainingAmount = cycle.getTotalAmount().subtract(cycle.getTotalPaidAmount());
+        var loanResult = loanService.createLoan(
+            CreateLoanData.builder()
+                .borrowerType(BorrowerType.CUSTOMER)
+                .borrowerId(cycle.getCustomer().getId())
+                .principalAmount(remainingAmount)
+                .termMonths(convertToLoanData.getTermMonths())
+                .startDate(convertToLoanData.getStartDate())
+                .build()
+        );
+        log.info("Close cycle due to remaining amount has been converted to loan");
+        cycle.setStatus(PaymentTermCycleStatus.CLOSED);
+        var updated = paymentTermCycleRepository.save(cycle);
+        log.info("Close Cycle [id={}] successfully", updated.getId());
+        return loanResult;
     }
 }

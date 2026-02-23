@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ConvertToLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.CreatePaymentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
@@ -11,6 +12,7 @@ import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.PaymentResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -139,4 +141,17 @@ public class InvoiceController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/cycles/{cycleId}/convert-to-loan")
+    public ResponseEntity<LoanResult> convertToLoan(
+        @PathVariable String cycleId,
+        @Valid @RequestBody ConvertToLoanRequest request
+    ) {
+        var result = paymentTermService.convertToLoan(
+            cycleId,
+            MapperHelpers.getPaymentMapper().toConvertToLoanData(request)
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
 }
