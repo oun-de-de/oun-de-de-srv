@@ -2,7 +2,11 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 
-import com.cdtphuhoi.oun_de_de.controllers.dto.customer.*;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
