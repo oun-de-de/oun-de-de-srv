@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateCustomerRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateProductSettingRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateCustomerRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.customer.CustomerService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CustomerDetailsResult;
@@ -100,6 +101,20 @@ public class CustomerController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PutMapping("/{customerId}/vehicles/{vehicleId}")
+    public ResponseEntity<VehicleResult> updateVehicle(
+        @PathVariable String customerId,
+        @PathVariable String vehicleId,
+        @Valid @RequestBody UpdateVehicleRequest request) {
+        var result = vehicleService.updateVehicle(
+            customerId,
+            vehicleId,
+            MapperHelpers.getVehicleMapper().toUpdateVehicleData(request)
+        );
+        return ResponseEntity
+            .ok(result);
     }
 
     @PostMapping("/{customerId}/product-settings")

@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,18 @@ public class VehicleService implements OrgManagementService {
         log.info("Creating vehicle for customer {}", customer.getName());
         var vehicleDb = vehicleRepository.save(vehicle);
         log.info("Created vehicle, id = {}", vehicleDb.getId());
+        return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);
+    }
+
+    public VehicleResult updateVehicle(String customerId, String vehicleId, UpdateVehicleData updateVehicleData) {
+        var vehicle = vehicleRepository.findByIdAndCustomerId(vehicleId, customerId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Vehicle [id=%s] not found", vehicleId)
+                )
+            );
+        MapperHelpers.getVehicleMapper().updateVehicle(updateVehicleData, vehicle);
+        var vehicleDb = vehicleRepository.save(vehicle);
         return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);
     }
 }

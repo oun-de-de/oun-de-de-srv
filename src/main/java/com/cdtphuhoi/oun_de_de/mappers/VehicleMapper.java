@@ -2,22 +2,26 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
-    builder = @Builder(disableBuilder = true)
+    builder = @Builder(disableBuilder = true),
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface VehicleMapper {
     VehicleMapper INSTANCE = Mappers.getMapper(VehicleMapper.class);
@@ -28,6 +32,8 @@ public interface VehicleMapper {
 
     CreateVehicleData toCreateVehicleData(CreateVehicleRequest request);
 
+    UpdateVehicleData toUpdateVehicleData(UpdateVehicleRequest request);
+
     @ValueMapping(target = "TRUCK", source = "truck")
     @ValueMapping(target = "TUK_TUK", source = "tuk_tuk")
     @ValueMapping(target = "OTHERS", source = "others")
@@ -36,6 +42,8 @@ public interface VehicleMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "customer.orgId")
     Vehicle toVehicle(CreateVehicleData createVehicleData, Customer customer);
+
+    void updateVehicle(UpdateVehicleData updateVehicleData, @MappingTarget Vehicle vehicle);
 
     @AfterMapping
     default void afterMapping(
