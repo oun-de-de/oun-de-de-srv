@@ -7,7 +7,6 @@ import lombok.Data;
 
 @Data
 public class UpdateVehicleRequest {
-    @NotBlank
     @ValueOfEnum(enumClass = VehicleType.class)
     private String vehicleType;
 

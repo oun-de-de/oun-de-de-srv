@@ -13,13 +13,15 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
-    builder = @Builder(disableBuilder = true)
+    builder = @Builder(disableBuilder = true),
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
 )
 public interface VehicleMapper {
     VehicleMapper INSTANCE = Mappers.getMapper(VehicleMapper.class);
