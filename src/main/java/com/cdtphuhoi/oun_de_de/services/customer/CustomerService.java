@@ -1,7 +1,9 @@
 package com.cdtphuhoi.oun_de_de.services.customer;
 
+import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
@@ -233,10 +235,16 @@ public class CustomerService implements OrgManagementService {
         }
 
         activePaymentTermCycle.setStartDate(newStartDay);
-        activePaymentTermCycle.setEndDate(
-            // if start in 13th, duration 10, should end in 23:59:59 22nd
-            endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration() - 1))
-        );
+        // if start in 13th, duration 10, should end in 23:59:59 22nd
+        var endDate = endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration() - 1));
+        if (endDate.isBefore(cambodiaNow())) {
+            if (activePaymentTermCycle.getTotalPaidAmount().equals(activePaymentTermCycle.getTotalAmount())) {
+                activePaymentTermCycle.setStatus(PaymentTermCycleStatus.CLOSED);
+            } else {
+                activePaymentTermCycle.setStatus(PaymentTermCycleStatus.OVERDUE);
+            }
+        }
+        activePaymentTermCycle.setEndDate(endDate);
         paymentTermCycleRepository.save(activePaymentTermCycle);
     }
 }
