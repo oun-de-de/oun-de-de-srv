@@ -3,13 +3,13 @@ package com.cdtphuhoi.oun_de_de.controllers.dto.customer;
 import lombok.Data;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 
 @Data
 public class UpsertPaymentTermRequest {
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer duration;
 
     @NotNull
