@@ -42,23 +42,23 @@ EOF
 
 cat <<EOF > docker-compose.yaml
 services:
-  db:
-    image: mysql:8.4.7
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: OunDeDeDB
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: password
-    # restart: unless-stopped
-    networks:
-      - app-network
-    volumes:
-      - mysql_data:/var/lib/mysql
+  # db:
+  #   image: mysql:8.4.7
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpassword
+  #     MYSQL_DATABASE: OunDeDeDB
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: password
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
 
   srv:
     image: dacnguyen9101/oun-de-de:$IMAGE_TAG
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     environment:
       GIT_SHA: $GIT_SHA
       DB_PASSWORD: $DB_PASSWORD
@@ -91,8 +91,8 @@ networks:
   app-network:
     driver: bridge
 
-volumes:
-  mysql_data:
+# volumes:
+#   mysql_data:
 EOF
 
 docker compose down

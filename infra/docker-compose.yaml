@@ -1,19 +1,19 @@
 services:
-  db:
-    image: mysql:8.4.7
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: OunDeDeDB
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: password
-    restart: unless-stopped
-    networks:
-      - app-network
+  # db:
+  #   image: mysql:8.4.7
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpassword
+  #     MYSQL_DATABASE: OunDeDeDB
+  #     MYSQL_USER: admin
+  #     MYSQL_PASSWORD: password
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-network
 
   srv:
     image: dacnguyen9101/oun-de-de:$IMAGE_TAG
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     environment:
       GIT_SHA: $GIT_SHA
     restart: unless-stopped
