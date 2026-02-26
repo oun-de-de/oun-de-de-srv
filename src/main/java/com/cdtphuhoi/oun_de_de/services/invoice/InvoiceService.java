@@ -82,8 +82,8 @@ public class InvoiceService implements OrgManagementService {
             Sort.by(Sort.Direction.DESC, Invoice_.DATE)
         );
         sameRequestSizeValidator(invoices, exportInvoicesData.getInvoiceIds().size());
-        sameBuyerValidator(invoices);
-        sameTypeValidator(invoices);
+//        sameBuyerValidator(invoices);
+//        sameTypeValidator(invoices);
         return MapperHelpers.getInvoiceMapper().toListInvoiceExportLineResult(invoices);
     }
 
