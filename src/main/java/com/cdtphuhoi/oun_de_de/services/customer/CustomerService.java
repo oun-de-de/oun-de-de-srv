@@ -1,7 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.customer;
 
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
-import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -224,27 +223,32 @@ public class CustomerService implements OrgManagementService {
         String customerId,
         UpsertPaymentTermData upsertPaymentTermData
     ) {
+        var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
+        var now = cambodiaNow();
+        // if start in 13th, duration 10, should end in 23:59:59 22nd
+        var actualDuration = upsertPaymentTermData.getDuration() - 1;
+        if (newStartDay.toLocalDate().isBefore(now.minusDays(actualDuration).toLocalDate())) {
+            throw new BadRequestException(
+                String.format(
+                    "Start date of new term must be from %s to %s",
+                    now.minusDays(actualDuration).toLocalDate(),
+                    now.toLocalDate()
+                )
+            );
+        }
+
         var activePaymentTermCycle = paymentTermService.getActiveCurrentCycle(customerId);
         if (activePaymentTermCycle == null) {
             return;
         }
 
-        var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
-        if (newStartDay.isAfter(activePaymentTermCycle.getStartDate())) {
-            throw new BadRequestException("Start date of new term must be before or equal current start date cycle");
+        // close current cycle
+        if (activePaymentTermCycle.getTotalPaidAmount().equals(activePaymentTermCycle.getTotalAmount())) {
+            activePaymentTermCycle.setStatus(PaymentTermCycleStatus.CLOSED);
+        } else {
+            activePaymentTermCycle.setStatus(PaymentTermCycleStatus.OVERDUE);
         }
-
-        activePaymentTermCycle.setStartDate(newStartDay);
-        // if start in 13th, duration 10, should end in 23:59:59 22nd
-        var endDate = endOfDayInCambodia(newStartDay.plusDays(upsertPaymentTermData.getDuration() - 1));
-        if (endDate.isBefore(cambodiaNow())) {
-            if (activePaymentTermCycle.getTotalPaidAmount().equals(activePaymentTermCycle.getTotalAmount())) {
-                activePaymentTermCycle.setStatus(PaymentTermCycleStatus.CLOSED);
-            } else {
-                activePaymentTermCycle.setStatus(PaymentTermCycleStatus.OVERDUE);
-            }
-        }
-        activePaymentTermCycle.setEndDate(endDate);
+        activePaymentTermCycle.setEndDate(now);
         paymentTermCycleRepository.save(activePaymentTermCycle);
     }
 }
