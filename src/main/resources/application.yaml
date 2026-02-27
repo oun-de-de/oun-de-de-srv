@@ -13,12 +13,23 @@ spring:
     username: ${DB_USRNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      pool-name: HikariCorePool
+      minimum-idle: 5
+      maximum-pool-size: 10
+      idle-timeout: 300000    # 5 minutes
+      max-lifetime: 480000   # 6 minutes
+      keepalive-time: 300000  # 5 minutes
+      auto-commit: true
+      connection-timeout: 30000   # 30s max wait
+      connection-test-query: select * from information_schema.tables limit 1
+
   jpa:
     hibernate:
       ddl-auto: none
     #      DO NOT USE IN PRODUCTION
-#      ddl-auto: create-drop
-#      ddl-auto: update
+    #      ddl-auto: create-drop
+    #      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
