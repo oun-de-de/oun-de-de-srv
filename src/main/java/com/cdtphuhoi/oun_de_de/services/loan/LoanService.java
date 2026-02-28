@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.entities.Loan;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment_;
 import com.cdtphuhoi.oun_de_de.entities.Loan_;
+import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.BaseRepository;
@@ -153,7 +154,6 @@ public class LoanService implements OrgManagementService {
     public LoanInstallmentResult payInstallment(String loanId, String installmentId) {
         var installments = loanInstallmentRepository.findAll(
             Specification.allOf(
-                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.ID), installmentId),
                 (root, query, cb) -> cb.equal(root.get(LoanInstallment_.LOAN).get(Loan_.ID), loanId),
                 (root, query, cb) -> root.get(LoanInstallment_.STATUS).in(List.of(LoanInstallmentStatus.UNPAID, LoanInstallmentStatus.OVERDUE))
             ),
@@ -168,10 +168,17 @@ public class LoanService implements OrgManagementService {
                 String.format("Loan Installment [id=%s], Loan [id=%s] not found", installmentId, loanId)
             );
         }
-        var installment = installments.stream().findFirst().get();
-        installment.setStatus(LoanInstallmentStatus.PAID);
-        installment.setPaidAt(cambodiaNow());
-        var updated = loanInstallmentRepository.save(installment);
+        var mostRecentNotPaidInstallment = installments.stream().findFirst().get();
+        if (!mostRecentNotPaidInstallment.getId().equals(installmentId)) {
+            throw new BadRequestException(
+                String.format("Loan Installment must be paid by order, " +
+                    "most recent installment id = %s, given id = %s",
+                    mostRecentNotPaidInstallment.getId(), installmentId)
+            );
+        }
+        mostRecentNotPaidInstallment.setStatus(LoanInstallmentStatus.PAID);
+        mostRecentNotPaidInstallment.setPaidAt(cambodiaNow());
+        var updated = loanInstallmentRepository.save(mostRecentNotPaidInstallment);
         return MapperHelpers.getLoanMapper().toLoanInstallmentResult(updated);
     }
 }
