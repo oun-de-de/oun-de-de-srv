@@ -11,5 +11,7 @@ public class DailyIncomeResponse {
 
     private Date date;
 
-    private BigDecimal total;
+    private BigDecimal income;
+
+    private BigDecimal expense;
 }

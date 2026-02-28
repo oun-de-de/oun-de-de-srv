@@ -55,7 +55,8 @@ public class DashboardService implements OrgManagementService {
             .map(
                 row -> DailyIncomeResponse.builder()
                     .date((Date) row[0])
-                    .total((BigDecimal) row[1])
+                    .income((BigDecimal) row[1])
+                    .expense(BigDecimal.ZERO)
                     .build()
             )
             .toList();
