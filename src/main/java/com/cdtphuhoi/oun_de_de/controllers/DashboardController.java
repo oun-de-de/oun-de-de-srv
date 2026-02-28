@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.dashboard.DashboardService;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.FinancialOverviewResponse;
+import com.cdtphuhoi.oun_de_de.services.dashboard.dto.GetPerformanceResponse;
 import com.cdtphuhoi.oun_de_de.utils.SecurityContextUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,14 @@ public class DashboardController {
         var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
         return ResponseEntity.ok(
             dashboardService.getFinancialOverview(orgId)
+        );
+    }
+
+    @GetMapping("performance")
+    public ResponseEntity<GetPerformanceResponse> getPerformance() {
+        var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
+        return ResponseEntity.ok(
+            dashboardService.getPerformance(orgId)
         );
     }
 }

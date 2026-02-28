@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.repositories.LoanInstallmentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.FinancialOverviewResponse;
+import com.cdtphuhoi.oun_de_de.services.dashboard.dto.GetPerformanceResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,13 @@ public class DashboardService implements OrgManagementService {
             .overdueCycles(paymentTermCycleRepository.countByStatus(PaymentTermCycleStatus.OVERDUE))
             .overdueLoanInstallments(loanInstallmentRepository.countByStatus(LoanInstallmentStatus.OVERDUE))
             .depositBalance(BigDecimal.ZERO)
+            .build();
+    }
+
+    public GetPerformanceResponse getPerformance(String orgId) {
+        return GetPerformanceResponse.builder()
+            .expenses(BigDecimal.ZERO)
+            .income(paymentTermCycleRepository.sumPaidAmount(orgId))
             .build();
     }
 }

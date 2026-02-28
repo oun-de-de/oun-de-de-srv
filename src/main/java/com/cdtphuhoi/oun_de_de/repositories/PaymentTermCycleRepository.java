@@ -26,5 +26,15 @@ public interface PaymentTermCycleRepository extends JpaRepository<PaymentTermCyc
     )
     BigDecimal sumAmount(@Param("orgId") String orgId);
 
+    @Query(
+        value = """
+                SELECT COALESCE(SUM(total_paid_amount), 0)
+                FROM payment_term_cycle
+                WHERE org_id = :orgId;
+            """,
+        nativeQuery = true
+    )
+    BigDecimal sumPaidAmount(String orgId);
+
     Long countByStatus(PaymentTermCycleStatus status);
 }
