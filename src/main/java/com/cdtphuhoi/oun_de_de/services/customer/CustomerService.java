@@ -32,6 +32,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,10 +57,17 @@ public class CustomerService implements OrgManagementService {
     private final PaymentTermCycleRepository paymentTermCycleRepository;
 
     public CustomerResult create(CreateCustomerData createCustomerData) {
+        if (createCustomerData.getPaymentTerm() != null) {
+            validatePaymentTerm(
+                createCustomerData.getPaymentTerm().getStartDate(),
+                createCustomerData.getPaymentTerm().getDuration()
+            );
+        }
+
         var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
-                        String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
+                    String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
                 )
             );
         var referer = Optional.ofNullable(createCustomerData.getReferredById())
@@ -209,6 +217,7 @@ public class CustomerService implements OrgManagementService {
         if (upsertPaymentTermData == null) {
             return;
         }
+        validatePaymentTerm(upsertPaymentTermData.getStartDate(), upsertPaymentTermData.getDuration());
         customer.setPaymentTerm(
             Optional.ofNullable(customer.getPaymentTerm())
                 .orElse(
@@ -222,17 +231,14 @@ public class CustomerService implements OrgManagementService {
         var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
         customer.getPaymentTerm().setStartDate(newStartDay);
 
-        updatePaymentTermCycle(customer.getId(), upsertPaymentTermData);
+        closeCurrentPaymentTermCycle(customer.getId());
     }
 
-    private void updatePaymentTermCycle(
-        String customerId,
-        UpsertPaymentTermData upsertPaymentTermData
-    ) {
-        var newStartDay = startOfDayInCambodia(upsertPaymentTermData.getStartDate());
+    private void validatePaymentTerm(LocalDateTime startDate, int duration) {
+        var newStartDay = startOfDayInCambodia(startDate);
         var now = cambodiaNow();
         // if start in 13th, duration 10, should end in 23:59:59 22nd
-        var actualDuration = upsertPaymentTermData.getDuration() - 1;
+        var actualDuration = duration - 1;
         if (newStartDay.toLocalDate().isBefore(now.minusDays(actualDuration).toLocalDate())) {
             throw new BadRequestException(
                 String.format(
@@ -242,7 +248,9 @@ public class CustomerService implements OrgManagementService {
                 )
             );
         }
+    }
 
+    private void closeCurrentPaymentTermCycle(String customerId) {
         var activePaymentTermCycle = paymentTermService.getActiveCurrentCycle(customerId);
         if (activePaymentTermCycle == null) {
             return;
@@ -254,7 +262,7 @@ public class CustomerService implements OrgManagementService {
         } else {
             activePaymentTermCycle.setStatus(PaymentTermCycleStatus.OVERDUE);
         }
-        activePaymentTermCycle.setEndDate(now);
+        activePaymentTermCycle.setEndDate(cambodiaNow());
         paymentTermCycleRepository.save(activePaymentTermCycle);
     }
 }
