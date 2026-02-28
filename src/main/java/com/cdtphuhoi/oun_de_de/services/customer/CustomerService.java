@@ -59,7 +59,7 @@ public class CustomerService implements OrgManagementService {
         var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
-                    String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
+                        String.format("Employee [id=%s] not found", createCustomerData.getEmployeeId())
                 )
             );
         var referer = Optional.ofNullable(createCustomerData.getReferredById())

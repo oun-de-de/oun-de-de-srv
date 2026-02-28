@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.employee.CreateEmployeeRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.employee.EmployeeResponse;
+import com.cdtphuhoi.oun_de_de.controllers.dto.employee.UpdateEmployeeProfileRequest;
 import com.cdtphuhoi.oun_de_de.exceptions.ForbiddenException;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.employee.EmployeeService;
@@ -16,7 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,5 +60,17 @@ public class EmployeeController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body("Create employee successfully");
+    }
+
+    @PutMapping("/{employeeId}")
+    public ResponseEntity<EmployeeResponse> updateEmployeeProfile(
+        @PathVariable String employeeId,
+        @Valid @RequestBody UpdateEmployeeProfileRequest request
+    ) {
+        return ResponseEntity.ok(
+            employeeService.updateEmployeeProfile(employeeId,
+                MapperHelpers.getEmployeeMapper().toUpdateEmployeeData(request)
+            )
+        );
     }
 }
