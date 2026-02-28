@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.settings;
 
 import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
@@ -8,6 +9,7 @@ import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,18 @@ public class SettingService implements OrgManagementService {
         log.info("Creating unit");
         var unitDb = unitRepository.save(unit);
         log.info("Created unit, id = {}", unitDb.getId());
+        return MapperHelpers.getSettingMapper().toUnitResult(unitDb);
+    }
+
+    public UnitResult updateUnit(String unitId, UpdateUnitData updateUnitData) {
+        var unit = unitRepository.findById(unitId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Unit [id=%s] not found", unitId)
+                )
+            );
+        MapperHelpers.getSettingMapper().updateUnit(updateUnitData, unit);
+        var unitDb = unitRepository.save(unit);
         return MapperHelpers.getSettingMapper().toUnitResult(unitDb);
     }
 
