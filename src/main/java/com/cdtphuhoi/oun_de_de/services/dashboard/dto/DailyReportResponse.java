@@ -7,7 +7,7 @@ import java.util.Date;
 
 @Data
 @Builder
-public class DailyIncomeResponse {
+public class DailyReportResponse {
 
     private Date date;
 

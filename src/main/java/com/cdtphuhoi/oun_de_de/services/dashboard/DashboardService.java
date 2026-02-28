@@ -8,7 +8,7 @@ import com.cdtphuhoi.oun_de_de.repositories.LoanInstallmentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
-import com.cdtphuhoi.oun_de_de.services.dashboard.dto.DailyIncomeResponse;
+import com.cdtphuhoi.oun_de_de.services.dashboard.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.FinancialOverviewResponse;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.GetPerformanceResponse;
 import lombok.RequiredArgsConstructor;
@@ -47,13 +47,13 @@ public class DashboardService implements OrgManagementService {
             .build();
     }
 
-    public List<DailyIncomeResponse> getDailyIncomes(int range, String orgId) {
+    public List<DailyReportResponse> getDailyReport(int range, String orgId) {
         var toDate = cambodiaNow();
         var fromDate = startOfDayInCambodia(toDate.minusDays(range));
         return paymentRepository.sumAmountByDateRange(fromDate, toDate, orgId)
             .stream()
             .map(
-                row -> DailyIncomeResponse.builder()
+                row -> DailyReportResponse.builder()
                     .date((Date) row[0])
                     .income((BigDecimal) row[1])
                     .expense(BigDecimal.ZERO)

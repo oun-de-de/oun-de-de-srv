@@ -3,7 +3,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.dashboard.DashboardService;
-import com.cdtphuhoi.oun_de_de.services.dashboard.dto.DailyIncomeResponse;
+import com.cdtphuhoi.oun_de_de.services.dashboard.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.FinancialOverviewResponse;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.GetPerformanceResponse;
 import com.cdtphuhoi.oun_de_de.utils.SecurityContextUtils;
@@ -42,13 +42,13 @@ public class DashboardController {
         );
     }
 
-    @GetMapping("/daily-incomes")
-    public ResponseEntity<List<DailyIncomeResponse>> getDailyIncomes(
+    @GetMapping("/daily-report")
+    public ResponseEntity<List<DailyReportResponse>> getDailyReport(
         @RequestParam(required = true) Integer range
     ) {
         var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
         return ResponseEntity.ok(
-            dashboardService.getDailyIncomes(range, orgId)
+            dashboardService.getDailyReport(range, orgId)
         );
     }
 }
