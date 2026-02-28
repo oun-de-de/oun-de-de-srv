@@ -69,6 +69,7 @@ public interface InventoryMapper {
 
     CreateEquipmentBorrowData toCreateEquipmentBorrowData(CreateEquipmentBorrowRequest equipmentBorrowRequest);
 
+    @Mapping(target = "customerName", source = "equipmentBorrow.customer.name")
     EquipmentBorrowResult toEquipmentBorrowResult(EquipmentBorrow equipmentBorrow);
 
     List<EquipmentBorrowResult> toListEquipmentBorrowResult(List<EquipmentBorrow> equipmentBorrows);

@@ -4,12 +4,14 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.common.BorrowStatus;
+import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow_;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
+import com.cdtphuhoi.oun_de_de.entities.InventoryItem_;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.User;
@@ -31,12 +33,14 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -224,8 +228,14 @@ public class InventoryService implements OrgManagementService {
     }
 
     public List<EquipmentBorrowResult> findEquipmentBorrowingsByItem(String itemId) {
-        var equipmentBorrows = equipmentBorrowRepository.findByItemId(
-            itemId,
+        var equipmentBorrows = equipmentBorrowRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> cb.equal(root.get(EquipmentBorrow_.ITEM).get(InventoryItem_.ID), itemId),
+                (root, query, cb) -> {
+                    root.fetch(EquipmentBorrow_.CUSTOMER, JoinType.LEFT);
+                    return null;
+                }
+            ),
             Sort.by(Sort.Direction.DESC, EquipmentBorrow_.BORROW_DATE)
         );
         return MapperHelpers.getInventoryMapper().toListEquipmentBorrowResult(equipmentBorrows);

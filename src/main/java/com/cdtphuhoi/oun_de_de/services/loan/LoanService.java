@@ -28,6 +28,7 @@ import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanInstallmentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,8 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import jakarta.annotation.PostConstruct;
@@ -96,31 +99,39 @@ public class LoanService implements OrgManagementService {
                     )
                 )
             );
-        var employees = userRepository.findAll(
-                Specification.allOf(
-                    (root, query, cb) -> root.get(User_.ID).in(borrowerIdsByType.get(BorrowerType.EMPLOYEE))
-                )
+        var employees = Optional.ofNullable(borrowerIdsByType.get(BorrowerType.EMPLOYEE))
+            .map(employeeIds -> userRepository.findAll(
+                        Specification.allOf(
+                            (root, query, cb) -> root.get(User_.ID).in(employeeIds)
+                        )
+                    )
+                    .stream()
+                    .collect(
+                        Collectors.toMap(
+                            User::getId,
+                            u -> String.join(" ", u.getFirstName(), u.getLastName())
+                        )
+                    )
             )
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    User::getId,
-                    u -> String.join(" ", u.getFirstName(), u.getLastName())
-                )
-            );
+            .orElseGet(Map::of);
 
-        var customers = customerRepository.findAll(
-                Specification.allOf(
-                    (root, query, cb) -> root.get(Customer_.ID).in(borrowerIdsByType.get(BorrowerType.CUSTOMER))
-                )
+        var customers = Optional.ofNullable(borrowerIdsByType.get(BorrowerType.CUSTOMER))
+            .map(
+                customerIds -> customerRepository.findAll(
+                        Specification.allOf(
+                            (root, query, cb) -> root.get(Customer_.ID).in(customerIds)
+                        )
+                    )
+                    .stream()
+                    .collect(
+                        Collectors.toMap(
+                            Customer::getId,
+                            Customer::getName
+                        )
+                    )
             )
-            .stream()
-            .collect(
-                Collectors.toMap(
-                    Customer::getId,
-                    Customer::getName
-                )
-            );
+            .orElseGet(Map::of);
+
         var pageResult = page.map(MapperHelpers.getLoanMapper()::toLoanResult);
         pageResult.getContent().forEach(
             loanResult -> {

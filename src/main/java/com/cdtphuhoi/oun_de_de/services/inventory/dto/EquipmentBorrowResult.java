@@ -13,6 +13,8 @@ public class EquipmentBorrowResult {
 
     private String customerId;
 
+    private String customerName;
+
     private BigDecimal quantity;
 
     private LocalDateTime borrowDate;
