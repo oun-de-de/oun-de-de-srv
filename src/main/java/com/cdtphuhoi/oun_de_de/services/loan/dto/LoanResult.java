@@ -13,6 +13,8 @@ public class LoanResult {
 
     private String borrowerId;
 
+    private String borrowerName;
+
     private BigDecimal principalAmount;
 
     private Integer termMonths;

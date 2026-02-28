@@ -6,10 +6,14 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
+import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Loan;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment_;
 import com.cdtphuhoi.oun_de_de.entities.Loan_;
+import com.cdtphuhoi.oun_de_de.entities.User;
+import com.cdtphuhoi.oun_de_de.entities.User_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -36,6 +40,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import jakarta.annotation.PostConstruct;
 
@@ -80,7 +85,51 @@ public class LoanService implements OrgManagementService {
             ),
             pageable
         );
-        return page.map(MapperHelpers.getLoanMapper()::toLoanResult);
+        var loans = page.getContent();
+        var borrowerIdsByType = loans.stream()
+            .collect(
+                Collectors.groupingBy(
+                    Loan::getBorrowerType,
+                    Collectors.mapping(
+                        Loan::getBorrowerId,
+                        Collectors.toSet()
+                    )
+                )
+            );
+        var employees = userRepository.findAll(
+                Specification.allOf(
+                    (root, query, cb) -> root.get(User_.ID).in(borrowerIdsByType.get(BorrowerType.EMPLOYEE))
+                )
+            )
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    User::getId,
+                    u -> String.join(" ", u.getFirstName(), u.getLastName())
+                )
+            );
+
+        var customers = customerRepository.findAll(
+                Specification.allOf(
+                    (root, query, cb) -> root.get(Customer_.ID).in(borrowerIdsByType.get(BorrowerType.CUSTOMER))
+                )
+            )
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    Customer::getId,
+                    Customer::getName
+                )
+            );
+        var pageResult = page.map(MapperHelpers.getLoanMapper()::toLoanResult);
+        pageResult.getContent().forEach(
+            loanResult -> {
+                var borrowerNamesById = loanResult.getBorrowerType().equals(BorrowerType.EMPLOYEE) ?
+                    employees : customers;
+                loanResult.setBorrowerName(borrowerNamesById.get(loanResult.getBorrowerId()));
+            }
+        );
+        return pageResult;
     }
 
     public LoanResult createLoan(CreateLoanData createLoanData) {
@@ -140,7 +189,16 @@ public class LoanService implements OrgManagementService {
                     String.format("Loan [id=%s] not found", loanId)
                 )
             );
-        return MapperHelpers.getLoanMapper().toLoanResult(loan);
+        var borrowerOpt = repositoryByBorrowerType.get(loan.getBorrowerType())
+            .findOneById(loan.getBorrowerId());
+        var borrowerName = borrowerOpt
+            .filter(User.class::isInstance)
+            .map(User.class::cast)
+            .map(u -> String.join(" ", u.getFirstName(), u.getLastName()))
+            .orElseGet(() -> ((Customer) borrowerOpt.get()).getName());
+        var result = MapperHelpers.getLoanMapper().toLoanResult(loan);
+        result.setBorrowerName(borrowerName);
+        return result;
     }
 
     public List<LoanInstallmentResult> findLoanInstallmentsByLoanId(String loanId) {
@@ -172,7 +230,7 @@ public class LoanService implements OrgManagementService {
         if (!mostRecentNotPaidInstallment.getId().equals(installmentId)) {
             throw new BadRequestException(
                 String.format("Loan Installment must be paid by order, " +
-                    "most recent installment id = %s, given id = %s",
+                        "most recent installment id = %s, given id = %s",
                     mostRecentNotPaidInstallment.getId(), installmentId)
             );
         }
