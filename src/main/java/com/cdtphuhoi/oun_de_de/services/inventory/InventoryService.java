@@ -4,7 +4,6 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.common.BorrowStatus;
-import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
