@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.repositories;
 
+import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
 import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,6 @@ public interface LoanInstallmentRepository extends JpaRepository<LoanInstallment
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Page<LoanInstallment> findAll(Specification<LoanInstallment> specs, Pageable pageable);
+
+    Long countByStatus(LoanInstallmentStatus loanInstallmentStatus);
 }
