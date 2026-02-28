@@ -19,10 +19,6 @@ public class CreateCustomerRequest {
 
     @NotBlank
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
-    private String code;
-
-    @NotBlank
-    @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String name;
 
     @NotNull
@@ -38,9 +34,6 @@ public class CreateCustomerRequest {
      * REFERER
      */
     private UUID referredById;
-
-    // TODO: CodeList enhancement
-    private String defaultPrice;
 
     /*
      * WAREHOUSE

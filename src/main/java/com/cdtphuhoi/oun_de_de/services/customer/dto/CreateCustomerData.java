@@ -10,8 +10,6 @@ import java.util.List;
 public class CreateCustomerData {
     private LocalDateTime registerDate;
 
-    private String code;
-
     private String name;
 
     private Boolean status;
@@ -26,10 +24,6 @@ public class CreateCustomerData {
      */
     private String referredById;
 
-    // TODO: CodeList enhancement
-    private String defaultPrice;
-
-    // TODO: CodeList enhancement
     private String warehouseId;
 
     private String memo;

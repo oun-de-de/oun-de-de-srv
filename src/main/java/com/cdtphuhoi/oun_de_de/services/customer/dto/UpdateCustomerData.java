@@ -20,9 +20,6 @@ public class UpdateCustomerData {
      */
     private String referredById;
 
-    // TODO: CodeList enhancement
-    private String defaultPrice;
-
     /*
      * WAREHOUSE
      */

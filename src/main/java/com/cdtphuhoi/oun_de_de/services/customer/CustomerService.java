@@ -1,6 +1,8 @@
 package com.cdtphuhoi.oun_de_de.services.customer;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -29,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +81,9 @@ public class CustomerService implements OrgManagementService {
             )
             .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
+        var maxCurrentRefCode = Optional.ofNullable(customerRepository.findMaxRefCode(employee.getOrgId()))
+            .orElse(0L);
+        customer.setCode(String.format("CUS%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)));
         if (customer.getPaymentTerm() != null) {
             customer.getPaymentTerm().setStartDate(
                 startOfDayInCambodia(customer.getPaymentTerm().getStartDate())

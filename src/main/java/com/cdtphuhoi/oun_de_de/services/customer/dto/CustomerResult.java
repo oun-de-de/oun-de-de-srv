@@ -19,9 +19,6 @@ public class CustomerResult {
 
     private Boolean status;
 
-    // TODO: CodeList enhancement
-    private String defaultPrice;
-
     private String memo;
 
     private String profileUrl;

@@ -27,9 +27,6 @@ public class UpdateCustomerRequest {
      */
     private UUID referredById;
 
-    // TODO: CodeList enhancement
-    private String defaultPrice;
-
     /*
      * WAREHOUSE
      */

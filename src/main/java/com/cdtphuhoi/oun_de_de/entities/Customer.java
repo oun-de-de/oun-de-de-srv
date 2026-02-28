@@ -56,9 +56,6 @@ public class Customer extends OrgManaged {
     @OneToMany(mappedBy = "referredBy", fetch = FetchType.LAZY)
     private List<Customer> referredCustomers;
 
-    // TODO: CodeList enhancement
-    private String defaultPrice;
-
     /*
      * PAYMENT TERM
      */
