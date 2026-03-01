@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,12 +19,6 @@ public class ProductResult {
     private LocalDateTime date;
 
     private String refNo;
-
-    private BigDecimal quantity;
-
-    private BigDecimal cost;
-
-    private BigDecimal price;
 
     private UnitResult unit;
 

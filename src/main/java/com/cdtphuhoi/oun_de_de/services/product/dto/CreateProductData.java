@@ -3,22 +3,11 @@ package com.cdtphuhoi.oun_de_de.services.product.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 public class CreateProductData {
     private String name;
-
-    private LocalDateTime date;
-
-    private String refNo;
-
-    private BigDecimal quantity;
-
-    private BigDecimal cost;
-
-    private BigDecimal price;
 
     /*
      * UNIT

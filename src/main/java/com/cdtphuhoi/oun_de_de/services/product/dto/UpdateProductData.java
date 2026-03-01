@@ -4,23 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class UpdateProductData {
+
     private String name;
-
-    private LocalDateTime date;
-
-    private String refNo;
-
-    private BigDecimal quantity;
-
-    private BigDecimal cost;
-
-    private BigDecimal price;
 
     /*
      * UNIT

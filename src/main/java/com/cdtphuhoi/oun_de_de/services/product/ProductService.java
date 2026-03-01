@@ -1,18 +1,22 @@
 package com.cdtphuhoi.oun_de_de.services.product;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.product.dto.CreateProductData;
 import com.cdtphuhoi.oun_de_de.services.product.dto.ProductResult;
-import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.product.dto.UpdateProductData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +47,10 @@ public class ProductService implements OrgManagementService {
             .orElse(null);
         var product = MapperHelpers.getProductMapper().toProduct(createProductData, usr);
         product.setUnit(unit);
+        var maxCurrentRefCode = Optional.ofNullable(productRepository.findMaxRefNo(usr.getOrgId()))
+            .orElse(0L);
+        product.setRefNo(String.format("PROD%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)));
+        product.setDate(cambodiaNow());
         log.info("Creating product");
         var productDb = productRepository.save(product);
         log.info("Created product, id = {}", productDb.getId());
