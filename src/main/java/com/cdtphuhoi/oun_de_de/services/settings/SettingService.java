@@ -37,7 +37,7 @@ public class SettingService implements OrgManagementService {
     }
 
     public UnitResult updateUnit(String unitId, UpdateUnitData updateUnitData) {
-        var unit = unitRepository.findById(unitId)
+        var unit = unitRepository.findOneById(unitId)
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Unit [id=%s] not found", unitId)
