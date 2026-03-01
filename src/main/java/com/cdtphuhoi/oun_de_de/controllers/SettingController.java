@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.settings.SettingService;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
@@ -85,5 +86,17 @@ public class SettingController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PutMapping("/warehouses/{warehouseId}")
+    public ResponseEntity<WarehouseResult> updateWarehouse(
+        @PathVariable String warehouseId,
+        @Valid @RequestBody UpdateWarehouseRequest request) {
+        var result = settingService.updateWarehouse(
+            warehouseId,
+            MapperHelpers.getSettingMapper().toUpdateWarehouseData(request)
+        );
+        return ResponseEntity
+            .ok(result);
     }
 }

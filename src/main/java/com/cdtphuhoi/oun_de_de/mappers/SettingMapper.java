@@ -4,6 +4,7 @@ import com.cdtphuhoi.oun_de_de.common.UnitType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.entities.Unit;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Warehouse;
@@ -11,6 +12,7 @@ import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -59,4 +61,8 @@ public interface SettingMapper {
     List<WarehouseResult> toListWarehouseResult(List<Warehouse> results);
 
     CreateWarehouseData toWarehouseDate(CreateWarehouseRequest request);
+
+    UpdateWarehouseData toUpdateWarehouseData(UpdateWarehouseRequest request);
+
+    void updateWarehouse(UpdateWarehouseData updateWarehouseData, @MappingTarget Warehouse warehouse);
 }

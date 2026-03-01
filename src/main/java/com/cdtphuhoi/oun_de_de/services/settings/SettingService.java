@@ -10,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +58,18 @@ public class SettingService implements OrgManagementService {
         log.info("Creating warehouse");
         var warehouseDb = warehouseRepository.save(warehouse);
         log.info("Created warehouse, id = {}", warehouseDb.getId());
+        return MapperHelpers.getSettingMapper().toWarehouseResult(warehouseDb);
+    }
+
+    public WarehouseResult updateWarehouse(String warehouseId, UpdateWarehouseData updateWarehouseData) {
+        var warehouse = warehouseRepository.findOneById(warehouseId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Warehouse [id=%s] not found", warehouseId)
+                )
+            );
+        MapperHelpers.getSettingMapper().updateWarehouse(updateWarehouseData, warehouse);
+        var warehouseDb = warehouseRepository.save(warehouse);
         return MapperHelpers.getSettingMapper().toWarehouseResult(warehouseDb);
     }
 
