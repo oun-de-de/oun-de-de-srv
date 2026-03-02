@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -26,8 +25,8 @@ public class CreateLoanRequest {
     private BigDecimal principalAmount;
 
     @NotNull
-    @Min(value = 1)
-    private Integer termMonths;
+    @DecimalMin(value = "0.00", inclusive = false)
+    private BigDecimal loanInstallmentAmount;
 
     @NotNull
     private LocalDateTime startDate;

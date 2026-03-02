@@ -18,7 +18,7 @@ public class CreateLoanData {
 
     private BigDecimal principalAmount;
 
-    private Integer termMonths;
+    private BigDecimal loanInstallmentAmount;
 
     private LocalDateTime startDate;
 }

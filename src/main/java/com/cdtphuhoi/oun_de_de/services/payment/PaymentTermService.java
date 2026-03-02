@@ -204,7 +204,7 @@ public class PaymentTermService implements OrgManagementService {
                 .borrowerType(BorrowerType.CUSTOMER)
                 .borrowerId(cycle.getCustomer().getId())
                 .principalAmount(remainingAmount)
-                .termMonths(convertToLoanData.getTermMonths())
+                .loanInstallmentAmount(convertToLoanData.getLoanInstallmentAmount())
                 .startDate(convertToLoanData.getStartDate())
                 .build()
         );

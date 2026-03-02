@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.loan;
 
-import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
@@ -154,11 +153,18 @@ public class LoanService implements OrgManagementService {
             .borrowerType(createLoanData.getBorrowerType())
             .borrowerId(createLoanData.getBorrowerId())
             .principalAmount(createLoanData.getPrincipalAmount())
-            .termMonths(createLoanData.getTermMonths())
+            .termMonths(
+                createLoanData.getPrincipalAmount().divide(
+                        createLoanData.getLoanInstallmentAmount(),
+                        0,
+                        RoundingMode.CEILING
+                    )
+                    .intValueExact()
+            )
             .startDate(toCambodiaLocalDateTime(createLoanData.getStartDate()))
             .createAt(cambodiaNow())
             .build();
-        var installments = createLoanInstallments(loan);
+        var installments = createLoanInstallments(loan, createLoanData);
         log.info("Creating loan and installments");
         var installmentsDb = loanInstallmentRepository.saveAll(installments);
         log.info("Created loan and installments");
@@ -168,7 +174,7 @@ public class LoanService implements OrgManagementService {
         );
     }
 
-    private List<LoanInstallment> createLoanInstallments(Loan loan) {
+    private List<LoanInstallment> createLoanInstallments(Loan loan, CreateLoanData createLoanData) {
         var termMonths = loan.getTermMonths();
         var startDate = startOfDayInCambodia(loan.getStartDate());
         return IntStream.rangeClosed(1, termMonths)
@@ -179,11 +185,12 @@ public class LoanService implements OrgManagementService {
                     .monthIndex(idx)
                     .dueDate(startDate.plusDays((long) DAY_IN_MONTH * idx))
                     .amount(
-                        loan.getPrincipalAmount().divide(
-                            BigDecimal.valueOf(termMonths),
-                            DEFAULT_DECIMAL_SCALE,
-                            RoundingMode.HALF_EVEN
-                        )
+                        idx == termMonths &&
+                            createLoanData.getLoanInstallmentAmount().multiply(BigDecimal.valueOf(idx)).compareTo(loan.getPrincipalAmount()) > 0 ?
+                            loan.getPrincipalAmount().subtract(
+                                createLoanData.getLoanInstallmentAmount().multiply(BigDecimal.valueOf(idx - 1))
+                            ) :
+                            createLoanData.getLoanInstallmentAmount()
                     )
                     .status(LoanInstallmentStatus.UNPAID)
                     .build()
