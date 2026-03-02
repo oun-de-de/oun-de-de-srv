@@ -75,7 +75,7 @@ public class InvoiceService implements OrgManagementService {
             Specification.allOf(
                 (root, query, cb) -> root.get(Invoice_.ID).in(exportInvoicesData.getInvoiceIds()),
                 (root, query, cb) -> {
-                    root.fetch(Invoice_.WEIGHT_RECORDS, JoinType.INNER);
+                    root.fetch(Invoice_.WEIGHT_RECORDS, JoinType.LEFT);
                     return null;
                 }
             ),

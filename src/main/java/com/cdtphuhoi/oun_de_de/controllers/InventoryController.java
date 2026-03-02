@@ -83,7 +83,7 @@ public class InventoryController {
     }
 
     @PostMapping("/{itemId}/borrowings")
-    public ResponseEntity<StockTransactionResult> createBorrowing(
+    public ResponseEntity<StockTransactionResult> listBorrowingsByItemId(
         @PathVariable String itemId,
         @Valid @RequestBody CreateEquipmentBorrowRequest request
     ) {
@@ -99,7 +99,7 @@ public class InventoryController {
     }
 
     @GetMapping("/{itemId}/borrowings")
-    public ResponseEntity<List<EquipmentBorrowResult>> createBorrowing(
+    public ResponseEntity<List<EquipmentBorrowResult>> listBorrowingsByItemId(
         @PathVariable String itemId
     ) {
         return ResponseEntity.ok(inventoryService.findEquipmentBorrowingsByItem(itemId));
