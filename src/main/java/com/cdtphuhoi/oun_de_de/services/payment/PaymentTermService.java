@@ -101,6 +101,15 @@ public class PaymentTermService implements OrgManagementService {
         return paymentTermCycleRepository.save(cycle);
     }
 
+    /*
+     * issue when use root.fetch with pageable because of the count query when paging
+     * do not include the owner of the fetched association
+     *
+     * use
+     * if (query != null && Long.class != query.getResultType()) {
+     *      // fetch clause to bypass this
+     * }
+     */
     public Page<PaymentTermCycleResult> findPaymentTermCyclesBy(
         String customerId,
         LocalDateTime from,
@@ -116,7 +125,9 @@ public class PaymentTermService implements OrgManagementService {
                 PaymentTermCycleSpecifications.hasDuration(duration),
                 PaymentTermCycleSpecifications.hasStatus(status == null ? List.of() : List.of(status)),
                 (root, query, cb) -> {
-                    root.fetch(PaymentTermCycle_.CUSTOMER, JoinType.INNER);
+                    if (query != null && Long.class != query.getResultType()) {
+                        root.fetch(PaymentTermCycle_.CUSTOMER, JoinType.LEFT);
+                    }
                     return null;
                 }
             ),
