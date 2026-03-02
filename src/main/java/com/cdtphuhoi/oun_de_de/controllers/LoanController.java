@@ -75,6 +75,11 @@ public class LoanController {
         return ResponseEntity.ok(loanService.findLoanById(loanId));
     }
 
+    @PostMapping("/{loanId}/postpone")
+    public ResponseEntity<List<LoanInstallmentResult>> postponeLoan(@PathVariable String loanId) {
+        return ResponseEntity.ok(loanService.postponeLoan(loanId));
+    }
+
     @GetMapping("/{loanId}/installments")
     public ResponseEntity<List<LoanInstallmentResult>> listLoanInstallments(
         @PathVariable String loanId

@@ -248,4 +248,22 @@ public class LoanService implements OrgManagementService {
         var updated = loanInstallmentRepository.save(mostRecentNotPaidInstallment);
         return MapperHelpers.getLoanMapper().toLoanInstallmentResult(updated);
     }
+
+    public List<LoanInstallmentResult> postponeLoan(String loanId) {
+        var installments = loanInstallmentRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.LOAN).get(Loan_.ID), loanId),
+                (root, query, cb) -> root.get(LoanInstallment_.STATUS).in(List.of(LoanInstallmentStatus.UNPAID, LoanInstallmentStatus.OVERDUE))
+            ),
+            Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
+        );
+        if (installments.isEmpty()) {
+            throw new BadRequestException("Loan has been complete");
+        }
+        installments.forEach(
+            installment -> installment.setDueDate(installment.getDueDate().plusDays(DAY_IN_MONTH))
+        );
+        var updated = loanInstallmentRepository.saveAll(installments);
+        return MapperHelpers.getLoanMapper().toListLoanInstallmentResult(updated);
+    }
 }
