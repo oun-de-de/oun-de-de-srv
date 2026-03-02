@@ -63,4 +63,7 @@ public class StockTransaction extends OrgManaged {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User createdBy;
+
+    @Column(precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal expense;
 }

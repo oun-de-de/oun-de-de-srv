@@ -7,6 +7,7 @@ import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.repositories.LoanInstallmentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
+import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.dashboard.dto.FinancialOverviewResponse;
@@ -16,8 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -31,6 +37,8 @@ public class DashboardService implements OrgManagementService {
 
     private final PaymentRepository paymentRepository;
 
+    private final StockTransactionRepository stockTransactionRepository;
+
     public FinancialOverviewResponse getFinancialOverview(String orgId) {
         return FinancialOverviewResponse.builder()
             .invoiceAmount(paymentTermCycleRepository.sumAmount(orgId))
@@ -42,7 +50,7 @@ public class DashboardService implements OrgManagementService {
 
     public GetPerformanceResponse getPerformance(String orgId) {
         return GetPerformanceResponse.builder()
-            .expenses(BigDecimal.ZERO)
+            .expenses(stockTransactionRepository.sumExpenses(orgId))
             .income(paymentTermCycleRepository.sumPaidAmount(orgId))
             .build();
     }
@@ -50,7 +58,7 @@ public class DashboardService implements OrgManagementService {
     public List<DailyReportResponse> getDailyReport(int range, String orgId) {
         var toDate = cambodiaNow();
         var fromDate = startOfDayInCambodia(toDate.minusDays(range));
-        return paymentRepository.sumAmountByDateRange(fromDate, toDate, orgId)
+        var incomeByDate = paymentRepository.sumAmountByDateRange(fromDate, toDate, orgId)
             .stream()
             .map(
                 row -> DailyReportResponse.builder()
@@ -59,6 +67,40 @@ public class DashboardService implements OrgManagementService {
                     .expense(BigDecimal.ZERO)
                     .build()
             )
+            .collect(
+                Collectors.toMap(
+                    report -> report.getDate().toString(),
+                    Function.identity()
+                )
+            );
+        var expenseByDate = stockTransactionRepository.sumExpenseByDateRange(fromDate, toDate, orgId)
+            .stream()
+            .map(
+                row -> DailyReportResponse.builder()
+                    .date((Date) row[0])
+                    .income(BigDecimal.ZERO)
+                    .expense((BigDecimal) row[1])
+                    .build()
+            )
+            .collect(
+                Collectors.toMap(
+                    report -> report.getDate().toString(),
+                    Function.identity()
+                )
+            );
+        return Stream.concat(incomeByDate.entrySet().stream(), expenseByDate.entrySet().stream())
+            .collect(
+                Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (r1, r2) -> {
+                        r1.setExpense(r2.getExpense());
+                        return r1;
+                    })
+            )
+            .values()
+            .stream()
+            .sorted(Comparator.comparing(DailyReportResponse::getDate))
             .toList();
     }
 }

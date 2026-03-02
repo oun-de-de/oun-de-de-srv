@@ -19,4 +19,6 @@ public class UpdateStockTransactionRequest {
     private String reason;
 
     private String memo;
+
+    private BigDecimal expense;
 }

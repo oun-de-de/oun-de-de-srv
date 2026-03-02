@@ -25,4 +25,6 @@ public class StockTransactionResult {
     private String equipmentBorrowId;
 
     private String createdById;
+
+    private BigDecimal expense;
 }

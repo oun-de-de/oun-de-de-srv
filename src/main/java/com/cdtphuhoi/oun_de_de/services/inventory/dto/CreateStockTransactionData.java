@@ -11,4 +11,6 @@ public class CreateStockTransactionData {
     private StockTransactionReason reason;
 
     private String memo;
+
+    private BigDecimal expense;
 }

@@ -133,6 +133,11 @@ public class InventoryService implements OrgManagementService {
             case CONSUME -> StockTransactionType.OUT;
             default -> throw new IllegalArgumentException("Invalid argument");
         };
+        if (StockTransactionReason.PURCHASE.equals(createStockTransactionData.getReason()) &&
+            createStockTransactionData.getExpense() == null) {
+            throw new BadRequestException("Purchase equipment should include expense");
+        }
+
         log.info("Internal stock in out {}, reason {}", itemId, createStockTransactionData.getReason());
         var item = inventoryItemRepository.findOneById(itemId)
             .orElseThrow(
@@ -149,6 +154,7 @@ public class InventoryService implements OrgManagementService {
             .quantity(createStockTransactionData.getQuantity())
             .reason(createStockTransactionData.getReason())
             .memo(createStockTransactionData.getMemo())
+            .expense(createStockTransactionData.getExpense())
             .createdAt(cambodiaNow())
             .createdBy(usr)
             .build();
