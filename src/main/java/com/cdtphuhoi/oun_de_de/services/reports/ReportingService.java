@@ -13,6 +13,7 @@ import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.ProductRevenue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -40,17 +42,9 @@ public class ReportingService implements OrgManagementService {
     private final EntityManager entityManager;
 
     public DailyReportResponse getReport(LocalDate date, String orgId) {
-        var soldProducts = weightRecordRepository.findAll(
-            Specification.allOf(
-                (root, query, cb) -> root.get(WeightRecord_.PRODUCT_NAME).isNotNull(),
-                (root, query, cb) -> root.get(WeightRecord_.PRICE_PER_PRODUCT).isNotNull(),
-                (root, query, cb) -> root.get(WeightRecord_.QUANTITY).isNotNull(),
-                (root, query, cb) -> buildDatePredicate(date, cb, root.get(WeightRecord_.INVOICE).get(Invoice_.DATE))
-
-            )
-        );
+        var soldProducts = getSoldProductsByDate(date);
         var totalRevenue = soldProducts.stream()
-            .map(WeightRecord::getAmount)
+            .map(ProductRevenue::totalAmount)
             .filter(Objects::nonNull)
             .reduce(
                 BigDecimal.ZERO,
@@ -83,12 +77,47 @@ public class ReportingService implements OrgManagementService {
         var totalCashReceive = calculateTotalCashReceive(date);
 
         return DailyReportResponse.builder()
-            .soldProducts(MapperHelpers.getReportMapper().toListDailySoldProducts(soldProducts))
+            .soldProducts(soldProducts)
             .boughtItems(MapperHelpers.getReportMapper().toListDailyBoughtItems(boughtItems))
             .totalRevenue(totalRevenue)
             .totalCashReceive(totalCashReceive)
             .totalExpense(totalExpense)
             .build();
+    }
+
+    private List<ProductRevenue> getSoldProductsByDate(LocalDate date) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(ProductRevenue.class);
+        var root = query.from(WeightRecord.class);
+        query
+            .select(
+                cb.construct(
+                    ProductRevenue.class,
+                    root.get(WeightRecord_.PRODUCT_NAME),
+                    root.get(WeightRecord_.UNIT),
+                    cb.coalesce(
+                        cb.sum(root.get(WeightRecord_.QUANTITY)),
+                        BigDecimal.ZERO
+                    ),
+                    cb.coalesce(
+                        cb.sum(root.get(WeightRecord_.AMOUNT)),
+                        BigDecimal.ZERO
+                    )
+                )
+            )
+            .where(
+                root.get(WeightRecord_.PRODUCT_NAME).isNotNull(),
+                root.get(WeightRecord_.PRICE_PER_PRODUCT).isNotNull(),
+                root.get(WeightRecord_.QUANTITY).isNotNull(),
+                buildDatePredicate(date, cb, root.get(WeightRecord_.INVOICE).get(Invoice_.DATE))
+            )
+            .groupBy(
+                root.get(WeightRecord_.PRODUCT_NAME),
+                root.get(WeightRecord_.UNIT)
+            );
+
+        var resultList = entityManager.createQuery(query).getResultList();
+        return resultList;
     }
 
     private BigDecimal calculateTotalCashReceive(LocalDate date) {

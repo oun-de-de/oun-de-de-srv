@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 public class DailyReportResponse {
 
-    private List<DailySoldProduct> soldProducts;
+    private List<ProductRevenue> soldProducts;
 
     private List<DailyBoughtItem> boughtItems;
 
