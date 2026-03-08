@@ -13,6 +13,7 @@ import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.ProductRevenue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class ReportingService implements OrgManagementService {
 
     private final EntityManager entityManager;
 
-    public DailyReportResponse getReport(LocalDate date, String orgId) {
+    public DailyReportResponse getDailyReport(LocalDate date) {
         var soldProducts = getSoldProductsByDate(date);
         var totalRevenue = soldProducts.stream()
             .map(ProductRevenue::totalAmount)
@@ -60,7 +61,7 @@ public class ReportingService implements OrgManagementService {
                     ),
                 (root, query, cb) -> buildDatePredicate(date, cb, root.get(StockTransaction_.CREATED_AT)),
                 (root, query, cb) -> {
-                    root.fetch(StockTransaction_.item, JoinType.INNER);
+                    root.fetch(StockTransaction_.ITEM, JoinType.LEFT);
                     return null;
                 }
             )
@@ -116,8 +117,7 @@ public class ReportingService implements OrgManagementService {
                 root.get(WeightRecord_.UNIT)
             );
 
-        var resultList = entityManager.createQuery(query).getResultList();
-        return resultList;
+        return entityManager.createQuery(query).getResultList();
     }
 
     private BigDecimal calculateTotalCashReceive(LocalDate date) {
@@ -146,5 +146,27 @@ public class ReportingService implements OrgManagementService {
             ),
             date
         );
+    }
+
+    public List<InventoryStockReportLine> getInventoryStockReport(LocalDate fromDate, LocalDate toDate) {
+        var transactions = stockTransactionRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) ->
+                    cb.between(
+                        cb.function(
+                            "DATE",
+                            LocalDate.class,
+                            root.get(StockTransaction_.createdAt)
+                        ),
+                        fromDate,
+                        toDate
+                    ),
+                (root, query, cb) -> {
+                    root.fetch(StockTransaction_.ITEM, JoinType.LEFT);
+                    return null;
+                }
+            )
+        );
+        return MapperHelpers.getReportMapper().toListInventoryStockReportLines(transactions);
     }
 }

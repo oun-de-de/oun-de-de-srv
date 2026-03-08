@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyBoughtItem;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,4 +20,10 @@ public interface ReportMapper {
     DailyBoughtItem toDailyBoughtItem(StockTransaction stockTransaction);
 
     List<DailyBoughtItem> toListDailyBoughtItems(List<StockTransaction> stockTransactions);
+
+    @Mapping(target = "itemName", source = "stockTransaction.item.name")
+    @Mapping(target = "itemCode", source = "stockTransaction.item.code")
+    InventoryStockReportLine toInventoryStockReportLine(StockTransaction stockTransaction);
+
+    List<InventoryStockReportLine> toListInventoryStockReportLines(List<StockTransaction> stockTransactions);
 }
