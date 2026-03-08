@@ -3,13 +3,15 @@ package com.cdtphuhoi.oun_de_de.repositories;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface StockTransactionRepository extends JpaRepository<StockTransaction, String> {
+public interface StockTransactionRepository extends JpaRepository<StockTransaction, String>,
+    JpaSpecificationExecutor<StockTransaction> {
     List<StockTransaction> findByItemId(String itemId, Sort sort);
 
     @Query(

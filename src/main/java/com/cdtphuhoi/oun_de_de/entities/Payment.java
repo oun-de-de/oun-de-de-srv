@@ -38,6 +38,7 @@ public class Payment extends OrgManaged {
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     private PaymentTermCycle cycle;
 
+    @Column(nullable = false)
     private LocalDateTime paymentDate;
 
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)

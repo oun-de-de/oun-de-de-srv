@@ -45,4 +45,8 @@ public class MapperHelpers {
     public static LoanMapper getLoanMapper() {
         return LoanMapper.INSTANCE;
     }
+
+    public static ReportMapper getReportMapper() {
+        return ReportMapper.INSTANCE;
+    }
 }
