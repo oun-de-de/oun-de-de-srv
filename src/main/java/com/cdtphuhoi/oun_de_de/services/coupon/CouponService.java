@@ -6,6 +6,7 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
+import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -26,6 +27,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -45,7 +47,19 @@ public class CouponService implements OrgManagementService {
 
     private final PaymentTermService paymentTermService;
 
-    public List<CouponResult> findAll() {
+    public List<CouponResult> findAll(String customerId) {
+        if (customerId != null) {
+            var vehicles = vehicleRepository.findAllByCustomerId(customerId);
+            if (vehicles.isEmpty()) {
+                return List.of();
+            }
+            var vehicleIds = vehicles.stream()
+                .map(Vehicle::getId)
+                .collect(Collectors.toSet());
+            return MapperHelpers.getCouponMapper().toListCouponResult(
+                couponRepository.findAllByVehicleIdIn(vehicleIds)
+            );
+        }
         return MapperHelpers.getCouponMapper().toListCouponResult(couponRepository.findAll());
     }
 
