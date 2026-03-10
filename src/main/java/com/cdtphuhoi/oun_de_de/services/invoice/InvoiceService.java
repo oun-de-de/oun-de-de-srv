@@ -33,8 +33,6 @@ public class InvoiceService implements OrgManagementService {
 
     private final InvoiceRepository invoiceRepository;
 
-    private final WeightRecordRepository weightRecordRepository;
-
     public Page<InvoiceResult> findBy(
         String cycleId,
         String customerId,

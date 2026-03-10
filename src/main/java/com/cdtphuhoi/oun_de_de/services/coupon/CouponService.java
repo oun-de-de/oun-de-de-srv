@@ -4,9 +4,14 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.common.InvoiceType;
+import com.cdtphuhoi.oun_de_de.entities.Coupon_;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
+import com.cdtphuhoi.oun_de_de.entities.Invoice_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
+import com.cdtphuhoi.oun_de_de.entities.Vehicle_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -20,6 +25,9 @@ import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -28,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -47,20 +56,30 @@ public class CouponService implements OrgManagementService {
 
     private final PaymentTermService paymentTermService;
 
-    public List<CouponResult> findAll(String customerId) {
-        if (customerId != null) {
-            var vehicles = vehicleRepository.findAllByCustomerId(customerId);
-            if (vehicles.isEmpty()) {
-                return List.of();
-            }
-            var vehicleIds = vehicles.stream()
-                .map(Vehicle::getId)
-                .collect(Collectors.toSet());
-            return MapperHelpers.getCouponMapper().toListCouponResult(
-                couponRepository.findAllByVehicleIdIn(vehicleIds)
-            );
-        }
-        return MapperHelpers.getCouponMapper().toListCouponResult(couponRepository.findAll());
+    public Page<CouponResult> findAll(String customerId, Pageable pageable) {
+        var page = couponRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) ->
+                    Optional.ofNullable(customerId)
+                        .map(
+                            cusId -> cb.equal(
+                                root.get(Coupon_.VEHICLE).get(Vehicle_.CUSTOMER).get(Customer_.ID),
+                                cusId
+                            )
+                        )
+                        .orElse(null),
+                (root, query, cb) -> {
+                    if (query != null && Long.class != query.getResultType()) {
+                        root.fetch(Coupon_.VEHICLE, JoinType.LEFT);
+                        root.fetch(Coupon_.EMPLOYEE, JoinType.LEFT);
+                        root.fetch(Coupon_.WEIGHT_RECORDS, JoinType.LEFT);
+                    }
+                    return null;
+                }
+            ),
+            pageable
+        );
+        return page.map(MapperHelpers.getCouponMapper()::toCouponResult);
     }
 
     public CouponResult create(CreateCouponData createCouponData) {

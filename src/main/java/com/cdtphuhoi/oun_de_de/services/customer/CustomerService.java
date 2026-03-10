@@ -6,6 +6,7 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -35,6 +36,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -109,7 +111,13 @@ public class CustomerService implements OrgManagementService {
         var page = customerRepository.findAll(
             Specification.allOf(
                 CustomerSpecifications.containName(name),
-                CustomerSpecifications.hasPaymentTerm(paymentTerm)
+                CustomerSpecifications.hasPaymentTerm(paymentTerm),
+                (root, query, cb) -> {
+                    if (query != null && Long.class != query.getResultType()) {
+                        root.fetch(Customer_.PAYMENT_TERM, JoinType.LEFT);
+                    }
+                    return null;
+                }
             ),
             pageable
         );

@@ -8,6 +8,8 @@ import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,13 +31,14 @@ public class CouponController {
     private final CouponService couponService;
 
     @GetMapping
-    public ResponseEntity<List<CouponResult>> listCoupons(
+    public ResponseEntity<Page<CouponResult>> listCoupons(
         @RequestParam(
             name = "customer_id",
             required = false
-        ) String customerId
+        ) String customerId,
+        Pageable pageable
     ) {
-        return ResponseEntity.ok(couponService.findAll(customerId));
+        return ResponseEntity.ok(couponService.findAll(customerId, pageable));
     }
 
     @PostMapping
