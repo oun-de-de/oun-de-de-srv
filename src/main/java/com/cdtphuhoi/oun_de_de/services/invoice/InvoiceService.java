@@ -7,7 +7,6 @@ import com.cdtphuhoi.oun_de_de.entities.Invoice_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
-import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.ExportInvoicesRequestData;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;

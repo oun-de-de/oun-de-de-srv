@@ -8,9 +8,6 @@ import com.cdtphuhoi.oun_de_de.entities.Coupon_;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
-import com.cdtphuhoi.oun_de_de.entities.Invoice_;
-import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
-import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
@@ -35,7 +32,6 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
