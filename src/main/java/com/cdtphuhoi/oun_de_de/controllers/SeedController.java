@@ -62,7 +62,7 @@ public class SeedController {
         var usr = controllerUtils.getCurrentSignedInUser();
         long maxCurrentRefCode = Optional.ofNullable(productRepository.findMaxRefNo(usr.getOrgId()))
             .orElse(0L);
-        var cleanIce = productRepository.findOneByName("អនាម័យ")
+        var cleanIce = productRepository.findOneByNameAndOrgId("អនាម័យ", usr.getOrgId())
             .orElseGet(() -> productRepository.save(
                 Product.builder()
                     .name("អនាម័យ")
@@ -78,7 +78,7 @@ public class SeedController {
                     .orgId(usr.getOrgId())
                     .build()
             ));
-        var solidIce = productRepository.findOneByName("ដើម")
+        var solidIce = productRepository.findOneByNameAndOrgId("ដើម", usr.getOrgId())
             .orElseGet(() -> productRepository.save(
                 Product.builder()
                     .name("ដើម")
