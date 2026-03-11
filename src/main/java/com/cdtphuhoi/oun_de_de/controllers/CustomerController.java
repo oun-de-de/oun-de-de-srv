@@ -139,7 +139,7 @@ public class CustomerController {
     }
 
     @GetMapping("/by-vehicle/{vehicleId}")
-    public ResponseEntity<CustomerResult> getCustomerByVehicle(@PathVariable String vehicleId) {
+    public ResponseEntity<CustomerDetailsResult> getCustomerByVehicle(@PathVariable String vehicleId) {
         var result = customerService.getCustomerByVehicle(vehicleId);
         return ResponseEntity.ok(result);
     }
