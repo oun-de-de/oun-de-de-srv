@@ -48,6 +48,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <common-collection.version>4.5.0</common-collection.version>
         <hibernate-jpamodelgen.version>6.6.39.Final</hibernate-jpamodelgen.version>
+        <org.apache.poi-version>5.4.0</org.apache.poi-version>
     </properties>
 
     <repositories>
@@ -173,6 +174,16 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
             <version>${common-collection.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>${org.apache.poi-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${org.apache.poi-version}</version>
         </dependency>
     </dependencies>
 

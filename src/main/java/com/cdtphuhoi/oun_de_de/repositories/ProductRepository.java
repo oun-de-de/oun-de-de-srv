@@ -21,4 +21,6 @@ public interface ProductRepository extends JpaRepository<Product, String>,
         nativeQuery = true
     )
     Long findMaxRefNo(@Param("orgId") String orgId);
+
+    Optional<Product> findOneByName(String name);
 }
