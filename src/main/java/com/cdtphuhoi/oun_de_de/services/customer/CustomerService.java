@@ -1,8 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.customer;
 
-import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
-import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -32,7 +30,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
