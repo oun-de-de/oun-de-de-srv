@@ -15,7 +15,4 @@ public interface VehicleRepository extends JpaRepository<Vehicle, String> {
     List<Vehicle> findAllByCustomerId(String customerId);
 
     Optional<Vehicle> findByIdAndCustomerId(String id, String customerId);
-
-    @Query("SELECT v FROM Vehicle v JOIN FETCH v.customer WHERE v.id = :vehicleId")
-    Optional<Vehicle> findByIdWithCustomer(@Param("vehicleId") String vehicleId);
 }

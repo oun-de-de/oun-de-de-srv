@@ -262,7 +262,7 @@ public class CustomerService implements OrgManagementService {
     }
 
     public CustomerResult getCustomerByVehicle(String vehicleId) {
-        var vehicle = vehicleRepository.findByIdWithCustomer(vehicleId)
+        var vehicle = vehicleRepository.findOneById(vehicleId)
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Vehicle [id=%s] not found", vehicleId)
