@@ -19,5 +19,5 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     )
     Long findMaxRefNo(@Param("orgId") String orgId);
 
-    Optional<Product> findOneByName(String name);
+    Optional<Product> findOneByNameAndOrgId(String name, String orgId);
 }
