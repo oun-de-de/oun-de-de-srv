@@ -20,4 +20,6 @@ public interface CustomerRepository extends JpaRepository<Customer, String>,
         nativeQuery = true
     )
     Long findMaxRefCode(@Param("orgId") String orgId);
+
+    boolean existsByCode(String code);
 }

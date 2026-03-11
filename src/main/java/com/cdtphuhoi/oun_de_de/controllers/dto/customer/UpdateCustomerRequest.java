@@ -14,6 +14,9 @@ public class UpdateCustomerRequest {
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String name;
 
+    @Size(max = DEFAULT_STRING_FIELD_LENGTH)
+    private String code;
+
     private Boolean status;
 
     /*

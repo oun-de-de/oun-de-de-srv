@@ -59,13 +59,17 @@ public class CustomerService implements OrgManagementService {
     private final PaymentTermCycleRepository paymentTermCycleRepository;
 
     public CustomerResult create(CreateCustomerData createCustomerData) {
+        if (customerRepository.existsByCode(createCustomerData.getCode())) {
+            throw new BadRequestException(
+                String.format("Customer [code=%s] existed", createCustomerData.getCode())
+            );
+        }
         if (createCustomerData.getPaymentTerm() != null) {
             validatePaymentTerm(
                 createCustomerData.getPaymentTerm().getStartDate(),
                 createCustomerData.getPaymentTerm().getDuration()
             );
         }
-
         var employee = userRepository.findOneById(createCustomerData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
@@ -91,9 +95,6 @@ public class CustomerService implements OrgManagementService {
             )
             .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
-        var maxCurrentRefCode = Optional.ofNullable(customerRepository.findMaxRefCode(employee.getOrgId()))
-            .orElse(0L);
-        customer.setCode(String.format("CUS%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)));
         if (customer.getPaymentTerm() != null) {
             customer.getPaymentTerm().setStartDate(
                 startOfDayInCambodia(customer.getPaymentTerm().getStartDate())
@@ -150,6 +151,14 @@ public class CustomerService implements OrgManagementService {
                     String.format("Customer [id=%s] not found", customerId)
                 )
             );
+        if (updateCustomerData.getCode() != null &&
+            !customer.getCode().equals(updateCustomerData.getCode()) &&
+            customerRepository.existsByCode(updateCustomerData.getCode())
+        ) {
+            throw new BadRequestException(
+                String.format("Customer [code=%s] existed", updateCustomerData.getCode())
+            );
+        }
         if (updateCustomerData.getEmployeeId() != null &&
             !customer.getEmployee().getId().equals(updateCustomerData.getEmployeeId())) {
             var employee = userRepository.findOneById(updateCustomerData.getEmployeeId())

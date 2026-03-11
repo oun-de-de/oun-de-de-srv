@@ -8,6 +8,8 @@ public class UpdateCustomerData {
 
     private String name;
 
+    private String code;
+
     private Boolean status;
 
     /*

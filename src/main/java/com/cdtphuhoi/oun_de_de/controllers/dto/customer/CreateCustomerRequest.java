@@ -14,8 +14,13 @@ import jakarta.validation.constraints.Size;
 
 @Data
 public class CreateCustomerRequest {
+
     @NotNull
     private LocalDateTime registerDate;
+
+    @NotBlank
+    @Size(max = DEFAULT_STRING_FIELD_LENGTH)
+    private String code;
 
     @NotBlank
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
