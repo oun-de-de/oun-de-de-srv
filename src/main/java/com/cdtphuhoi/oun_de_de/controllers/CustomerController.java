@@ -46,9 +46,10 @@ public class CustomerController {
     public ResponseEntity<Page<CustomerResult>> listCustomers(
         @RequestParam(required = false) String name,
         @RequestParam(name = "payment_term", required = false) Integer paymentTerm,
+        @RequestParam(name = "load_vehicle", required = false) Boolean shouldLoadVehicle,
         Pageable pageable
     ) {
-        var result = customerService.findBy(name, paymentTerm, pageable);
+        var result = customerService.findBy(name, paymentTerm, shouldLoadVehicle, pageable);
         return ResponseEntity.ok(result);
     }
 

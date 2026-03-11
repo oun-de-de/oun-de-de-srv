@@ -107,7 +107,9 @@ public class CustomerService implements OrgManagementService {
         return MapperHelpers.getCustomerMapper().toCustomerResult(customerDb);
     }
 
-    public Page<CustomerResult> findBy(String name, Integer paymentTerm, Pageable pageable) {
+    public Page<CustomerResult> findBy(String name, Integer paymentTerm, Boolean shouldLoadVehicleOpt, Pageable pageable) {
+        var shouldLoadVehicle = Optional.ofNullable(shouldLoadVehicleOpt)
+            .orElse(false);
         var page = customerRepository.findAll(
             Specification.allOf(
                 CustomerSpecifications.containName(name),
@@ -115,12 +117,19 @@ public class CustomerService implements OrgManagementService {
                 (root, query, cb) -> {
                     if (query != null && Long.class != query.getResultType()) {
                         root.fetch(Customer_.PAYMENT_TERM, JoinType.LEFT);
+                        if (shouldLoadVehicle) {
+                            root.fetch(Customer_.VEHICLES, JoinType.LEFT);
+                        }
                     }
                     return null;
                 }
             ),
             pageable
         );
+        if (!shouldLoadVehicle) {
+            // prevent n + 1
+            page.forEach(customer -> customer.setVehicles(null));
+        }
         return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
     }
 

@@ -1,9 +1,11 @@
 package com.cdtphuhoi.oun_de_de.services.customer.dto;
 
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -28,4 +30,6 @@ public class CustomerResult {
     private String referredBy;
 
     private PaymentTermResult paymentTerm;
+
+    private List<VehicleResult> vehicles;
 }
