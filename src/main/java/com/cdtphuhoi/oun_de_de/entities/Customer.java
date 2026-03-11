@@ -41,7 +41,7 @@ public class Customer extends OrgManaged {
     @Column(nullable = false)
     private LocalDateTime registerDate;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String code;
 
     @Column(nullable = false)
