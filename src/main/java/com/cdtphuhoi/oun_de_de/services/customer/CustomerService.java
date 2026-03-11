@@ -15,6 +15,7 @@ import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductSettingRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
@@ -57,6 +58,8 @@ public class CustomerService implements OrgManagementService {
     private final PaymentTermService paymentTermService;
 
     private final PaymentTermCycleRepository paymentTermCycleRepository;
+
+    private final VehicleRepository vehicleRepository;
 
     public CustomerResult create(CreateCustomerData createCustomerData) {
         if (createCustomerData.getPaymentTerm() != null) {
@@ -256,6 +259,16 @@ public class CustomerService implements OrgManagementService {
                 )
             );
         }
+    }
+
+    public CustomerResult getCustomerByVehicle(String vehicleId) {
+        var vehicle = vehicleRepository.findByIdWithCustomer(vehicleId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Vehicle [id=%s] not found", vehicleId)
+                )
+            );
+        return MapperHelpers.getCustomerMapper().toCustomerResult(vehicle.getCustomer());
     }
 
     private void closeCurrentPaymentTermCycle(String customerId) {

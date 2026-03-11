@@ -137,4 +137,10 @@ public class CustomerController {
             .status(HttpStatus.CREATED)
             .body(results);
     }
+
+    @GetMapping("/by-vehicle/{vehicleId}")
+    public ResponseEntity<CustomerResult> getCustomerByVehicle(@PathVariable String vehicleId) {
+        var result = customerService.getCustomerByVehicle(vehicleId);
+        return ResponseEntity.ok(result);
+    }
 }
