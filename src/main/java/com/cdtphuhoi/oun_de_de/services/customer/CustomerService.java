@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
@@ -105,8 +106,16 @@ public class CustomerService implements OrgManagementService {
         return MapperHelpers.getCustomerMapper().toCustomerResult(customerDb);
     }
 
-    public Page<CustomerResult> findBy(String name, Integer paymentTerm, Boolean shouldLoadVehicleOpt, Pageable pageable) {
+    public Page<CustomerResult> findBy(
+        String name,
+        Integer paymentTerm,
+        Boolean shouldLoadVehicleOpt,
+        Boolean shouldLoadProductSettingOpt,
+        Pageable pageable
+    ) {
         var shouldLoadVehicle = Optional.ofNullable(shouldLoadVehicleOpt)
+            .orElse(false);
+        var shouldLoadProductSetting = Optional.ofNullable(shouldLoadProductSettingOpt)
             .orElse(false);
         var page = customerRepository.findAll(
             Specification.allOf(
@@ -128,7 +137,38 @@ public class CustomerService implements OrgManagementService {
             // prevent n + 1
             page.forEach(customer -> customer.setVehicles(null));
         }
-        return page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
+        var result = page.map(MapperHelpers.getCustomerMapper()::toCustomerResult);
+        if (shouldLoadProductSetting) {
+            var customerIds = page.getContent().stream()
+                .map(Customer::getId)
+                .collect(Collectors.toSet());
+            if (!customerIds.isEmpty()) {
+                var prodSettings = productSettingRepository.findAllByCustomerIdIn(customerIds);
+                var prodSettingsByCustomerId = prodSettings.stream()
+                    .collect(
+                        Collectors.groupingBy(
+                            prodSetting -> prodSetting.getProductSettingId().getCustomerId()
+                        )
+                    );
+                result.forEach(customerResult -> {
+                    var customerProdSettings = prodSettingsByCustomerId.get(customerResult.getId());
+                    if (customerProdSettings != null && !customerProdSettings.isEmpty()) {
+                        var customerProdSettingsResult = customerProdSettings.stream()
+                            .map(proSet ->
+                                ProductSettingResult.builder()
+                                    .productId(proSet.getProductSettingId().getProductId())
+                                    .customerId(proSet.getProductSettingId().getCustomerId())
+                                    .price(proSet.getPrice())
+                                    .quantity(proSet.getQuantity())
+                                    .build()
+                            )
+                            .toList();
+                        customerResult.setProductSettings(customerProdSettingsResult);
+                    }
+                });
+            }
+        }
+        return result;
     }
 
     public CustomerDetailsResult getCustomerDetails(String customerId) {

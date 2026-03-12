@@ -47,9 +47,10 @@ public class CustomerController {
         @RequestParam(required = false) String name,
         @RequestParam(name = "payment_term", required = false) Integer paymentTerm,
         @RequestParam(name = "load_vehicle", required = false) Boolean shouldLoadVehicle,
+        @RequestParam(name = "load_product_setting", required = false) Boolean shouldLoadProductSetting,
         Pageable pageable
     ) {
-        var result = customerService.findBy(name, paymentTerm, shouldLoadVehicle, pageable);
+        var result = customerService.findBy(name, paymentTerm, shouldLoadVehicle, shouldLoadProductSetting, pageable);
         return ResponseEntity.ok(result);
     }
 

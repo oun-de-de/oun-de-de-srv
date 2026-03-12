@@ -32,4 +32,6 @@ public class CustomerResult {
     private PaymentTermResult paymentTerm;
 
     private List<VehicleResult> vehicles;
+
+    private List<ProductSettingResult> productSettings;
 }
