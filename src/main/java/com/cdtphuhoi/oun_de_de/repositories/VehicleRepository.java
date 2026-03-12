@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.repositories;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, String> {
     List<Vehicle> findAllByCustomerId(String customerId);
 
     Optional<Vehicle> findByIdAndCustomerId(String id, String customerId);
+
+    boolean existsByLicensePlateIn(Collection<String> licensePlates);
 }

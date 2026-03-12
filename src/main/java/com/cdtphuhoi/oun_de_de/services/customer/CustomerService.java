@@ -5,6 +5,7 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
+import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -13,6 +14,7 @@ import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductSettingRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
+import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.customer.dto.CreateCustomerData;
@@ -31,6 +33,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -43,6 +46,8 @@ import jakarta.persistence.criteria.JoinType;
 public class CustomerService implements OrgManagementService {
 
     private final CustomerRepository customerRepository;
+
+    private final VehicleRepository vehicleRepository;
 
     private final UserRepository userRepository;
 
@@ -93,6 +98,18 @@ public class CustomerService implements OrgManagementService {
             )
             .orElse(null);
         var customer = MapperHelpers.getCustomerMapper().toCustomer(createCustomerData, employee);
+        var vehicleLicensePlates = new HashSet<String>();
+        var hasDuplicatedLicensePlates = customer.getVehicles().stream()
+            .map(Vehicle::getLicensePlate)
+            .anyMatch(licensePlate -> !vehicleLicensePlates.add(licensePlate));
+        if (hasDuplicatedLicensePlates) {
+            throw new BadRequestException("License plates are duplicated");
+        }
+        if (vehicleRepository.existsByLicensePlateIn(vehicleLicensePlates)) {
+            throw new BadRequestException(
+                String.format("License plates %s existed", vehicleLicensePlates)
+            );
+        }
         if (customer.getPaymentTerm() != null) {
             customer.getPaymentTerm().setStartDate(
                 startOfDayInCambodia(customer.getPaymentTerm().getStartDate())

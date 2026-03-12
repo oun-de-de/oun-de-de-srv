@@ -1,13 +1,14 @@
 package com.cdtphuhoi.oun_de_de.services.vehicle;
 
+import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
+import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
-import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,11 @@ public class VehicleService implements OrgManagementService {
                     String.format("Customer [id=%s] not found", customerId)
                 )
             );
+        if (vehicleRepository.existsByLicensePlateIn(List.of(createVehicleData.getLicensePlate()))) {
+            throw new BadRequestException(
+                String.format("License plate %s existed", createVehicleData.getLicensePlate())
+            );
+        }
 
         var vehicle = MapperHelpers.getVehicleMapper().toVehicle(createVehicleData, customer);
         log.info("Creating vehicle for customer {}", customer.getName());
@@ -55,6 +61,14 @@ public class VehicleService implements OrgManagementService {
                     String.format("Vehicle [id=%s] not found", vehicleId)
                 )
             );
+        if (updateVehicleData.getLicensePlate() != null &&
+            !vehicle.getLicensePlate().equals(updateVehicleData.getLicensePlate()) &&
+            vehicleRepository.existsByLicensePlateIn(List.of(updateVehicleData.getLicensePlate()))
+        ) {
+            throw new BadRequestException(
+                String.format("License plate %s existed", updateVehicleData.getLicensePlate())
+            );
+        }
         MapperHelpers.getVehicleMapper().updateVehicle(updateVehicleData, vehicle);
         var vehicleDb = vehicleRepository.save(vehicle);
         return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);

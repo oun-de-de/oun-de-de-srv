@@ -11,5 +11,6 @@ public class CreateVehicleRequest {
     @ValueOfEnum(enumClass = VehicleType.class)
     private String vehicleType;
 
+    @NotBlank
     private String licensePlate;
 }
