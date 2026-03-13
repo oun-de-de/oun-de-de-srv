@@ -20,7 +20,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
-import jakarta.validation.Valid;
 
 @Mapper(
     imports = {
