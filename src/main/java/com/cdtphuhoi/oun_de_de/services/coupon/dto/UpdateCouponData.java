@@ -9,17 +9,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateCouponData {
+public class UpdateCouponData {
+
     private LocalDateTime date;
 
     private String driverName;
 
     private String remark;
-    /*
-     * Vehicle
-     */
-    private String vehicleId;
-
     /*
      * USER
      */
@@ -33,8 +29,6 @@ public class CreateCouponData {
     /*
      * these fields for weighing software synchronization
      */
-    private Long couponNo;
-
     private Long couponId;
 
     private String accNo;

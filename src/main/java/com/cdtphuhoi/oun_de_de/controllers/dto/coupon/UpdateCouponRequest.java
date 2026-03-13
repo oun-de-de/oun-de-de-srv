@@ -11,23 +11,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Data
-public class CreateCouponRequest {
+public class UpdateCouponRequest {
 
     private LocalDateTime date;
 
-    /*
-     * Vehicle
-     */
-    @NotNull
-    private UUID vehicleId;
 
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String driverName;
 
+
     /*
      * USER
      */
-    @NotNull
     private UUID employeeId;
 
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
@@ -44,9 +39,6 @@ public class CreateCouponRequest {
     /*
      * these fields for weighing software synchronization
      */
-    @NotNull
-    private Long couponNo;
-
     private Long couponId;
 
     private String accNo;

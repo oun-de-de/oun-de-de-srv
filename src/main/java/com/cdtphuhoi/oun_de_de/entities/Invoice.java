@@ -53,6 +53,6 @@ public class Invoice extends OrgManaged {
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "invoice")
     private List<WeightRecord> weightRecords;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private PaymentTermCycle cycle;
 }

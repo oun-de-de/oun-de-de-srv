@@ -24,6 +24,8 @@ public class Constants {
     public static final String ORG_FILTER_PARAM = "orgId";
     public static final String ORG_ID_COLUMN_NAME = "org_id";
     public static final String ORG_MANAGED_INDEX_NAME = "org_index";
+    public static final String COUPON_NO_INDEX_NAME = "coupon_no_index";
+    public static final String COUPON_NO_COLUMN_NAME = "coupon_no";
 
     public static final int DEFAULT_PADDING_LENGTH = 9;
 }

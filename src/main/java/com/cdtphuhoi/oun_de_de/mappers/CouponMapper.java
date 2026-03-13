@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.UpdateCouponRequest;
 import com.cdtphuhoi.oun_de_de.entities.Coupon;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
@@ -8,20 +9,24 @@ import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.UpdateCouponData;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @Mapper(
     imports = {
         Utils.class
     },
+    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     builder = @Builder(disableBuilder = true)
 )
 public interface CouponMapper {
@@ -74,4 +79,12 @@ public interface CouponMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orgId", source = "employee.orgId")
     WeightRecord toWeightRecord(CreateWeightRecordData weightRecord, User employee, Coupon coupon);
+
+    UpdateCouponData toUpdateCouponData(UpdateCouponRequest request);
+
+    @Mapping(target = "weightRecords", ignore = true)
+    void updateCoupon(
+        @MappingTarget Coupon coupon,
+        UpdateCouponData updateCouponData
+    );
 }

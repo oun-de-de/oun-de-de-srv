@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.COUPON_NO_COLUMN_NAME;
+import static com.cdtphuhoi.oun_de_de.common.Constants.COUPON_NO_INDEX_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
@@ -21,6 +23,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,7 +32,10 @@ import jakarta.persistence.Table;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(indexes = @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME))
+@Table(indexes = {
+    @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME),
+    @Index(name = COUPON_NO_INDEX_NAME, columnList = COUPON_NO_COLUMN_NAME),
+})
 public class Coupon extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -48,6 +54,8 @@ public class Coupon extends OrgManaged {
     private User employee;
 
     private String remark;
+
+    private String invoiceRefNo;
 
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "coupon")
     private List<WeightRecord> weightRecords;

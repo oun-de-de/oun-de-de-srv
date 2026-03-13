@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.UpdateCouponRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.coupon.CouponService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
@@ -13,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,6 +51,20 @@ public class CouponController {
         );
         return ResponseEntity
             .status(HttpStatus.CREATED)
+            .body(response);
+    }
+
+    @PutMapping("/by-coupon-no/{couponNo}")
+    public ResponseEntity<CouponResult> updateCouponByCouponNo(
+        @PathVariable Long couponNo,
+        @Valid @RequestBody UpdateCouponRequest request
+    ) {
+        var response = couponService.updateCouponByCouponNo(
+            couponNo,
+            MapperHelpers.getCouponMapper().toUpdateCouponData(request)
+        );
+        return  ResponseEntity
+            .status(HttpStatus.OK)
             .body(response);
     }
 }

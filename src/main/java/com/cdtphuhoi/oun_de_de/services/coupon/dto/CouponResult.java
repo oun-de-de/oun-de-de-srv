@@ -20,6 +20,8 @@ public class CouponResult {
 
     private CouponEmployeeResult employee;
 
+    private String invoiceRefNo;
+
     private List<CouponWeightRecordResult> weightRecords;
 
     /*

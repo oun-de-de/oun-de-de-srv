@@ -1,0 +1,1 @@
+CREATE INDEX coupon_no_index ON coupon (coupon_no);
