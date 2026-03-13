@@ -23,6 +23,7 @@ import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponWeightRecordResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.DeleteCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.UpdateCouponData;
@@ -324,5 +325,10 @@ public class CouponService implements OrgManagementService {
 
         MapperHelpers.getCouponMapper().updateCoupon(coupon, deleteCouponData);
         couponRepository.save(coupon);
+    }
+
+    public List<CouponWeightRecordResult> findWeightRecordsByCouponId(String couponId) {
+        var weightRecords = weightRecordRepository.findAllByCouponId(couponId);
+        return MapperHelpers.getCouponMapper().toListCouponWeightRecordResults(weightRecords);
     }
 }

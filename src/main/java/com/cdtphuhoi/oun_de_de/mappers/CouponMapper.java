@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponWeightRecordResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.DeleteCouponData;
@@ -97,4 +98,8 @@ public interface CouponMapper {
         @MappingTarget Coupon coupon,
         DeleteCouponData deleteCouponData
     );
+
+    CouponWeightRecordResult toCouponWeightRecordResult(WeightRecord weightRecord);
+
+    List<CouponWeightRecordResult> toListCouponWeightRecordResults(List<WeightRecord> weightRecords);
 }
