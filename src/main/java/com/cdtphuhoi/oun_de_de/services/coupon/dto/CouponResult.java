@@ -34,4 +34,6 @@ public class CouponResult {
     private String accNo;
 
     private String delAccNo;
+
+    private LocalDateTime delDate;
 }
