@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.DeleteCouponRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.UpdateCouponRequest;
 import com.cdtphuhoi.oun_de_de.entities.Coupon;
 import com.cdtphuhoi.oun_de_de.entities.User;
@@ -9,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateWeightRecordData;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.DeleteCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.UpdateCouponData;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
 import org.mapstruct.AfterMapping;
@@ -20,6 +22,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @Mapper(
     imports = {
@@ -85,5 +88,13 @@ public interface CouponMapper {
     void updateCoupon(
         @MappingTarget Coupon coupon,
         UpdateCouponData updateCouponData
+    );
+
+    @Mapping(target = "delDate", source = "request.delDate", defaultExpression = "java(Utils.cambodiaNow())")
+    DeleteCouponData toDeleteCouponData(DeleteCouponRequest request);
+
+    void updateCoupon(
+        @MappingTarget Coupon coupon,
+        DeleteCouponData deleteCouponData
     );
 }

@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.DeleteCouponRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.UpdateCouponRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.coupon.CouponService;
@@ -71,9 +72,13 @@ public class CouponController {
 
     @DeleteMapping("/by-coupon-no/{couponNo}")
     public ResponseEntity<?> deleteCouponByCouponNo(
-        @PathVariable Long couponNo
+        @PathVariable Long couponNo,
+        @Valid @RequestBody DeleteCouponRequest request
     ) {
-        couponService.deleteCouponByCouponNo(couponNo);
+        couponService.deleteCouponByCouponNo(
+            couponNo,
+            MapperHelpers.getCouponMapper().toDeleteCouponData(request)
+        );
         return ResponseEntity
             .noContent()
             .build();

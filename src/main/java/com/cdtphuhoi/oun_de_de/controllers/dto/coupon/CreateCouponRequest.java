@@ -50,6 +50,4 @@ public class CreateCouponRequest {
     private Long couponId;
 
     private String accNo;
-
-    private String delAccNo;
 }

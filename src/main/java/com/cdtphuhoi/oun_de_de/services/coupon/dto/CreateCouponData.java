@@ -38,6 +38,4 @@ public class CreateCouponData {
     private Long couponId;
 
     private String accNo;
-
-    private String delAccNo;
 }

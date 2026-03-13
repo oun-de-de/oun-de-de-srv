@@ -24,6 +24,7 @@ import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CouponResult;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.CreateCouponData;
+import com.cdtphuhoi.oun_de_de.services.coupon.dto.DeleteCouponData;
 import com.cdtphuhoi.oun_de_de.services.coupon.dto.UpdateCouponData;
 import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import lombok.RequiredArgsConstructor;
@@ -280,16 +281,13 @@ public class CouponService implements OrgManagementService {
         invoiceRepository.save(invoice);
     }
 
-    public void deleteCouponByCouponNo(long couponNo) {
+    public void deleteCouponByCouponNo(long couponNo, DeleteCouponData deleteCouponData) {
         var coupon = couponRepository.findOne(
                 Specification.allOf(
-                    (root, query, cb) -> {
-                        root.fetch(Coupon_.WEIGHT_RECORDS, JoinType.LEFT);
-                        return cb.equal(
-                            root.get(Coupon_.COUPON_NO),
-                            couponNo
-                        );
-                    }
+                    (root, query, cb) -> cb.equal(
+                        root.get(Coupon_.COUPON_NO),
+                        couponNo
+                    )
                 )
             )
             .orElseThrow(
@@ -318,18 +316,13 @@ public class CouponService implements OrgManagementService {
             );
         var cycle = invoice.getCycle();
         cycle.setTotalAmount(cycle.getTotalAmount().subtract(resetAmount));
-        
-        var weightRecordIds = coupon.getWeightRecords()
-            .stream()
-            .peek(wr -> wr.setCoupon(null))
-            .map(WeightRecord::getId)
-            .collect(Collectors.toSet());
-        weightRecordRepository.delete(
-            Specification.allOf(
-                (root, query, cb) -> root.get(WeightRecord_.ID).in(weightRecordIds)
-            )
-        );
+        paymentTermCycleRepository.save(cycle);
+
+        invoice.getWeightRecords().forEach(wr -> wr.setInvoice(null));
+        weightRecordRepository.saveAll(invoice.getWeightRecords());
         invoiceRepository.delete(invoice);
-        couponRepository.delete(coupon);
+
+        MapperHelpers.getCouponMapper().updateCoupon(coupon, deleteCouponData);
+        couponRepository.save(coupon);
     }
 }

@@ -32,6 +32,4 @@ public class UpdateCouponData {
     private Long couponId;
 
     private String accNo;
-
-    private String delAccNo;
 }

@@ -42,6 +42,4 @@ public class UpdateCouponRequest {
     private Long couponId;
 
     private String accNo;
-
-    private String delAccNo;
 }
