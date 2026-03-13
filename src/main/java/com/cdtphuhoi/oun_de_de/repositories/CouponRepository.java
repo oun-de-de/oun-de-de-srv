@@ -10,6 +10,4 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<Coupon, String>,
     JpaSpecificationExecutor<Coupon> {
     boolean existsByCouponNo(Long couponNo);
-
-    Optional<Coupon> findOneByCouponNo(Long couponNo);
 }

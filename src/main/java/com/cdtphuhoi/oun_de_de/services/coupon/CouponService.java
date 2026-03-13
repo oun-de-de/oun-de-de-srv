@@ -11,6 +11,7 @@ import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
+import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -178,6 +179,7 @@ public class CouponService implements OrgManagementService {
                 Specification.allOf(
                     (root, query, cb) -> {
                         root.fetch(Coupon_.WEIGHT_RECORDS, JoinType.LEFT);
+                        root.fetch(Coupon_.VEHICLE, JoinType.LEFT);
                         root.fetch(Coupon_.EMPLOYEE, JoinType.LEFT);
                         return cb.equal(
                             root.get(Coupon_.COUPON_NO),
@@ -265,11 +267,69 @@ public class CouponService implements OrgManagementService {
         productWeightRecords.forEach(weightRecord -> weightRecord.setInvoice(invoice));
 
         // remove oldRecord
-        weightRecordRepository.deleteAllByIdIn(
-            oldWeightRecords.stream()
-                .map(WeightRecord::getId)
-                .collect(Collectors.toSet())
+        weightRecordRepository.delete(
+            Specification.allOf(
+                (root, query, cb) ->
+                    root.get(WeightRecord_.ID).in(
+                        oldWeightRecords.stream()
+                            .map(WeightRecord::getId)
+                            .collect(Collectors.toSet())
+                    )
+            )
         );
         invoiceRepository.save(invoice);
+    }
+
+    public void deleteCouponByCouponNo(long couponNo) {
+        var coupon = couponRepository.findOne(
+                Specification.allOf(
+                    (root, query, cb) -> {
+                        root.fetch(Coupon_.WEIGHT_RECORDS, JoinType.LEFT);
+                        return cb.equal(
+                            root.get(Coupon_.COUPON_NO),
+                            couponNo
+                        );
+                    }
+                )
+            )
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Coupon [couponNo=%d] not found", couponNo)
+                )
+            );
+        var invoice = invoiceRepository.findOne(
+                Specification.allOf(
+                    (root, query, cb) -> {
+                        root.fetch(Invoice_.WEIGHT_RECORDS, JoinType.LEFT);
+                        root.fetch(Invoice_.CYCLE, JoinType.LEFT);
+                        return cb.equal(
+                            root.get(Invoice_.REF_NO),
+                            coupon.getInvoiceRefNo()
+                        );
+                    }
+                )
+            )
+            .get();
+        var resetAmount = invoice.getWeightRecords().stream()
+            .map(WeightRecord::getAmount)
+            .reduce(
+                BigDecimal.ZERO,
+                BigDecimal::add
+            );
+        var cycle = invoice.getCycle();
+        cycle.setTotalAmount(cycle.getTotalAmount().subtract(resetAmount));
+        
+        var weightRecordIds = coupon.getWeightRecords()
+            .stream()
+            .peek(wr -> wr.setCoupon(null))
+            .map(WeightRecord::getId)
+            .collect(Collectors.toSet());
+        weightRecordRepository.delete(
+            Specification.allOf(
+                (root, query, cb) -> root.get(WeightRecord_.ID).in(weightRecordIds)
+            )
+        );
+        invoiceRepository.delete(invoice);
+        couponRepository.delete(coupon);
     }
 }

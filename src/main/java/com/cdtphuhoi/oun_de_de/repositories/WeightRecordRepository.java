@@ -9,5 +9,4 @@ import java.util.Collection;
 @Repository
 public interface WeightRecordRepository extends JpaRepository<WeightRecord, String>,
     JpaSpecificationExecutor<WeightRecord> {
-    void deleteAllByIdIn(Collection<String> ids);
 }

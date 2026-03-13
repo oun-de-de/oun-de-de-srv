@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,8 +64,19 @@ public class CouponController {
             couponNo,
             MapperHelpers.getCouponMapper().toUpdateCouponData(request)
         );
-        return  ResponseEntity
+        return ResponseEntity
             .status(HttpStatus.OK)
             .body(response);
     }
+
+    @DeleteMapping("/by-coupon-no/{couponNo}")
+    public ResponseEntity<?> deleteCouponByCouponNo(
+        @PathVariable Long couponNo
+    ) {
+        couponService.deleteCouponByCouponNo(couponNo);
+        return ResponseEntity
+            .noContent()
+            .build();
+    }
+
 }
