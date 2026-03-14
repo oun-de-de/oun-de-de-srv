@@ -1,0 +1,3 @@
+ALTER TABLE invoice
+DROP
+COLUMN type;

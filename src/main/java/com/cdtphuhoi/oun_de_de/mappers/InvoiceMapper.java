@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
@@ -31,10 +30,6 @@ public interface InvoiceMapper {
     InvoiceResult toInvoiceResult(Invoice invoice);
 
     UpdateInvoicesData toUpdateInvoicesData(UpdateInvoicesRequest request);
-
-    @ValueMapping(target = "INVOICE", source = "invoice")
-    @ValueMapping(target = "RECEIPT", source = "receipt")
-    InvoiceType stringToInvoiceType(String source);
 
     @ValueMapping(target = "OPEN", source = "open")
     @ValueMapping(target = "CLOSED", source = "closed")

@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.invoice;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
@@ -43,18 +42,6 @@ public class InvoiceSpecifications {
             }
             return null;
         };
-    }
-
-    public static Specification<Invoice> hasType(InvoiceType invoiceType) {
-        return (root, query, cb) ->
-            Optional.ofNullable(invoiceType)
-                .map(
-                    type -> cb.equal(
-                        root.get(Invoice_.TYPE),
-                        type
-                    )
-                )
-                .orElse(null);
     }
 
     public static Specification<Invoice> hasCycleId(String cycleIdOpt) {

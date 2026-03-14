@@ -1,7 +1,6 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
-import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ConvertToLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.CreatePaymentRequest;
@@ -85,10 +84,6 @@ public class InvoiceController {
         ) String customerId,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
-        @RequestParam(
-            name = "type",
-            required = false
-        ) InvoiceType invoiceType,
         Pageable pageable
     ) {
         return ResponseEntity.ok(
@@ -97,7 +92,6 @@ public class InvoiceController {
                 customerId,
                 from,
                 to,
-                invoiceType,
                 pageable
             )
         );

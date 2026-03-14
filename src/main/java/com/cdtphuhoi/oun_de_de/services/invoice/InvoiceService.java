@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.invoice;
 
-import com.cdtphuhoi.oun_de_de.common.InvoiceType;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
@@ -37,15 +36,13 @@ public class InvoiceService implements OrgManagementService {
         String customerId,
         LocalDateTime from,
         LocalDateTime to,
-        InvoiceType invoiceType,
         Pageable pageable
     ) {
         var page = invoiceRepository.findAll(
             Specification.allOf(
                 InvoiceSpecifications.hasCycleId(cycleId),
                 InvoiceSpecifications.hasCustomerId(customerId),
-                InvoiceSpecifications.createBetween(from, to),
-                InvoiceSpecifications.hasType(invoiceType)
+                InvoiceSpecifications.createBetween(from, to)
             ),
             pageable
         );
@@ -56,8 +53,7 @@ public class InvoiceService implements OrgManagementService {
         // only allowed update when type is INVOICE
         var invoices = invoiceRepository.findAll(
             Specification.allOf(
-                (root, query, cb) -> root.get(Invoice_.ID).in(updateInvoicesData.getInvoiceIds()),
-                (root, query, cb) -> cb.equal(root.get(Invoice_.TYPE), InvoiceType.INVOICE)
+                (root, query, cb) -> root.get(Invoice_.ID).in(updateInvoicesData.getInvoiceIds())
             )
         );
         sameRequestSizeValidator(invoices, updateInvoicesData.getInvoiceIds().size());
@@ -80,7 +76,6 @@ public class InvoiceService implements OrgManagementService {
         );
         sameRequestSizeValidator(invoices, exportInvoicesData.getInvoiceIds().size());
 //        sameBuyerValidator(invoices);
-//        sameTypeValidator(invoices);
         return MapperHelpers.getInvoiceMapper().toListInvoiceExportLineResult(invoices);
     }
 
@@ -93,17 +88,6 @@ public class InvoiceService implements OrgManagementService {
                     invoices.size()
                 )
             );
-        }
-    }
-
-    private void sameTypeValidator(List<Invoice> invoices) {
-        var isSameType = invoices.stream()
-            .map(Invoice::getType)
-            .map(InvoiceType::getValue)
-            .distinct()
-            .count() == 1;
-        if (!isSameType) {
-            throw new BadRequestException("Invoices must be same type");
         }
     }
 

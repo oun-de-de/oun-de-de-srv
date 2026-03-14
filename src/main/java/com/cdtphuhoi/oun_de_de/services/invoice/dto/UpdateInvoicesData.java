@@ -9,6 +9,4 @@ public class UpdateInvoicesData {
     private List<String> invoiceIds;
 
     private String customerName;
-
-    private String type;
 }
