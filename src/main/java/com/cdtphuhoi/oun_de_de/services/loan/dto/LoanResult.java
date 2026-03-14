@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.loan.dto;
 
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
+import com.cdtphuhoi.oun_de_de.common.LoanStatus;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,9 +18,17 @@ public class LoanResult {
 
     private BigDecimal principalAmount;
 
-    private Integer termMonths;
+    private BigDecimal paidAmount;
+
+    private BigDecimal installmentAmount;
+
+    private Integer dueWarningDays;
+
+    private LocalDateTime dueDate;
 
     private LocalDateTime startDate;
+
+    private LoanStatus status;
 
     private LocalDateTime createAt;
 }

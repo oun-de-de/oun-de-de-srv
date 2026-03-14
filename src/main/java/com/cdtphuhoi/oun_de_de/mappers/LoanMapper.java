@@ -2,11 +2,14 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanPaymentRequest;
 import com.cdtphuhoi.oun_de_de.entities.Loan;
-import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanData;
-import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanInstallmentResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanPaymentData;
+import com.cdtphuhoi.oun_de_de.utils.Utils;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,6 +19,9 @@ import org.mapstruct.factory.Mappers;
 import java.util.List;
 
 @Mapper(
+    imports = {
+        Utils.class
+    },
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
     builder = @Builder(disableBuilder = true)
 )
@@ -30,8 +36,10 @@ public interface LoanMapper {
     @ValueMapping(target = "CUSTOMER", source = "customer")
     BorrowerType stringToBorrowerType(String source);
 
-    @Mapping(target = "loanId", source = "loanInstallment.loan.id")
-    LoanInstallmentResult toLoanInstallmentResult(LoanInstallment loanInstallment);
+    @Mapping(target = "paymentDate", source = "request.paymentDate", defaultExpression = "java(Utils.cambodiaNow())")
+    CreateLoanPaymentData toCreateLoanPaymentData(CreateLoanPaymentRequest request);
 
-    List<LoanInstallmentResult> toListLoanInstallmentResult(List<LoanInstallment> installments);
+    LoanPaymentResult toLoanPaymentResult(LoanPayment paymentDb);
+
+    List<LoanPaymentResult> toListLoanPaymentResults(List<LoanPayment> payments);
 }

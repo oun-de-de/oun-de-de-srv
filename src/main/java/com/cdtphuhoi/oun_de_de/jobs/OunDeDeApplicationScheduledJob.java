@@ -1,17 +1,18 @@
 package com.cdtphuhoi.oun_de_de.jobs;
 
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
-import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
+import com.cdtphuhoi.oun_de_de.common.LoanStatus;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
-import com.cdtphuhoi.oun_de_de.entities.LoanInstallment_;
+import com.cdtphuhoi.oun_de_de.entities.Loan_;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
-import com.cdtphuhoi.oun_de_de.repositories.LoanInstallmentRepository;
+import com.cdtphuhoi.oun_de_de.repositories.LoanRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -20,9 +21,9 @@ public class OunDeDeApplicationScheduledJob {
 
     private static final String CAMBODIA_ZONE_ID = "Asia/Phnom_Penh";
 
-    private final LoanInstallmentRepository loanInstallmentRepository;
-
     private final PaymentTermCycleRepository paymentTermCycleRepository;
+
+    private final LoanRepository loanRepository;
 
 
 //    DEMO 10S CRON:
@@ -34,25 +35,38 @@ public class OunDeDeApplicationScheduledJob {
     @Scheduled(cron = "0 0 0/4 * * *", zone = CAMBODIA_ZONE_ID)
     public void scheduleUpdateLoanInstallmentStatus() {
         long now = System.currentTimeMillis() / 1000;
-        log.info("Update installment status - {}", now);
-        var overdueInstallments = loanInstallmentRepository.findAll(
+        log.info("Update loan status - {}", now);
+        /*
+         * TODO: UPDATE LOAN STATUS TOO
+         */
+        var loans = loanRepository.findAll(
             Specification.allOf(
-                (root, query, cb) -> cb.lessThanOrEqualTo(root.get(LoanInstallment_.dueDate), cambodiaNow()),
-                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.STATUS), LoanInstallmentStatus.UNPAID)
+                (root, query, cb) -> cb.equal(root.get(Loan_.STATUS), LoanStatus.NORMAL)
             )
         );
-        if (overdueInstallments.isEmpty()) {
-            log.info("Empty overdue installments, no need to update");
+
+        if (loans.isEmpty()) {
+            log.info("Empty loans, no need to update");
             return;
         }
-        log.info("Overdue installments size = {}", overdueInstallments.size());
-        overdueInstallments.forEach(
-            installment -> {
-                installment.setStatus(LoanInstallmentStatus.OVERDUE);
+        log.info("Due loans size = {}", loans.size());
+        var shouldUpdate = new AtomicBoolean(false);
+        loans.forEach(loan -> {
+            if (
+                loan.getDueDate()
+                    .minusDays(loan.getDueWarningDays())
+                    .isBefore(cambodiaNow())
+            ) {
+                shouldUpdate.set(true);
+                loan.setStatus(LoanStatus.DUE);
             }
-        );
-        var updated = loanInstallmentRepository.saveAll(overdueInstallments);
-        log.info("Overdue installments updated, affected row = {}", updated.size());
+        });
+        if (shouldUpdate.get()) {
+            var updated = loanRepository.saveAll(loans);
+            log.info("Due loans updated, affected row = {}", updated.size());
+        } else {
+            log.info("Empty due loans, no need to update");
+        }
     }
 
     /*
@@ -63,10 +77,10 @@ public class OunDeDeApplicationScheduledJob {
         long now = System.currentTimeMillis() / 1000;
         log.info("Update payment term cycle status - {}", now);
         var overdueCycles = paymentTermCycleRepository.findAll(
-          Specification.allOf(
-              (root, query, cb) -> cb.lessThanOrEqualTo(root.get(PaymentTermCycle_.endDate), cambodiaNow()),
-              (root, query, cb) -> cb.equal(root.get(PaymentTermCycle_.STATUS), PaymentTermCycleStatus.OPEN)
-          )
+            Specification.allOf(
+                (root, query, cb) -> cb.lessThanOrEqualTo(root.get(PaymentTermCycle_.endDate), cambodiaNow()),
+                (root, query, cb) -> cb.equal(root.get(PaymentTermCycle_.STATUS), PaymentTermCycleStatus.OPEN)
+            )
         );
         if (overdueCycles.isEmpty()) {
             log.info("Skip update for empty overdue cycles");

@@ -3,9 +3,10 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanPaymentRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.loan.LoanService;
-import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanInstallmentResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -76,24 +77,27 @@ public class LoanController {
     }
 
     @PostMapping("/{loanId}/postpone")
-    public ResponseEntity<List<LoanInstallmentResult>> postponeLoan(@PathVariable String loanId) {
+    public ResponseEntity<LoanResult> postponeLoan(@PathVariable String loanId) {
         return ResponseEntity.ok(loanService.postponeLoan(loanId));
     }
 
-    @GetMapping("/{loanId}/installments")
-    public ResponseEntity<List<LoanInstallmentResult>> listLoanInstallments(
+    @GetMapping("/{loanId}/payments")
+    public ResponseEntity<List<LoanPaymentResult>> listLoanPayments(
         @PathVariable String loanId
     ) {
-        return ResponseEntity.ok(loanService.findLoanInstallmentsByLoanId(loanId));
+        return ResponseEntity.ok(loanService.findLoanPaymentsByLoanId(loanId));
     }
 
-    @PostMapping("/{loanId}/installments/{installmentId}/pay")
-    public ResponseEntity<LoanInstallmentResult> payInstallment(
+    @PostMapping("/{loanId}/pay")
+    public ResponseEntity<LoanPaymentResult> createPayment(
         @PathVariable String loanId,
-        @PathVariable String installmentId
+        @Valid @RequestBody CreateLoanPaymentRequest request
     ) {
         return ResponseEntity.ok(
-            loanService.payInstallment(loanId, installmentId)
+            loanService.createPayment(
+                loanId,
+                MapperHelpers.getLoanMapper().toCreateLoanPaymentData(request)
+            )
         );
     }
 }

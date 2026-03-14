@@ -5,10 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum LoanInstallmentStatus implements ValueBasedEnum<String> {
-    UNPAID("unpaid"),
-    OVERDUE("overdue"),
-    PAID("paid"),
+public enum LoanStatus implements ValueBasedEnum<String> {
+    NORMAL("normal"),
+    DUE("due"),
+    COMPLETE("complete"),
     ;
 
     private final String value;

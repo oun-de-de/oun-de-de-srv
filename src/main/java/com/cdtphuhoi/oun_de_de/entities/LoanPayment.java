@@ -4,7 +4,6 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
-import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,7 +30,7 @@ import jakarta.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(indexes = @Index(name = ORG_MANAGED_INDEX_NAME, columnList = ORG_ID_COLUMN_NAME))
-public class LoanInstallment extends OrgManaged {
+public class LoanPayment extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -40,16 +39,8 @@ public class LoanInstallment extends OrgManaged {
     private Loan loan;
 
     @Column(nullable = false)
-    private Integer monthIndex;
-
-    @Column(nullable = false)
-    private LocalDateTime dueDate;
+    private LocalDateTime paymentDate;
 
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal amount;
-
-    @Column(nullable = false)
-    private LoanInstallmentStatus status;
-
-    private LocalDateTime paidAt;
 }

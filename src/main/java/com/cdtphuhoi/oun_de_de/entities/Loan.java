@@ -6,6 +6,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.UUID_REFERENCE_LENGTH;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
+import com.cdtphuhoi.oun_de_de.common.LoanStatus;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManaged;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,12 +15,16 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -43,12 +48,27 @@ public class Loan extends OrgManaged {
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal principalAmount;
 
+    @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal paidAmount;
+
+    @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal installmentAmount;
+
     @Column(nullable = false)
-    private Integer termMonths;
+    private Integer dueWarningDays;
+
+    @Column(nullable = false)
+    private LocalDateTime dueDate;
+
+    @Column(nullable = false)
+    private LoanStatus status;
 
     @Column(nullable = false)
     private LocalDateTime startDate;
 
     @Column(nullable = false)
     private LocalDateTime createAt;
+
+    @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "loan")
+    private List<LoanPayment> payments;
 }

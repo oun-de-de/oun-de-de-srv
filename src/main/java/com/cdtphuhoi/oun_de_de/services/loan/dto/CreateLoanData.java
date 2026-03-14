@@ -20,5 +20,7 @@ public class CreateLoanData {
 
     private BigDecimal loanInstallmentAmount;
 
+    private Integer dueWarningDays;
+
     private LocalDateTime startDate;
 }

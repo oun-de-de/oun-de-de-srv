@@ -4,12 +4,12 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
-import com.cdtphuhoi.oun_de_de.common.LoanInstallmentStatus;
+import com.cdtphuhoi.oun_de_de.common.LoanStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Loan;
-import com.cdtphuhoi.oun_de_de.entities.LoanInstallment;
-import com.cdtphuhoi.oun_de_de.entities.LoanInstallment_;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
 import com.cdtphuhoi.oun_de_de.entities.Loan_;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.User_;
@@ -18,30 +18,29 @@ import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.BaseRepository;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
-import com.cdtphuhoi.oun_de_de.repositories.LoanInstallmentRepository;
+import com.cdtphuhoi.oun_de_de.repositories.LoanPaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.LoanRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanData;
-import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanInstallmentResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanPaymentData;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import jakarta.annotation.PostConstruct;
 
 @Slf4j
@@ -50,11 +49,12 @@ import jakarta.annotation.PostConstruct;
 @Transactional
 public class LoanService implements OrgManagementService {
 
-    private static final int DAY_IN_MONTH = 30;
+    public static final int DAY_IN_MONTH = 30;
+    public static final int DEFAULT_DUE_WARNING_DAYS = 5;
 
     private final LoanRepository loanRepository;
 
-    private final LoanInstallmentRepository loanInstallmentRepository;
+    private final LoanPaymentRepository loanPaymentRepository;
 
     private final CustomerRepository customerRepository;
 
@@ -141,6 +141,10 @@ public class LoanService implements OrgManagementService {
     }
 
     public LoanResult createLoan(CreateLoanData createLoanData) {
+        if (createLoanData.getLoanInstallmentAmount()
+            .compareTo(createLoanData.getPrincipalAmount()) > 0) {
+            throw new BadRequestException("Instalment amount can not greater than principal amount");
+        }
         var borrowerRepository = repositoryByBorrowerType.get(createLoanData.getBorrowerType());
         var borrower = borrowerRepository.findOneById(createLoanData.getBorrowerId())
             .orElseThrow(
@@ -148,54 +152,27 @@ public class LoanService implements OrgManagementService {
                     String.format("Borrower [id=%s] not found", createLoanData.getBorrowerId())
                 )
             );
+        var startDate = toCambodiaLocalDateTime(createLoanData.getStartDate());
         var loan = Loan.builder()
             .orgId(borrower.getOrgId())
             .borrowerType(createLoanData.getBorrowerType())
             .borrowerId(createLoanData.getBorrowerId())
             .principalAmount(createLoanData.getPrincipalAmount())
-            .termMonths(
-                createLoanData.getPrincipalAmount().divide(
-                        createLoanData.getLoanInstallmentAmount(),
-                        0,
-                        RoundingMode.CEILING
-                    )
-                    .intValueExact()
+            .paidAmount(BigDecimal.ZERO)
+            .installmentAmount(createLoanData.getLoanInstallmentAmount())
+            .dueWarningDays(createLoanData.getDueWarningDays() != null ?
+                createLoanData.getDueWarningDays() :
+                DEFAULT_DUE_WARNING_DAYS
             )
-            .startDate(toCambodiaLocalDateTime(createLoanData.getStartDate()))
+            .dueDate(startOfDayInCambodia(startDate).plusDays(DAY_IN_MONTH))
+            .status(LoanStatus.NORMAL)
+            .startDate(startDate)
             .createAt(cambodiaNow())
             .build();
-        var installments = createLoanInstallments(loan, createLoanData);
         log.info("Creating loan and installments");
-        var installmentsDb = loanInstallmentRepository.saveAll(installments);
+        var loanDb = loanRepository.save(loan);
         log.info("Created loan and installments");
-        return MapperHelpers.getLoanMapper().toLoanResult(
-            // assert find first not null
-            installmentsDb.stream().findFirst().get().getLoan()
-        );
-    }
-
-    private List<LoanInstallment> createLoanInstallments(Loan loan, CreateLoanData createLoanData) {
-        var termMonths = loan.getTermMonths();
-        var startDate = startOfDayInCambodia(loan.getStartDate());
-        return IntStream.rangeClosed(1, termMonths)
-            .mapToObj(idx -> (LoanInstallment)
-                LoanInstallment.builder()
-                    .orgId(loan.getOrgId())
-                    .loan(loan)
-                    .monthIndex(idx)
-                    .dueDate(startDate.plusDays((long) DAY_IN_MONTH * idx))
-                    .amount(
-                        idx == termMonths &&
-                            createLoanData.getLoanInstallmentAmount().multiply(BigDecimal.valueOf(idx)).compareTo(loan.getPrincipalAmount()) > 0 ?
-                            loan.getPrincipalAmount().subtract(
-                                createLoanData.getLoanInstallmentAmount().multiply(BigDecimal.valueOf(idx - 1))
-                            ) :
-                            createLoanData.getLoanInstallmentAmount()
-                    )
-                    .status(LoanInstallmentStatus.UNPAID)
-                    .build()
-            )
-            .toList();
+        return MapperHelpers.getLoanMapper().toLoanResult(loanDb);
     }
 
     public LoanResult findLoanById(String loanId) {
@@ -217,60 +194,87 @@ public class LoanService implements OrgManagementService {
         return result;
     }
 
-    public List<LoanInstallmentResult> findLoanInstallmentsByLoanId(String loanId) {
-        var installments = loanInstallmentRepository.findAllByLoanId(
-            loanId,
-            Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
-        );
-        return MapperHelpers.getLoanMapper().toListLoanInstallmentResult(installments);
-    }
-
-    public LoanInstallmentResult payInstallment(String loanId, String installmentId) {
-        var installments = loanInstallmentRepository.findAll(
-            Specification.allOf(
-                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.LOAN).get(Loan_.ID), loanId),
-                (root, query, cb) -> root.get(LoanInstallment_.STATUS).in(List.of(LoanInstallmentStatus.UNPAID, LoanInstallmentStatus.OVERDUE))
-            ),
-            PageRequest.of(
-                0,
-                1,
-                Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
+    public LoanPaymentResult createPayment(String loanId, CreateLoanPaymentData createLoanPaymentData) {
+        var loan = loanRepository.findOne(
+                Specification.allOf(
+                (root, query, cb) -> cb.notEqual(root.get(Loan_.STATUS), LoanStatus.COMPLETE),
+                    (root, query, cb) -> cb.equal(root.get(Loan_.ID), loanId)
+                )
             )
-        );
-        if (installments.isEmpty()) {
-            throw new ResourceNotFoundException(
-                String.format("Loan Installment [id=%s], Loan [id=%s] not found", installmentId, loanId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Loan [id=%s] is not found or has already closed", loanId)
+                )
             );
-        }
-        var mostRecentNotPaidInstallment = installments.stream().findFirst().get();
-        if (!mostRecentNotPaidInstallment.getId().equals(installmentId)) {
+        var remainingAmount = loan.getPrincipalAmount().subtract(loan.getPaidAmount());
+        if (createLoanPaymentData.getAmount().compareTo(remainingAmount) > 0) {
             throw new BadRequestException(
-                String.format("Loan Installment must be paid by order, " +
-                        "most recent installment id = %s, given id = %s",
-                    mostRecentNotPaidInstallment.getId(), installmentId)
+                String.format("Not allowed to pay more than the remaining amount. " +
+                    "Remaining amount: %.5f", remainingAmount)
             );
         }
-        mostRecentNotPaidInstallment.setStatus(LoanInstallmentStatus.PAID);
-        mostRecentNotPaidInstallment.setPaidAt(cambodiaNow());
-        var updated = loanInstallmentRepository.save(mostRecentNotPaidInstallment);
-        return MapperHelpers.getLoanMapper().toLoanInstallmentResult(updated);
+        loan.setPaidAmount(loan.getPaidAmount().add(createLoanPaymentData.getAmount()));
+        updateLoanStatus(createLoanPaymentData, loan);
+        var payment = LoanPayment.builder()
+            .orgId(loan.getOrgId())
+            .loan(loan)
+            .paymentDate(createLoanPaymentData.getPaymentDate())
+            .amount(createLoanPaymentData.getAmount())
+            .build();
+        log.info("Creating payment");
+        var paymentDb = loanPaymentRepository.save(payment);
+        log.info("Created payment, id = {}", paymentDb.getId());
+        return MapperHelpers.getLoanMapper().toLoanPaymentResult(paymentDb);
     }
 
-    public List<LoanInstallmentResult> postponeLoan(String loanId) {
-        var installments = loanInstallmentRepository.findAll(
-            Specification.allOf(
-                (root, query, cb) -> cb.equal(root.get(LoanInstallment_.LOAN).get(Loan_.ID), loanId),
-                (root, query, cb) -> root.get(LoanInstallment_.STATUS).in(List.of(LoanInstallmentStatus.UNPAID, LoanInstallmentStatus.OVERDUE))
-            ),
-            Sort.by(Sort.Direction.ASC, LoanInstallment_.MONTH_INDEX)
-        );
-        if (installments.isEmpty()) {
-            throw new BadRequestException("Loan has been complete");
+    private static void updateLoanStatus(CreateLoanPaymentData createLoanPaymentData, Loan loan) {
+        if (loan.getPaidAmount().equals(loan.getPrincipalAmount())) {
+            loan.setStatus(LoanStatus.COMPLETE);
+            return;
         }
-        installments.forEach(
-            installment -> installment.setDueDate(installment.getDueDate().plusDays(DAY_IN_MONTH))
+
+        if (!createLoanPaymentData.isShouldUpdateDueDate()) {
+            return;
+        }
+        updateLoanDueDate(loan);
+    }
+
+    private static void updateLoanDueDate(Loan loan) {
+        var dueDate = calculateLatestLoanDueDate(loan);
+        loan.setDueDate(dueDate);
+
+        var isDue = loan.getDueDate()
+            .minusDays(loan.getDueWarningDays())
+            .isBefore(cambodiaNow());
+        loan.setStatus(isDue ? LoanStatus.DUE : LoanStatus.NORMAL);
+    }
+
+    private static LocalDateTime calculateLatestLoanDueDate(Loan loan) {
+        var now = cambodiaNow();
+        var startDate = loan.getStartDate();
+        var daysBetween = ChronoUnit.DAYS.between(startDate, now);
+        var cycleIndex = Math.floorDiv(daysBetween, DAY_IN_MONTH);
+        var cycleStart = startDate.plusDays(cycleIndex * DAY_IN_MONTH);
+        return cycleStart.plusDays(DAY_IN_MONTH);
+    }
+
+    public List<LoanPaymentResult> findLoanPaymentsByLoanId(String loanId) {
+        var payments = loanPaymentRepository.findAllByLoanId(
+            loanId,
+            Sort.by(Sort.Direction.DESC, LoanPayment_.PAYMENT_DATE)
         );
-        var updated = loanInstallmentRepository.saveAll(installments);
-        return MapperHelpers.getLoanMapper().toListLoanInstallmentResult(updated);
+        return MapperHelpers.getLoanMapper().toListLoanPaymentResults(payments);
+    }
+
+    public LoanResult postponeLoan(String loanId) {
+        var loan = loanRepository.findOneById(loanId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Loan [id=%s] is not found", loanId)
+                )
+            );
+        updateLoanDueDate(loan);
+        var updated = loanRepository.save(loan);
+        return MapperHelpers.getLoanMapper().toLoanResult(updated);
     }
 }
