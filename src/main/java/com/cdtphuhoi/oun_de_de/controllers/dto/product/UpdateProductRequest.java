@@ -24,4 +24,6 @@ public class UpdateProductRequest {
 
     @DecimalMin(value = "0.00", inclusive = true)
     private BigDecimal defaultQuantity;
+
+    private Boolean isPackagedByQuantity;
 }

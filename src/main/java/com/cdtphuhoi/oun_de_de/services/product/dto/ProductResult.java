@@ -23,4 +23,6 @@ public class ProductResult {
     private UnitResult unit;
 
     private DefaultProductSettingResult defaultProductSetting;
+
+    private Boolean isPackagedByQuantity;
 }

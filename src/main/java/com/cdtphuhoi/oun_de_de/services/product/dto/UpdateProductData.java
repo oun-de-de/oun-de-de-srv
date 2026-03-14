@@ -23,4 +23,6 @@ public class UpdateProductData {
     private BigDecimal defaultPrice;
 
     private BigDecimal defaultQuantity;
+
+    private Boolean isPackagedByQuantity;
 }

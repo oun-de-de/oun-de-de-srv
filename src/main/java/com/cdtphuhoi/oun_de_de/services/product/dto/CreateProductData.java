@@ -20,4 +20,6 @@ public class CreateProductData {
     private BigDecimal defaultPrice;
 
     private BigDecimal defaultQuantity;
+
+    private Boolean isPackagedByQuantity;
 }

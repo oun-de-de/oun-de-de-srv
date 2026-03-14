@@ -32,6 +32,7 @@ public interface ProductMapper {
 
     List<ProductResult> toListProductResults(List<Product> product);
 
+    @Mapping(target = "isPackagedByQuantity", defaultValue = "false")
     CreateProductData toCreateProductData(CreateProductRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -64,14 +65,6 @@ public interface ProductMapper {
         UpdateProductData updateProductData
     ) {
         updateProductInternal(product, updateProductData);
-
-        if (product.getDefaultProductSetting() == null) {
-            product.setDefaultProductSetting(
-                DefaultProductSetting.builder()
-                    .orgId(product.getOrgId())
-                    .build()
-            );
-        }
 
         updateDefaultProductSetting(
             product.getDefaultProductSetting(),

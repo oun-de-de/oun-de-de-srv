@@ -1,12 +1,16 @@
 package com.cdtphuhoi.oun_de_de.repositories;
 
+import com.cdtphuhoi.oun_de_de.entities.Loan;
 import com.cdtphuhoi.oun_de_de.entities.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, String>,
+    JpaSpecificationExecutor<Product> {
+
     Optional<Product> findOneById(String id);
 
     @Query(

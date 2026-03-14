@@ -5,6 +5,7 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
+import com.cdtphuhoi.oun_de_de.entities.Product;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
@@ -256,16 +257,17 @@ public class CustomerService implements OrgManagementService {
         String customerId,
         CreateProductSettingData createProductSettingData
     ) {
-        var customer = customerRepository.findOneById(customerId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(
-                    String.format("Customer [id=%s] not found", customerId)
-                )
-            );
         var product = productRepository.findOneById(createProductSettingData.getProductId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Product [id=%s] not found", createProductSettingData.getProductId())
+                )
+            );
+        validatePackagedProduct(createProductSettingData, product);
+        var customer = customerRepository.findOneById(customerId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Customer [id=%s] not found", customerId)
                 )
             );
         var productSetting = MapperHelpers.getCustomerMapper().toProductSetting(
@@ -280,6 +282,19 @@ public class CustomerService implements OrgManagementService {
             .price(productSettingDb.getPrice())
             .quantity(productSettingDb.getQuantity())
             .build();
+    }
+
+    private void validatePackagedProduct(CreateProductSettingData createProductSettingData, Product product) {
+        if (Boolean.FALSE.equals(product.getIsPackagedByQuantity()) && createProductSettingData.getQuantity() != null) {
+            throw new BadRequestException(
+                String.format("Product [id=%s] is not packaged, should not config quantity", createProductSettingData.getProductId())
+            );
+        }
+        if (Boolean.TRUE.equals(product.getIsPackagedByQuantity()) && createProductSettingData.getQuantity() == null) {
+            throw new BadRequestException(
+                String.format("Product [id=%s] is packaged, must config quantity", createProductSettingData.getProductId())
+            );
+        }
     }
 
     public List<ProductSettingResult> getProductSettings(String customerId) {
