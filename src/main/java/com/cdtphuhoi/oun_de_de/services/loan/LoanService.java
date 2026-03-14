@@ -24,8 +24,10 @@ import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanData;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.CreateLoanPaymentData;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.ExtendLoanData;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
+import com.cdtphuhoi.oun_de_de.services.loan.dto.UpdateLoanData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -197,7 +199,7 @@ public class LoanService implements OrgManagementService {
     public LoanPaymentResult createPayment(String loanId, CreateLoanPaymentData createLoanPaymentData) {
         var loan = loanRepository.findOne(
                 Specification.allOf(
-                (root, query, cb) -> cb.notEqual(root.get(Loan_.STATUS), LoanStatus.COMPLETE),
+                    (root, query, cb) -> cb.notEqual(root.get(Loan_.STATUS), LoanStatus.COMPLETE),
                     (root, query, cb) -> cb.equal(root.get(Loan_.ID), loanId)
                 )
             )
@@ -274,6 +276,40 @@ public class LoanService implements OrgManagementService {
                 )
             );
         updateLoanDueDate(loan);
+        var updated = loanRepository.save(loan);
+        return MapperHelpers.getLoanMapper().toLoanResult(updated);
+    }
+
+    public LoanResult extendLoan(String loanId, ExtendLoanData extendLoanData) {
+        var loan = loanRepository.findOne(
+                Specification.allOf(
+                    (root, query, cb) -> cb.notEqual(root.get(Loan_.STATUS), LoanStatus.COMPLETE),
+                    (root, query, cb) -> cb.equal(root.get(Loan_.ID), loanId)
+                )
+            )
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Loan [id=%s] is not found or has already closed", loanId)
+                )
+            );
+        loan.setPrincipalAmount(loan.getPrincipalAmount().add(extendLoanData.getAmount()));
+        var updated = loanRepository.save(loan);
+        return MapperHelpers.getLoanMapper().toLoanResult(updated);
+    }
+
+    public LoanResult updateLoan(String loanId, UpdateLoanData updateLoanData) {
+        var loan = loanRepository.findOne(
+                Specification.allOf(
+                    (root, query, cb) -> cb.notEqual(root.get(Loan_.STATUS), LoanStatus.COMPLETE),
+                    (root, query, cb) -> cb.equal(root.get(Loan_.ID), loanId)
+                )
+            )
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Loan [id=%s] is not found or has already closed", loanId)
+                )
+            );
+        MapperHelpers.getLoanMapper().updateLoan(loan, updateLoanData);
         var updated = loanRepository.save(loan);
         return MapperHelpers.getLoanMapper().toLoanResult(updated);
     }

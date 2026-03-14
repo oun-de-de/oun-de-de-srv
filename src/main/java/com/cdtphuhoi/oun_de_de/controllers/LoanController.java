@@ -4,6 +4,8 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanPaymentRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.loan.ExtendLoanRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.loan.UpdateLoanRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.loan.LoanService;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
@@ -19,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -76,9 +79,35 @@ public class LoanController {
         return ResponseEntity.ok(loanService.findLoanById(loanId));
     }
 
+    @PutMapping("/{loanId}")
+    public ResponseEntity<LoanResult> updateLoan(
+        @PathVariable String loanId,
+        @Valid @RequestBody UpdateLoanRequest request
+    ) {
+        return ResponseEntity.ok(
+            loanService.updateLoan(
+                loanId,
+                MapperHelpers.getLoanMapper().toUpdateLoanData(request)
+            )
+        );
+    }
+
     @PostMapping("/{loanId}/postpone")
     public ResponseEntity<LoanResult> postponeLoan(@PathVariable String loanId) {
         return ResponseEntity.ok(loanService.postponeLoan(loanId));
+    }
+
+    @PostMapping("/{loanId}/extend-loan")
+    public ResponseEntity<LoanResult> extendLoan(
+        @PathVariable String loanId,
+        @Valid @RequestBody ExtendLoanRequest request
+    ) {
+        return ResponseEntity.ok(
+            loanService.extendLoan(
+                loanId,
+                MapperHelpers.getLoanMapper().toExtendLoanData(request)
+            )
+        );
     }
 
     @GetMapping("/{loanId}/payments")
