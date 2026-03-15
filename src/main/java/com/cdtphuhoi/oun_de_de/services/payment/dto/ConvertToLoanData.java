@@ -10,4 +10,6 @@ public class ConvertToLoanData {
     private BigDecimal loanInstallmentAmount;
 
     private LocalDateTime startDate;
+
+    private Integer dueWarningDays;
 }
