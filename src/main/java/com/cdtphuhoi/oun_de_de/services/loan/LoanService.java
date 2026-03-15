@@ -238,24 +238,25 @@ public class LoanService implements OrgManagementService {
         if (!createLoanPaymentData.isShouldUpdateDueDate()) {
             return;
         }
-        updateLoanDueDate(loan);
+        updateLoanDueDateAndStatus(loan);
     }
 
-    private static void updateLoanDueDate(Loan loan) {
+    private static void updateLoanDueDateAndStatus(Loan loan) {
         var dueDate = calculateLatestLoanDueDate(loan);
         loan.setDueDate(dueDate);
-
-        var isDue = loan.getDueDate()
-            .minusDays(loan.getDueWarningDays())
-            .isBefore(cambodiaNow());
-        loan.setStatus(isDue ? LoanStatus.DUE : LoanStatus.NORMAL);
+        loan.setStatus(LoanStatus.NORMAL);
     }
 
     private static LocalDateTime calculateLatestLoanDueDate(Loan loan) {
         var now = cambodiaNow();
         var startDate = loan.getStartDate();
         var daysBetween = ChronoUnit.DAYS.between(startDate, now);
-        var cycleIndex = Math.floorDiv(daysBetween, DAY_IN_MONTH);
+        /*
+         * due date should always move to the next cycle from
+         * eg: start: 15/02/2026, now: 15/03/2026 => cycle 15/02/2026 ->  17/03/2026
+         * but be should move to the next of this cycle: 18/03/2026 -> 16/04/2026
+         */
+        var cycleIndex = Math.floorDiv(daysBetween, DAY_IN_MONTH) + 1;
         var cycleStart = startDate.plusDays(cycleIndex * DAY_IN_MONTH);
         return cycleStart.plusDays(DAY_IN_MONTH);
     }
@@ -275,7 +276,7 @@ public class LoanService implements OrgManagementService {
                     String.format("Loan [id=%s] is not found", loanId)
                 )
             );
-        updateLoanDueDate(loan);
+        updateLoanDueDateAndStatus(loan);
         var updated = loanRepository.save(loan);
         return MapperHelpers.getLoanMapper().toLoanResult(updated);
     }

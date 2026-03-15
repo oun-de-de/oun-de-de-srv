@@ -52,11 +52,10 @@ public class OunDeDeApplicationScheduledJob {
         log.info("Due loans size = {}", loans.size());
         var shouldUpdate = new AtomicBoolean(false);
         loans.forEach(loan -> {
-            if (
-                loan.getDueDate()
-                    .minusDays(loan.getDueWarningDays())
-                    .isBefore(cambodiaNow())
-            ) {
+            var isDue = loan.getDueDate()
+                .minusDays(loan.getDueWarningDays())
+                .isBefore(cambodiaNow());
+            if (isDue) {
                 shouldUpdate.set(true);
                 loan.setStatus(LoanStatus.DUE);
             }
