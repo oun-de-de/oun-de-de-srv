@@ -19,6 +19,7 @@ public class Constants {
     public static final int UUID_REFERENCE_LENGTH = 36;
     public static final int DEFAULT_DECIMAL_SCALE = 5;
     public static final int DEFAULT_DECIMAL_PRECISION = 19;
+    public static final int DEFAULT_CODE_LENGTH = 20;
 
     public static final String ORG_FILTER_NAME = "orgFilter";
     public static final String ORG_FILTER_PARAM = "orgId";

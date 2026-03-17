@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class CodeListData {
+
     private String name;
 
     private String descr;

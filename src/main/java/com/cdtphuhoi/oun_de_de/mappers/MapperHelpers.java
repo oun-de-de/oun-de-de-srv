@@ -49,4 +49,8 @@ public class MapperHelpers {
     public static ReportMapper getReportMapper() {
         return ReportMapper.INSTANCE;
     }
+
+    public static AccountingMapper getAccountingMapper() {
+        return AccountingMapper.INSTANCE;
+    }
 }
