@@ -3,9 +3,12 @@ package com.cdtphuhoi.oun_de_de.services.accounting;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.AccountTypeRepository;
+import com.cdtphuhoi.oun_de_de.repositories.JournalClassRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.AccountTypeResult;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateAccountTypeData;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateJournalClassData;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalClassResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,8 @@ import java.util.List;
 public class AccountingService implements OrgManagementService {
 
     private final AccountTypeRepository accountTypeRepository;
+
+    private final JournalClassRepository journalClassRepository;
 
     public AccountTypeResult createAccountType(
         CreateAccountTypeData createAccountTypeData,
@@ -36,4 +41,23 @@ public class AccountingService implements OrgManagementService {
         var results = accountTypeRepository.findAll();
         return MapperHelpers.getAccountingMapper().toListAccountTypeResults(results);
     }
+
+    public JournalClassResult createJournalClass(
+        CreateJournalClassData createJournalClassData,
+        User usr
+    ) {
+        var journalClass = MapperHelpers.getAccountingMapper().toJournalClass(createJournalClassData);
+        journalClass.setOrgId(usr.getOrgId());
+        log.info("Creating journal class");
+        var journalClassDb = journalClassRepository.save(journalClass);
+        log.info("Created journal class, id = {}", journalClassDb.getId());
+        return MapperHelpers.getAccountingMapper().toJournalClassResult(journalClassDb);
+    }
+
+
+    public List<JournalClassResult> findAllJournalClasses() {
+        var results = journalClassRepository.findAll();
+        return MapperHelpers.getAccountingMapper().toListJournalClassResults(results);
+    }
+
 }

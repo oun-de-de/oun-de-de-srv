@@ -2,9 +2,11 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateAccountTypeRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalClassRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.accounting.AccountingService;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.AccountTypeResult;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalClassResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,26 @@ public class AccountingController {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = accountingService.createAccountType(
             MapperHelpers.getAccountingMapper().toCreateAccountTypeData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
+
+    @GetMapping("/journal-classes")
+    public ResponseEntity<List<JournalClassResult>> listJournalClasses() {
+        return ResponseEntity.ok(
+            accountingService.findAllJournalClasses()
+        );
+    }
+
+    @PostMapping("/journal-classes")
+    public ResponseEntity<JournalClassResult> createJournalClass(
+        @Valid @RequestBody CreateJournalClassRequest request) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = accountingService.createJournalClass(
+            MapperHelpers.getAccountingMapper().toCreateJournalClassData(request),
             usr
         );
         return ResponseEntity
