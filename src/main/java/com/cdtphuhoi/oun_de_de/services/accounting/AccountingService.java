@@ -4,11 +4,14 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.AccountTypeRepository;
 import com.cdtphuhoi.oun_de_de.repositories.JournalClassRepository;
+import com.cdtphuhoi.oun_de_de.repositories.JournalTypeRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.AccountTypeResult;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateAccountTypeData;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateJournalClassData;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateJournalTypeData;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalClassResult;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalTypeResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ public class AccountingService implements OrgManagementService {
     private final AccountTypeRepository accountTypeRepository;
 
     private final JournalClassRepository journalClassRepository;
+
+    private final JournalTypeRepository journalTypeRepository;
 
     public AccountTypeResult createAccountType(
         CreateAccountTypeData createAccountTypeData,
@@ -60,4 +65,20 @@ public class AccountingService implements OrgManagementService {
         return MapperHelpers.getAccountingMapper().toListJournalClassResults(results);
     }
 
+    public List<JournalTypeResult> findAllJournalTypes() {
+        var results = journalTypeRepository.findAll();
+        return MapperHelpers.getAccountingMapper().toListJournalTypeResults(results);
+    }
+
+    public JournalTypeResult createJournalType(
+        CreateJournalTypeData createJournalTypeData,
+        User usr
+    ) {
+        var journalType = MapperHelpers.getAccountingMapper().toJournalType(createJournalTypeData);
+        journalType.setOrgId(usr.getOrgId());
+        log.info("Creating journal type");
+        var journalTypeDb = journalTypeRepository.save(journalType);
+        log.info("Created journal type, id = {}", journalTypeDb.getId());
+        return MapperHelpers.getAccountingMapper().toJournalTypeResult(journalTypeDb);
+    }
 }

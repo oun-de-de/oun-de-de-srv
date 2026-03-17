@@ -3,10 +3,12 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateAccountTypeRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalClassRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalTypeRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.accounting.AccountingService;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.AccountTypeResult;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalClassResult;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalTypeResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +43,8 @@ public class AccountingController {
 
     @PostMapping("/account-types")
     public ResponseEntity<AccountTypeResult> createAccountType(
-        @Valid @RequestBody CreateAccountTypeRequest request) {
+        @Valid @RequestBody CreateAccountTypeRequest request
+    ) {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = accountingService.createAccountType(
             MapperHelpers.getAccountingMapper().toCreateAccountTypeData(request),
@@ -61,10 +64,32 @@ public class AccountingController {
 
     @PostMapping("/journal-classes")
     public ResponseEntity<JournalClassResult> createJournalClass(
-        @Valid @RequestBody CreateJournalClassRequest request) {
+        @Valid @RequestBody CreateJournalClassRequest request
+    ) {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = accountingService.createJournalClass(
             MapperHelpers.getAccountingMapper().toCreateJournalClassData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
+
+    @GetMapping("/journal-types")
+    public ResponseEntity<List<JournalTypeResult>> listJournalTypes() {
+        return ResponseEntity.ok(
+            accountingService.findAllJournalTypes()
+        );
+    }
+
+    @PostMapping("/journal-types")
+    public ResponseEntity<JournalTypeResult> createJournalType(
+        @Valid @RequestBody CreateJournalTypeRequest request
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = accountingService.createJournalType(
+            MapperHelpers.getAccountingMapper().toCreateJournalTypeData(request),
             usr
         );
         return ResponseEntity
