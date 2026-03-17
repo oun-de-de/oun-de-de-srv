@@ -44,6 +44,7 @@ public class AccountingController {
         @RequestParam(required = false) String name,
         @RequestParam(required = false) String code,
         @RequestParam(name = "account_type_id", required = false) String accountTypeId,
+        @RequestParam(name = "load_account_type", required = false) Boolean shouldLoadAccountType,
         Pageable pageable
     ) {
         return ResponseEntity.ok(
@@ -51,6 +52,7 @@ public class AccountingController {
                 name,
                 code,
                 accountTypeId,
+                shouldLoadAccountType,
                 pageable
             )
         );

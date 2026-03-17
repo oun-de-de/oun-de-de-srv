@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class ChartOfAccountResult extends CodeListResult {
 
-    private String accountTypeId;
-
     private String code;
+
+    private AccountTypeResult accountType;
 }

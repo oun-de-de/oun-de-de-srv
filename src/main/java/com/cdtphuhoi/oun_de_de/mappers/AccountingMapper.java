@@ -68,6 +68,6 @@ public interface AccountingMapper {
 
     ChartOfAccount toChartOfAccount(CreateChartOfAccountData createChartOfAccountData);
 
-    @Mapping(target = "accountTypeId", source = "accountType.id")
+    @Mapping(target = "accountType.id", source = "accountType.id")
     ChartOfAccountResult toChartOfAccountResult(ChartOfAccount chartOfAccountDb);
 }

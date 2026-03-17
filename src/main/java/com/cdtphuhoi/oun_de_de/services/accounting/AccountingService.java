@@ -1,5 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.accounting;
 
+import com.cdtphuhoi.oun_de_de.entities.AccountType;
+import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount_;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -24,6 +26,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -114,16 +118,36 @@ public class AccountingService implements OrgManagementService {
         String name,
         String code,
         String accountTypeId,
+        Boolean shouldLoadAccountTypeOpt,
         Pageable pageable
     ) {
+        var shouldLoadAccountType = Optional.ofNullable(shouldLoadAccountTypeOpt)
+            .orElse(false);
         var page = chartOfAccountRepository.findAll(
             Specification.allOf(
                 ChartOfAccountSpecifications.hasCode(code),
                 ChartOfAccountSpecifications.containName(name),
-                ChartOfAccountSpecifications.hasAccountTypeId(accountTypeId)
+                ChartOfAccountSpecifications.hasAccountTypeId(accountTypeId),
+                (root, query, cb) -> {
+                    if (query != null && Long.class != query.getResultType()) {
+                        if (shouldLoadAccountType) {
+                            root.fetch(ChartOfAccount_.ACCOUNT_TYPE, JoinType.LEFT);
+                        }
+                    }
+                    return null;
+                }
             ),
             pageable
         );
+        if (!shouldLoadAccountType) {
+            page.forEach(chartOfAccount ->
+                chartOfAccount.setAccountType(
+                    AccountType.builder()
+                        .id(chartOfAccount.getAccountType().getId())
+                        .build()
+                )
+            );
+        }
         return page.map(MapperHelpers.getAccountingMapper()::toChartOfAccountResult);
     }
 }
