@@ -24,7 +24,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
-import jakarta.validation.Valid;
 
 @Mapper(
     uses = MapperHelpers.class,
