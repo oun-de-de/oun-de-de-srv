@@ -1,12 +1,14 @@
 package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateCurrencyRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.settings.SettingService;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
@@ -98,5 +100,26 @@ public class SettingController {
         );
         return ResponseEntity
             .ok(result);
+    }
+
+    @GetMapping("/currencies")
+    public ResponseEntity<List<CurrencyResult>> listCurrencies() {
+        return ResponseEntity.ok(
+            settingService.findAllCurrencies()
+        );
+    }
+
+    @PostMapping("/currencies")
+    public ResponseEntity<CurrencyResult> createCurrency(
+        @Valid @RequestBody CreateCurrencyRequest request
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = settingService.createCurrency(
+            MapperHelpers.getSettingMapper().toCreateCurrencyData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
     }
 }

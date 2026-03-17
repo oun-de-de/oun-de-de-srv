@@ -3,11 +3,14 @@ package com.cdtphuhoi.oun_de_de.services.settings;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.repositories.CurrencyRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateCurrencyData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
@@ -27,6 +30,8 @@ public class SettingService implements OrgManagementService {
     private final UnitRepository unitRepository;
 
     private final WarehouseRepository warehouseRepository;
+
+    private final CurrencyRepository currencyRepository;
 
     public UnitResult createUnit(CreateUnitData createUnitData, User usr) {
         var unit = MapperHelpers.getSettingMapper().toUnit(createUnitData, usr);
@@ -76,5 +81,19 @@ public class SettingService implements OrgManagementService {
     public List<WarehouseResult> findAllWarehouses() {
         var results = warehouseRepository.findAll();
         return MapperHelpers.getSettingMapper().toListWarehouseResult(results);
+    }
+
+    public List<CurrencyResult> findAllCurrencies() {
+        var results = currencyRepository.findAll();
+        return MapperHelpers.getSettingMapper().toListCurrencyResult(results);
+    }
+
+    public CurrencyResult createCurrency(CreateCurrencyData createCurrencyData, User usr) {
+        var currency = MapperHelpers.getSettingMapper().toCurrency(createCurrencyData);
+        currency.setOrgId(usr.getOrgId());
+        log.info("Creating currency");
+        var currencyDb = currencyRepository.save(currency);
+        log.info("Created currency, id = {}", currencyDb.getId());
+        return MapperHelpers.getSettingMapper().toCurrencyResult(currencyDb);
     }
 }

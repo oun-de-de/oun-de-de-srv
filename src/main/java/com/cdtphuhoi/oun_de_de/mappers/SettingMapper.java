@@ -1,15 +1,19 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.UnitType;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateCurrencyRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
+import com.cdtphuhoi.oun_de_de.entities.Currency;
 import com.cdtphuhoi.oun_de_de.entities.Unit;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Warehouse;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateCurrencyData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
@@ -65,4 +69,12 @@ public interface SettingMapper {
     UpdateWarehouseData toUpdateWarehouseData(UpdateWarehouseRequest request);
 
     void updateWarehouse(UpdateWarehouseData updateWarehouseData, @MappingTarget Warehouse warehouse);
+
+    CurrencyResult toCurrencyResult(Currency currency);
+
+    List<CurrencyResult> toListCurrencyResult(List<Currency> results);
+
+    CreateCurrencyData toCreateCurrencyData(CreateCurrencyRequest request);
+
+    Currency toCurrency(CreateCurrencyData createCurrencyData);
 }
