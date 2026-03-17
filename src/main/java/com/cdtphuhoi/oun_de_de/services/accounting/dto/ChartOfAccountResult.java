@@ -6,5 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class JournalClassResult extends CodeListResult {
+public class ChartOfAccountResult extends CodeListResult {
+
+    private String accountTypeId;
+
+    private String code;
 }

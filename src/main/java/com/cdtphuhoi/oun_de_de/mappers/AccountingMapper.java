@@ -2,23 +2,29 @@ package com.cdtphuhoi.oun_de_de.mappers;
 
 import com.cdtphuhoi.oun_de_de.common.AccountNature;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateAccountTypeRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateChartOfAccountRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalClassRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalTypeRequest;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
+import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass;
 import com.cdtphuhoi.oun_de_de.entities.JournalType;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.AccountTypeResult;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.ChartOfAccountResult;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateAccountTypeData;
+import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateChartOfAccountData;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateJournalClassData;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.CreateJournalTypeData;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalClassResult;
 import com.cdtphuhoi.oun_de_de.services.accounting.dto.JournalTypeResult;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @Mapper(
     uses = MapperHelpers.class,
@@ -58,4 +64,11 @@ public interface AccountingMapper {
     CreateJournalTypeData toCreateJournalTypeData(CreateJournalTypeRequest request);
 
     JournalType toJournalType(CreateJournalTypeData createJournalTypeData);
+
+    CreateChartOfAccountData toCreateChartOfAccountData(CreateChartOfAccountRequest request);
+
+    ChartOfAccount toChartOfAccount(CreateChartOfAccountData createChartOfAccountData);
+
+    @Mapping(target = "accountTypeId", source = "accountType.id")
+    ChartOfAccountResult toChartOfAccountResult(ChartOfAccount chartOfAccountDb);
 }
