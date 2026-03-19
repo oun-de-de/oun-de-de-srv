@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
-import com.cdtphuhoi.oun_de_de.common.AccountNature;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateAccountTypeRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateChartOfAccountRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.accounting.CreateJournalClassRequest;
@@ -40,13 +39,6 @@ public interface AccountingMapper {
     AccountTypeResult toAccountTypeResult(AccountType accountTypeDb);
 
     List<AccountTypeResult> toListAccountTypeResults(List<AccountType> results);
-
-    @ValueMapping(target = "ASSET", source = "asset")
-    @ValueMapping(target = "LIABILITY", source = "liability")
-    @ValueMapping(target = "EQUITY", source = "equity")
-    @ValueMapping(target = "REVENUE", source = "revenue")
-    @ValueMapping(target = "EXPENSE", source = "expense")
-    AccountNature stringToAccountNature(String source);
 
     JournalClassResult toJournalClassResult(JournalClass journalClass);
 
