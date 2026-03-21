@@ -1,13 +1,19 @@
 package com.cdtphuhoi.oun_de_de.services.cash_transaction;
 
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail_;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
+import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
+import com.cdtphuhoi.oun_de_de.entities.Payment_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -17,6 +23,8 @@ import com.cdtphuhoi.oun_de_de.repositories.ChartOfAccountRepository;
 import com.cdtphuhoi.oun_de_de.repositories.CurrencyRepository;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.JournalClassRepository;
+import com.cdtphuhoi.oun_de_de.repositories.LoanPaymentRepository;
+import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionFlattenResult;
@@ -25,10 +33,14 @@ import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransacti
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransactionDetailData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,15 +67,13 @@ public class CashTransactionService implements OrgManagementService {
 
     private final JournalClassRepository journalClassRepository;
 
+    private final PaymentRepository paymentRepository;
+
+    private final LoanPaymentRepository loanPaymentRepository;
+
     private final CashTransactionRepository cashTransactionRepository;
 
     public CashTransactionResult create(CreateCashTransactionData createCashTransactionData) {
-        var invalidAccountType = CashTransactionType.CREDIT.equals(createCashTransactionData.getType()) &&
-            createCashTransactionData.getCashTransactionDetails().stream()
-                .anyMatch(detail -> detail.getAccountTypeId() == null);
-        if (invalidAccountType) {
-            throw new BadRequestException("Account Type is required for Credit Cash Transaction");
-        }
         var employee = userRepository.findOneById(createCashTransactionData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
@@ -181,7 +191,6 @@ public class CashTransactionService implements OrgManagementService {
     private Map<String, AccountType> buildAccountTypeById(List<CreateCashTransactionDetailData> cashTransactionDetails) {
         var accountTypeIds = cashTransactionDetails.stream()
             .map(CreateCashTransactionDetailData::getAccountTypeId)
-            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
         var accountTypeMap = accountTypeRepository.findAllByIdIn(accountTypeIds).stream()
             .collect(
@@ -226,13 +235,17 @@ public class CashTransactionService implements OrgManagementService {
         return chartOfAccountMap;
     }
 
+    /*
+     * tmp: override sort behavior
+     */
     public List<CashTransactionFlattenResult> findBy(Pageable pageable) {
         var page = cashTransactionRepository.findAll(
             Specification.allOf(
                 (root, query, cb) -> {
                     if (query != null && Long.class != query.getResultType()) {
                         root.fetch(CashTransaction_.CURRENCY, JoinType.LEFT);
-                        root.fetch(CashTransaction_.CASH_TRANSACTION_DETAILS, JoinType.LEFT);
+                        root.fetch(CashTransaction_.CASH_TRANSACTION_DETAILS, JoinType.LEFT)
+                            .fetch(CashTransactionDetail_.ACCOUNT_TYPE, JoinType.LEFT);
                     }
                     return null;
                 }
@@ -240,6 +253,65 @@ public class CashTransactionService implements OrgManagementService {
             pageable
         );
         var cashTransactions = page.getContent();
-        return MapperHelpers.getCashTransactionMapper().toListCashTransactionFlattenResults(cashTransactions);
+        var dates = cashTransactions.stream()
+            .map(CashTransaction::getDate)
+            .collect(Collectors.toSet());
+        var minDate = dates.stream()
+            .min(LocalDateTime::compareTo)
+            .orElse(null);
+        var maxDate = dates.stream()
+            .max(LocalDateTime::compareTo)
+            .orElse(null);
+        var listCashTransactionFlattenResults = MapperHelpers.getCashTransactionMapper().toListCashTransactionFlattenResults(cashTransactions);
+
+        if (minDate != null && minDate.isBefore(maxDate)) {
+            var payments = paymentRepository.findAll(
+                Specification.allOf(
+                    (root, query, cb) -> cb.between(root.get(Payment_.paymentDate), minDate, maxDate)
+                )
+            );
+            // TODO: add payment currency, memo
+            listCashTransactionFlattenResults.addAll(
+                payments.stream()
+                    .map(payment ->
+                        CashTransactionFlattenResult.builder()
+                            .refNo(payment.getCode())
+                            .type(CashTransactionType.DEBIT)
+                            .reason(CashTransactionReason.RECEIPT.toString())
+                            .date(payment.getPaymentDate())
+                            .amount(payment.getAmount())
+                            .build()
+                    )
+                    .toList()
+            );
+            // loan payments
+            var loanPayments = loanPaymentRepository.findAll(
+                Specification.allOf(
+                    (root, query, cb) -> cb.between(root.get(LoanPayment_.paymentDate), minDate, maxDate)
+                )
+            );
+            // TODO: add loan payment currency, memo
+            listCashTransactionFlattenResults.addAll(
+                loanPayments.stream()
+                    .map(loanPayment ->
+                        CashTransactionFlattenResult.builder()
+                            .refNo(loanPayment.getCode())
+                            .type(CashTransactionType.DEBIT)
+                            .reason(CashTransactionReason.GENERAL.toString())
+                            .date(loanPayment.getPaymentDate())
+                            .amount(loanPayment.getAmount())
+                            .build()
+                    )
+                    .toList()
+            );
+            // sell equipment
+        }
+        return listCashTransactionFlattenResults.stream()
+            .sorted(
+                Comparator
+                    .comparing(CashTransactionFlattenResult::getDate)
+                    .reversed()
+            )
+            .toList();
     }
 }

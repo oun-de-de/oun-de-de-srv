@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CashTransactionReason implements ValueBasedEnum<String> {
-    CASH_IN("cash_out"),
-    CASH_OUT("cash_in"),
+    CASH_IN("cash_in"),
+    CASH_OUT("cash_out"),
     RECEIPT("receipt"),
     GENERAL("general"),
     ;

@@ -18,6 +18,7 @@ public class CreateCashTransactionDetailRequest {
     /*
      * ACCOUNT TYPE
      */
+    @NotNull
     private UUID accountTypeId;
 
     private String memo;

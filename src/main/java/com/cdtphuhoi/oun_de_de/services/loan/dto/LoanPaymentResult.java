@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public class LoanPaymentResult {
     private String id;
 
+    private String code;
+
     private LocalDateTime paymentDate;
 
     private BigDecimal amount;

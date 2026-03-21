@@ -10,6 +10,8 @@ public class PaymentResult {
 
     private String cycleId;
 
+    private String code;
+
     private LocalDateTime paymentDate;
 
     private BigDecimal amount;
