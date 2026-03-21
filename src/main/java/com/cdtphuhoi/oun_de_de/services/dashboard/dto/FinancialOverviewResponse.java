@@ -11,7 +11,7 @@ public class FinancialOverviewResponse {
 
     private Long overdueCycles;
 
-    private Long overdueLoanInstallments;
+    private Long dueLoanInstallments;
 
     // maybe use for later
     private BigDecimal depositBalance;

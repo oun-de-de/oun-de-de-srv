@@ -2,7 +2,9 @@ package com.cdtphuhoi.oun_de_de.services.dashboard;
 
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.LoanStatus;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.repositories.LoanRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
@@ -33,16 +35,15 @@ public class DashboardService implements OrgManagementService {
 
     private final PaymentRepository paymentRepository;
 
+    private final LoanRepository loanRepository;
+
     private final StockTransactionRepository stockTransactionRepository;
 
     public FinancialOverviewResponse getFinancialOverview(String orgId) {
         return FinancialOverviewResponse.builder()
             .invoiceAmount(paymentTermCycleRepository.sumAmount(orgId))
             .overdueCycles(paymentTermCycleRepository.countByStatus(PaymentTermCycleStatus.OVERDUE))
-            /*
-             * TODO: UPDATE TO ANOTHER FIELD
-             */
-//            .overdueLoanInstallments(loanInstallmentRepository.countByStatus(LoanInstallmentStatus.OVERDUE))
+            .dueLoanInstallments(loanRepository.countByStatus(LoanStatus.DUE))
             .depositBalance(BigDecimal.ZERO)
             .build();
     }
