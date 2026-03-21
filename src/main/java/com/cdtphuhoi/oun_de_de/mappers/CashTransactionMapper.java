@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.mappers;
 
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.cash_transaction.CreateCashTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
@@ -58,16 +59,28 @@ public interface CashTransactionMapper {
         CashTransaction cashTransaction
     ) {
         var result = new ArrayList<CashTransactionFlattenResult>();
-        result.add(getCashTransactionFlattenResult(cashTransaction));
+        var defaultFlattenResult = getCashTransactionFlattenResult(cashTransaction);
+        defaultFlattenResult.setReason(getDefaultReason(cashTransaction).toString());
+        result.add(defaultFlattenResult);
 
         for (var cashTransactionDetail : cashTransaction.getCashTransactionDetails()) {
             var flattenResult = getCashTransactionFlattenResult(cashTransaction);
             flattenResult.setMemo(cashTransactionDetail.getMemo());
             flattenResult.setAmount(cashTransactionDetail.getAmount());
+            if (cashTransactionDetail.getAccountType() != null) {
+                flattenResult.setReason(cashTransactionDetail.getAccountType().getNature());
+            } else {
+                flattenResult.setReason(getDefaultReason(cashTransaction).toString());
+            }
             result.add(flattenResult);
         }
 
         return result;
+    }
+
+    private static CashTransactionReason getDefaultReason(CashTransaction cashTransaction) {
+        return CashTransactionType.DEBIT.equals(cashTransaction.getType()) ?
+            CashTransactionReason.CASH_IN : CashTransactionReason.CASH_OUT;
     }
 
     private static CashTransactionFlattenResult getCashTransactionFlattenResult(CashTransaction cashTransaction) {

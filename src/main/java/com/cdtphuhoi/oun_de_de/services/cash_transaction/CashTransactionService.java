@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.services.cash_transaction;
 
+import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
@@ -57,6 +58,12 @@ public class CashTransactionService implements OrgManagementService {
     private final CashTransactionRepository cashTransactionRepository;
 
     public CashTransactionResult create(CreateCashTransactionData createCashTransactionData) {
+        var invalidAccountType = CashTransactionType.CREDIT.equals(createCashTransactionData.getType()) &&
+            createCashTransactionData.getCashTransactionDetails().stream()
+                .anyMatch(detail -> detail.getAccountTypeId() == null);
+        if (invalidAccountType) {
+            throw new BadRequestException("Account Type is required for Credit Cash Transaction");
+        }
         var employee = userRepository.findOneById(createCashTransactionData.getEmployeeId())
             .orElseThrow(
                 () -> new ResourceNotFoundException(
