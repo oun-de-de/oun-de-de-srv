@@ -38,6 +38,8 @@ public class LoanPayment extends OrgManaged {
     @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.PERSIST)
     private Loan loan;
 
+    private String code;
+
     @Column(nullable = false)
     private LocalDateTime paymentDate;
 

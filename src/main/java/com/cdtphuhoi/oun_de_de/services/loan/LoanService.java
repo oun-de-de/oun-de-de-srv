@@ -222,6 +222,7 @@ public class LoanService implements OrgManagementService {
             .loan(loan)
             .paymentDate(createLoanPaymentData.getPaymentDate())
             .amount(createLoanPaymentData.getAmount())
+            .code(createLoanPaymentData.getCode())
             .build();
         log.info("Creating payment");
         var paymentDb = loanPaymentRepository.save(payment);
