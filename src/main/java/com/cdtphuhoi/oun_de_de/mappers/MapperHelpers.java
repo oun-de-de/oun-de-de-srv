@@ -53,4 +53,8 @@ public class MapperHelpers {
     public static AccountingMapper getAccountingMapper() {
         return AccountingMapper.INSTANCE;
     }
+
+    public static CashTransactionMapper getCashTransactionMapper() {
+        return CashTransactionMapper.INSTANCE;
+    }
 }
