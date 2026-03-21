@@ -1,6 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.cash_transaction.dto;
 
-import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
