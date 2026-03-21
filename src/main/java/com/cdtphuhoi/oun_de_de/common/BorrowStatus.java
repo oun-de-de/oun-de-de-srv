@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum BorrowStatus implements ValueBasedEnum<String> {
     BORROWED("borrowed"),
     RETURNED("returned"),
+    SOLD("sold")
     ;
 
     private final String value;

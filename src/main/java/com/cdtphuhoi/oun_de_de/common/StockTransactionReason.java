@@ -10,6 +10,7 @@ public enum StockTransactionReason implements ValueBasedEnum<String> {
     CONSUME("consume"),
     BORROW("borrow"),
     RETURN("return"),
+    SOLD("sold"),
     ;
 
     private final String value;

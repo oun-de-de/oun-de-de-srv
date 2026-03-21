@@ -13,4 +13,5 @@ public interface EquipmentBorrowRepository extends JpaRepository<EquipmentBorrow
 
     Optional<EquipmentBorrow> findOneById(String id);
 
+    Optional<EquipmentBorrow>  findOneByIdAndItemId(String borrowingId, String itemId);
 }

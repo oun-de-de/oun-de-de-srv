@@ -193,17 +193,7 @@ public class InventoryService implements OrgManagementService {
                     String.format("Customer [id=%s] not found", createEquipmentBorrowData.getCustomerId())
                 )
             );
-        var item = inventoryItemRepository.findOneById(itemId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(
-                    String.format("Item [id=%s] not found", itemId)
-                )
-            );
-        if (!ItemType.EQUIPMENT.equals(item.getType())) {
-            throw new BadRequestException(
-                String.format("Item [id=%s] is not equipment", itemId)
-            );
-        }
+        var item = getEquipment(itemId);
         updateItemQuantity(StockTransactionType.OUT, createEquipmentBorrowData.getQuantity(), item);
 
         var equipmentBorrow = EquipmentBorrow.builder()
@@ -247,26 +237,13 @@ public class InventoryService implements OrgManagementService {
     }
 
     public StockTransactionResult returnBorrowing(String itemId, String borrowingId, User usr) {
-        var item = inventoryItemRepository.findOneById(itemId)
-            .orElseThrow(
-                () -> new ResourceNotFoundException(
-                    String.format("Item [id=%s] not found", itemId)
-                )
-            );
-        if (!ItemType.EQUIPMENT.equals(item.getType())) {
-            throw new BadRequestException(
-                String.format("Item [id=%s] is not equipment", itemId)
-            );
-        }
-        var equipmentBorrow = equipmentBorrowRepository.findOneById(borrowingId)
+        var item = getEquipment(itemId);
+        var equipmentBorrow = equipmentBorrowRepository.findOneByIdAndItemId(borrowingId, itemId)
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("EquipmentBorrow [id=%s] not found", borrowingId)
                 )
             );
-        if (!equipmentBorrow.getItem().getId().equals(itemId)) {
-            throw new BadRequestException("Item with borrowing not match");
-        }
         equipmentBorrow.setActualReturnDate(cambodiaNow());
         equipmentBorrow.setStatus(BorrowStatus.RETURNED);
 
@@ -279,6 +256,49 @@ public class InventoryService implements OrgManagementService {
             .quantity(equipmentBorrow.getQuantity())
             .type(StockTransactionType.IN)
             .reason(StockTransactionReason.RETURN)
+            .createdAt(cambodiaNow())
+            .createdBy(usr)
+            .build();
+
+        var stockTransactionDb = persistStockTransaction(stockTransaction);
+        return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
+    }
+
+    private InventoryItem getEquipment(String itemId) {
+        var item = inventoryItemRepository.findOneById(itemId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Item [id=%s] not found", itemId)
+                )
+            );
+        if (!ItemType.EQUIPMENT.equals(item.getType())) {
+            throw new BadRequestException(
+                String.format("Item [id=%s] is not equipment", itemId)
+            );
+        }
+        return item;
+    }
+
+    public StockTransactionResult sellBorrowing(String itemId, String borrowingId, BigDecimal expense, User usr) {
+        var item = getEquipment(itemId);
+        var equipmentBorrow = equipmentBorrowRepository.findOneByIdAndItemId(borrowingId, itemId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("EquipmentBorrow [id=%s] not found", borrowingId)
+                )
+            );
+        equipmentBorrow.setStatus(BorrowStatus.SOLD);
+
+        updateItemQuantity(StockTransactionType.OUT, equipmentBorrow.getQuantity(), item);
+
+        var stockTransaction = StockTransaction.builder()
+            .orgId(item.getOrgId())
+            .item(item)
+            .equipmentBorrow(equipmentBorrow)
+            .quantity(equipmentBorrow.getQuantity())
+            .type(StockTransactionType.OUT)
+            .reason(StockTransactionReason.SOLD)
+            .expense(expense)
             .createdAt(cambodiaNow())
             .createdBy(usr)
             .build();

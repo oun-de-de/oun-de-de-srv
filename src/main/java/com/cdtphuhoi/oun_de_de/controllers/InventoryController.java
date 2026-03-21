@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.SellEquipmentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.inventory.InventoryService;
@@ -112,5 +113,22 @@ public class InventoryController {
     ) {
         var usr = controllerUtils.getCurrentSignedInUser();
         return ResponseEntity.ok(inventoryService.returnBorrowing(itemId, borrowingId, usr));
+    }
+
+    @PostMapping("/{itemId}/borrowings/{borrowingId}/sell")
+    public ResponseEntity<StockTransactionResult> sellBorrowing(
+        @PathVariable String itemId,
+        @PathVariable String borrowingId,
+        @Valid @RequestBody SellEquipmentRequest request
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        return ResponseEntity.ok(
+            inventoryService.sellBorrowing(
+                itemId,
+                borrowingId,
+                request.getExpense(),
+                usr
+            )
+        );
     }
 }

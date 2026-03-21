@@ -20,5 +20,6 @@ public class UpdateStockTransactionRequest {
 
     private String memo;
 
+    @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal expense;
 }
