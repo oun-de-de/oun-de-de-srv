@@ -28,6 +28,7 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.SellEquipmentData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -279,7 +280,7 @@ public class InventoryService implements OrgManagementService {
         return item;
     }
 
-    public StockTransactionResult sellBorrowing(String itemId, String borrowingId, BigDecimal expense, User usr) {
+    public StockTransactionResult sellBorrowing(String itemId, String borrowingId, SellEquipmentData sellEquipmentData, User usr) {
         var item = getEquipment(itemId);
         var equipmentBorrow = equipmentBorrowRepository.findOneByIdAndItemId(borrowingId, itemId)
             .orElseThrow(
@@ -298,7 +299,8 @@ public class InventoryService implements OrgManagementService {
             .quantity(equipmentBorrow.getQuantity())
             .type(StockTransactionType.OUT)
             .reason(StockTransactionReason.SOLD)
-            .expense(expense)
+            .expense(sellEquipmentData.getExpense())
+            .refCode(sellEquipmentData.getRefCode())
             .createdAt(cambodiaNow())
             .createdBy(usr)
             .build();

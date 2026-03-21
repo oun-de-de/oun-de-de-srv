@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.SellEquipmentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
@@ -15,6 +16,7 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.SellEquipmentData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
@@ -73,4 +75,6 @@ public interface InventoryMapper {
     EquipmentBorrowResult toEquipmentBorrowResult(EquipmentBorrow equipmentBorrow);
 
     List<EquipmentBorrowResult> toListEquipmentBorrowResult(List<EquipmentBorrow> equipmentBorrows);
+
+    SellEquipmentData toSellEquipmentData(SellEquipmentRequest request);
 }

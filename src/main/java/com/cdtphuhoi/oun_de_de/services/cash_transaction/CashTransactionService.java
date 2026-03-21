@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.services.cash_transaction;
 
 import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
+import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
@@ -12,6 +13,7 @@ import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass;
 import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
 import com.cdtphuhoi.oun_de_de.entities.Payment_;
+import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -23,6 +25,7 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.JournalClassRepository;
 import com.cdtphuhoi.oun_de_de.repositories.LoanPaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
+import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionFlattenResult;
@@ -64,6 +67,8 @@ public class CashTransactionService implements OrgManagementService {
     private final JournalClassRepository journalClassRepository;
 
     private final PaymentRepository paymentRepository;
+
+    private final StockTransactionRepository stockTransactionRepository;
 
     private final LoanPaymentRepository loanPaymentRepository;
 
@@ -301,6 +306,27 @@ public class CashTransactionService implements OrgManagementService {
                     .toList()
             );
             // sell equipment
+            var transactions = stockTransactionRepository.findAll(
+                Specification.allOf(
+                    (root, query, cb) -> cb.between(root.get(StockTransaction_.createdAt), minDate, maxDate),
+                    (root, query, cb) -> cb.equal(root.get(StockTransaction_.REASON), StockTransactionReason.SOLD)
+                )
+            );
+            // TODO: add stock transaction currency, memo
+            listCashTransactionFlattenResults.addAll(
+                transactions.stream()
+                    .map(transaction ->
+                        CashTransactionFlattenResult.builder()
+                            .refNo(transaction.getRefCode())
+                            .type(CashTransactionType.DEBIT)
+                            .reason(CashTransactionReason.CASH_IN.toString())
+                            .date(transaction.getCreatedAt())
+                            .amount(transaction.getExpense())
+                            .build()
+                    )
+                    .toList()
+            );
+
         }
         return listCashTransactionFlattenResults.stream()
             .sorted(

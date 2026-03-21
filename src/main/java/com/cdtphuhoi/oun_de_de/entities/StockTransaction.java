@@ -58,6 +58,11 @@ public class StockTransaction extends OrgManaged {
     @ManyToOne(fetch = FetchType.LAZY, optional = true, cascade = CascadeType.PERSIST)
     private EquipmentBorrow equipmentBorrow;
 
+    /*
+     * refcode for sell equipment
+     */
+    private String refCode;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

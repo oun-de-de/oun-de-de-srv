@@ -126,7 +126,7 @@ public class InventoryController {
             inventoryService.sellBorrowing(
                 itemId,
                 borrowingId,
-                request.getExpense(),
+                MapperHelpers.getInventoryMapper().toSellEquipmentData(request),
                 usr
             )
         );
