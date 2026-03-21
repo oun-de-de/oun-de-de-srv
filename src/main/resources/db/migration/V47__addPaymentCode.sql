@@ -1,0 +1,2 @@
+ALTER TABLE payment
+    ADD code VARCHAR(255) NULL;

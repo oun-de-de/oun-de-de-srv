@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class CreatePaymentData {
 
+    private String code;
+
     private LocalDateTime paymentDate;
 
     private BigDecimal amount;

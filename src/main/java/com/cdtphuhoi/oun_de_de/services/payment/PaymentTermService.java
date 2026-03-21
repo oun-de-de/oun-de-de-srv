@@ -154,6 +154,7 @@ public class PaymentTermService implements OrgManagementService {
             .cycle(cycle)
             .paymentDate(createPaymentData.getPaymentDate())
             .amount(createPaymentData.getAmount())
+            .code(createPaymentData.getCode())
             .build();
         log.info("Creating payment");
         var paymentDb = paymentRepository.save(payment);

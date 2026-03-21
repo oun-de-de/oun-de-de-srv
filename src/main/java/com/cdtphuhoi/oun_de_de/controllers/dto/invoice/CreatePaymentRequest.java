@@ -4,10 +4,14 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @Data
 public class CreatePaymentRequest {
+
+    @NotBlank
+    private String code;
 
     private LocalDateTime paymentDate;
 
