@@ -1,12 +1,19 @@
 package com.cdtphuhoi.oun_de_de.services.cash_transaction.dto;
 
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
-public class CashTransactionResult {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class CashTransactionFlattenResult {
+
     private String id;
 
     private String refNo;
@@ -17,9 +24,7 @@ public class CashTransactionResult {
 
     private String currency;
 
-    private String employeeId;
-
     private String memo;
 
-    private List<CashTransactionDetailResult> cashTransactionDetails;
+    private BigDecimal amount;
 }

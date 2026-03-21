@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.cash_transaction.CreateCashTransa
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionDetailResult;
+import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionFlattenResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransactionData;
 import com.cdtphuhoi.oun_de_de.utils.Utils;
@@ -14,6 +15,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper(
@@ -38,7 +40,7 @@ public interface CashTransactionMapper {
     @ValueMapping(target = "CREDIT", source = "credit")
     CashTransactionType stringToCashTransactionType(String source);
 
-    @Mapping(target = "currencyId", source = "cashTransaction.currency.id")
+    @Mapping(target = "currency", source = "cashTransaction.currency.name")
     @Mapping(target = "employeeId", source = "cashTransaction.employee.id")
     CashTransactionResult toCashTransactionResult(CashTransaction cashTransaction);
 
@@ -51,4 +53,49 @@ public interface CashTransactionMapper {
     CashTransactionDetailResult toCashTransactionDetailResult(CashTransactionDetail cashTransactionDetail);
 
     List<CashTransactionDetailResult> toListCashTransactionDetailResult(List<CashTransactionDetail> cashTransactionDetails);
+
+    default List<CashTransactionFlattenResult> toSubListCashTransactionFlattenResult(
+        CashTransaction cashTransaction
+    ) {
+        var result = new ArrayList<CashTransactionFlattenResult>();
+        result.add(getCashTransactionFlattenResult(cashTransaction));
+
+        for (var cashTransactionDetail : cashTransaction.getCashTransactionDetails()) {
+            var flattenResult = getCashTransactionFlattenResult(cashTransaction);
+            flattenResult.setMemo(cashTransactionDetail.getMemo());
+            flattenResult.setAmount(cashTransactionDetail.getAmount());
+            result.add(flattenResult);
+        }
+
+        return result;
+    }
+
+    private static CashTransactionFlattenResult getCashTransactionFlattenResult(CashTransaction cashTransaction) {
+        var flattenResult = new CashTransactionFlattenResult();
+
+        flattenResult.setId(cashTransaction.getId());
+        flattenResult.setRefNo(cashTransaction.getRefNo());
+        flattenResult.setType(cashTransaction.getType());
+        flattenResult.setDate(cashTransaction.getDate());
+        flattenResult.setCurrency(cashTransaction.getCurrency().getName());
+
+        return flattenResult;
+    }
+
+
+    default List<CashTransactionFlattenResult> toListCashTransactionFlattenResults(
+        List<CashTransaction> cashTransactions
+    ) {
+        if (cashTransactions.isEmpty()) {
+            return List.of();
+        }
+
+        var result = new ArrayList<CashTransactionFlattenResult>();
+
+        for (var cashTransaction : cashTransactions) {
+            result.addAll(toSubListCashTransactionFlattenResult(cashTransaction));
+        }
+
+        return result;
+    }
 }

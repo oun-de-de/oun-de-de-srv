@@ -3,6 +3,7 @@ package com.cdtphuhoi.oun_de_de.services.cash_transaction;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass;
@@ -17,11 +18,14 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.JournalClassRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionFlattenResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransactionData;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransactionDetailData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -30,6 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
 @Service
@@ -214,8 +219,20 @@ public class CashTransactionService implements OrgManagementService {
         return chartOfAccountMap;
     }
 
-    public List<CashTransactionResult> findBy() {
-        var result = cashTransactionRepository.findAll();
-        return MapperHelpers.getCashTransactionMapper().toListCashTransactionResult(result);
+    public List<CashTransactionFlattenResult> findBy(Pageable pageable) {
+        var page = cashTransactionRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> {
+                    if (query != null && Long.class != query.getResultType()) {
+                        root.fetch(CashTransaction_.CURRENCY, JoinType.LEFT);
+                        root.fetch(CashTransaction_.CASH_TRANSACTION_DETAILS, JoinType.LEFT);
+                    }
+                    return null;
+                }
+            ),
+            pageable
+        );
+        var cashTransactions = page.getContent();
+        return MapperHelpers.getCashTransactionMapper().toListCashTransactionFlattenResults(cashTransactions);
     }
 }
