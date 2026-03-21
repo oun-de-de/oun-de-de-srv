@@ -20,7 +20,6 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.List;
 
