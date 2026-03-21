@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 import jakarta.validation.Valid;
 
 @Slf4j
@@ -27,8 +28,8 @@ public class CashTransactionController {
     private final CashTransactionService cashTransactionService;
 
     @GetMapping
-    public ResponseEntity<?> listCashTransactions() {
-        return null;
+    public ResponseEntity<List<CashTransactionResult>> listCashTransactions() {
+        return ResponseEntity.ok(cashTransactionService.findBy());
     }
 
     @PostMapping

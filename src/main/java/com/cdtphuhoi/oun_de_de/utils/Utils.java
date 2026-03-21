@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.utils;
 
 import lombok.experimental.UtilityClass;
+import org.mapstruct.Named;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -43,6 +44,7 @@ public class Utils {
             : s;
     }
 
+    @Named("cambodiaNow")
     public static LocalDateTime cambodiaNow() {
         return LocalDateTime.now(PHNOMPENH_ZONE_ID);
     }
