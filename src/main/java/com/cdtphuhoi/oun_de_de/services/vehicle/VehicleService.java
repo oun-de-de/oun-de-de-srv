@@ -8,6 +8,7 @@ import com.cdtphuhoi.oun_de_de.repositories.VehicleRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleDataV2;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,28 @@ public class VehicleService implements OrgManagementService {
             );
         }
         MapperHelpers.getVehicleMapper().updateVehicle(updateVehicleData, vehicle);
+        var vehicleDb = vehicleRepository.save(vehicle);
+        return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);
+    }
+
+    public VehicleResult updateVehicleV2(String vehicleId, UpdateVehicleDataV2 updateVehicleData) {
+        var vehicle = vehicleRepository.findOneById(vehicleId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Vehicle [id=%s] not found", vehicleId)
+                )
+            );
+        if (updateVehicleData.getCustomerId() != null &&
+            !vehicle.getCustomer().getId().equals(updateVehicleData.getCustomerId())) {
+            var customer = customerRepository.findOneById(updateVehicleData.getCustomerId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Customer [id=%s] not found", updateVehicleData.getCustomerId())
+                    )
+                );
+            vehicle.setCustomer(customer);
+        }
+        MapperHelpers.getVehicleMapper().updateVehicleV2(updateVehicleData, vehicle);
         var vehicleDb = vehicleRepository.save(vehicle);
         return MapperHelpers.getVehicleMapper().toVehicleResult(vehicleDb);
     }

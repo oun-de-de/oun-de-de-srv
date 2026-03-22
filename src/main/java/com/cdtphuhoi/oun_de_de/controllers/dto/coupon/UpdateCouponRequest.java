@@ -15,10 +15,8 @@ public class UpdateCouponRequest {
 
     private LocalDateTime date;
 
-
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String driverName;
-
 
     /*
      * USER

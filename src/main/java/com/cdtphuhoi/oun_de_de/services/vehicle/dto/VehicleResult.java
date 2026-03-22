@@ -12,4 +12,6 @@ public class VehicleResult {
     private VehicleType vehicleType;
 
     private String licensePlate;
+
+    private String customerId;
 }

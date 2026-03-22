@@ -3,10 +3,12 @@ package com.cdtphuhoi.oun_de_de.mappers;
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.CreateVehicleRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.customer.UpdateVehicleRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.vehicle.UpdateVehicleRequestV2;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.CreateVehicleData;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleData;
+import com.cdtphuhoi.oun_de_de.services.vehicle.dto.UpdateVehicleDataV2;
 import com.cdtphuhoi.oun_de_de.services.vehicle.dto.VehicleResult;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Builder;
@@ -26,6 +28,7 @@ import java.util.List;
 public interface VehicleMapper {
     VehicleMapper INSTANCE = Mappers.getMapper(VehicleMapper.class);
 
+    @Mapping(target = "customerId", source = "vehicle.customer.id")
     VehicleResult toVehicleResult(Vehicle vehicle);
 
     List<VehicleResult> toListVehicleResult(List<Vehicle> vehicle);
@@ -68,4 +71,8 @@ public interface VehicleMapper {
 
         return list;
     }
+
+    UpdateVehicleDataV2 toUpdateVehicleDataV2(UpdateVehicleRequestV2 request);
+
+    void updateVehicleV2(UpdateVehicleDataV2 updateVehicleData, @MappingTarget Vehicle vehicle);
 }
