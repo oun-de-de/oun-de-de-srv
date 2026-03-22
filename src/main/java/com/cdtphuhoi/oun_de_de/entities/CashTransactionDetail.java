@@ -36,7 +36,7 @@ public class CashTransactionDetail extends OrgManagedCodeList {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private CashTransaction cashTransaction;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     private ChartOfAccount chartOfAccount;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -47,7 +47,7 @@ public class CashTransactionDetail extends OrgManagedCodeList {
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal amount;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)

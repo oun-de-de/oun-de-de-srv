@@ -4,7 +4,11 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Payment;
@@ -15,6 +19,7 @@ import com.cdtphuhoi.oun_de_de.entities.Payment_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermRepository;
@@ -53,6 +58,8 @@ public class PaymentTermService implements OrgManagementService {
     private final PaymentRepository paymentRepository;
 
     private final LoanService loanService;
+
+    private final CashTransactionRepository cashTransactionRepository;
 
     /*
      * @return active PaymentTermCycle, or else null
@@ -140,7 +147,11 @@ public class PaymentTermService implements OrgManagementService {
         var cycleOpt = paymentTermCycleRepository.findOne(
             Specification.allOf(
                 (root, query, cb) -> cb.equal(root.get(PaymentTermCycle_.ID), cycleId),
-                PaymentTermCycleSpecifications.hasStatus(List.of(PaymentTermCycleStatus.OPEN, PaymentTermCycleStatus.OVERDUE))
+                PaymentTermCycleSpecifications.hasStatus(List.of(PaymentTermCycleStatus.OPEN, PaymentTermCycleStatus.OVERDUE)),
+                (root, query, cb) -> {
+                    root.fetch(PaymentTermCycle_.CUSTOMER, JoinType.LEFT);
+                    return null;
+                }
             )
         );
         if (cycleOpt.isEmpty()) {
@@ -159,7 +170,26 @@ public class PaymentTermService implements OrgManagementService {
         log.info("Creating payment");
         var paymentDb = paymentRepository.save(payment);
         log.info("Created payment, id = {}", paymentDb.getId());
+        createCashTransactionForPayment(paymentDb);
         return MapperHelpers.getPaymentMapper().toPaymentResult(paymentDb);
+    }
+
+    private void createCashTransactionForPayment(Payment paymentDb) {
+        var cashTransaction = CashTransaction.builder()
+            .orgId(paymentDb.getOrgId())
+            .refNo(paymentDb.getCode())
+            .type(CashTransactionType.DEBIT)
+            .date(paymentDb.getPaymentDate())
+            .reason(CashTransactionReason.RECEIPT)
+            .build();
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(paymentDb.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(paymentDb.getAmount())
+            .customer(paymentDb.getCycle().getCustomer())
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
     }
 
     private static PaymentTermCycle updateCycle(CreatePaymentData createPaymentData, PaymentTermCycle cycle) {

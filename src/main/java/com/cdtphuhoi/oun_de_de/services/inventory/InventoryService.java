@@ -4,9 +4,13 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.common.BorrowStatus;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.ItemType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow_;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
@@ -17,6 +21,7 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.EquipmentBorrowRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InventoryItemRepository;
@@ -27,6 +32,7 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateEquipmentBorrowData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateItemData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateStockTransactionData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.InitStockData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.SellEquipmentData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
@@ -58,6 +64,8 @@ public class InventoryService implements OrgManagementService {
 
     private final UnitRepository unitRepository;
 
+    private final CashTransactionRepository cashTransactionRepository;
+
     public List<InventoryItemResult> findAllItems() {
         var items = inventoryItemRepository.findAll();
         return MapperHelpers.getInventoryMapper().toListInventoryItemResult(items);
@@ -75,7 +83,8 @@ public class InventoryService implements OrgManagementService {
             .orElse(null);
         var maxCurrentRefCode = Optional.ofNullable(inventoryItemRepository.findMaxRefCode(usr.getOrgId()))
             .orElse(0L);
-        var qty = Optional.ofNullable(createItemData.getQuantityOnHand())
+        var qty = Optional.ofNullable(createItemData.getInitStock())
+            .map(InitStockData::getQuantityOnHand)
             .orElse(BigDecimal.ZERO);
         var item = InventoryItem.builder()
             .orgId(usr.getOrgId())
@@ -90,24 +99,55 @@ public class InventoryService implements OrgManagementService {
         log.info("Creating item");
         var itemDb = inventoryItemRepository.save(item);
         log.info("Created item, id = {}", itemDb.getId());
-        if (!BigDecimal.ZERO.equals(qty)) {
-            initStockTransaction(itemDb, qty, usr);
+        if (createItemData.getInitStock() != null) {
+            initStockTransaction(itemDb, createItemData.getInitStock(), usr);
         }
         return MapperHelpers.getInventoryMapper().toInventoryItemResult(itemDb);
     }
 
-    private void initStockTransaction(InventoryItem item, BigDecimal quantity, User usr) {
+    private void initStockTransaction(InventoryItem item, InitStockData initStockData, User usr) {
         var stockTransaction = StockTransaction.builder()
             .orgId(item.getOrgId())
             .item(item)
-            .quantity(quantity)
+            .quantity(initStockData.getQuantityOnHand())
             .type(StockTransactionType.IN)
             .reason(StockTransactionReason.PURCHASE)
+            .expense(initStockData.getExpense())
+            .refCode(initStockData.getRefCode())
             .createdAt(cambodiaNow())
             .createdBy(usr)
             .build();
 
         persistStockTransaction(stockTransaction);
+
+        if (stockTransaction.getExpense() != null) {
+            createCashTransactionForBuyItem(stockTransaction);
+        }
+    }
+
+    private void createCashTransactionForBuyItem(StockTransaction stockTransaction) {
+        var cashTransaction = CashTransaction.builder()
+            .orgId(stockTransaction.getOrgId())
+            .refNo(stockTransaction.getRefCode())
+            .type(CashTransactionType.CREDIT)
+            .date(stockTransaction.getCreatedAt())
+            .reason(CashTransactionReason.CASH_OUT)
+            .memo(stockTransaction.getMemo())
+            .build();
+
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(stockTransaction.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(stockTransaction.getExpense())
+            .memo(
+                String.format("Buy item [itemId=%s, quantity=%s]",
+                    stockTransaction.getItem().getId(),
+                    stockTransaction.getQuantity()
+                )
+            )
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
     }
 
     public List<StockTransactionResult> findTransactionsByItem(String itemId) {
@@ -134,9 +174,13 @@ public class InventoryService implements OrgManagementService {
             case CONSUME -> StockTransactionType.OUT;
             default -> throw new IllegalArgumentException("Invalid argument");
         };
-        if (StockTransactionReason.PURCHASE.equals(createStockTransactionData.getReason()) &&
-            createStockTransactionData.getExpense() == null) {
+        var isPurchase = StockTransactionReason.PURCHASE.equals(createStockTransactionData.getReason());
+        var hasExpense = createStockTransactionData.getExpense() != null;
+        if (isPurchase && !hasExpense) {
             throw new BadRequestException("Purchase equipment should include expense");
+        }
+        if (!isPurchase && hasExpense) {
+            throw new BadRequestException("Only purchase transaction can include expense");
         }
 
         log.info("Internal stock in out {}, reason {}", itemId, createStockTransactionData.getReason());
@@ -150,6 +194,7 @@ public class InventoryService implements OrgManagementService {
 
         var stockTransaction = StockTransaction.builder()
             .orgId(item.getOrgId())
+            .refCode(createStockTransactionData.getRefCode())
             .item(item)
             .type(transactionType)
             .quantity(createStockTransactionData.getQuantity())
@@ -161,6 +206,9 @@ public class InventoryService implements OrgManagementService {
             .build();
 
         var stockTransactionDb = persistStockTransaction(stockTransaction);
+        if (isPurchase) {
+            createCashTransactionForBuyItem(stockTransaction);
+        }
         return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
     }
 
@@ -306,6 +354,31 @@ public class InventoryService implements OrgManagementService {
             .build();
 
         var stockTransactionDb = persistStockTransaction(stockTransaction);
+        createCashTransactionForSellEquipment(stockTransactionDb);
         return MapperHelpers.getInventoryMapper().toStockTransactionResult(stockTransactionDb);
+    }
+
+    private void createCashTransactionForSellEquipment(StockTransaction stockTransactionDb) {
+        var cashTransaction = CashTransaction.builder()
+            .orgId(stockTransactionDb.getOrgId())
+            .refNo(stockTransactionDb.getRefCode())
+            .type(CashTransactionType.DEBIT)
+            .date(stockTransactionDb.getCreatedAt())
+            .reason(CashTransactionReason.CASH_IN)
+            .build();
+
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(stockTransactionDb.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(stockTransactionDb.getExpense())
+            .memo(
+                String.format("Sell equipment [itemId=%s, quantity=%s]",
+                    stockTransactionDb.getItem().getId(),
+                    stockTransactionDb.getQuantity()
+                )
+            )
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
     }
 }

@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.cash_transaction.CreateCashTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
+import com.cdtphuhoi.oun_de_de.entities.Currency;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionDetailResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionFlattenResult;
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CashTransactionResult;
@@ -18,6 +19,7 @@ import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Mapper(
     imports = {
@@ -79,6 +81,9 @@ public interface CashTransactionMapper {
     }
 
     private static CashTransactionReason getDefaultReason(CashTransaction cashTransaction) {
+        if (cashTransaction.getReason() != null) {
+            return cashTransaction.getReason();
+        }
         return CashTransactionType.DEBIT.equals(cashTransaction.getType()) ?
             CashTransactionReason.CASH_IN : CashTransactionReason.CASH_OUT;
     }
@@ -90,7 +95,11 @@ public interface CashTransactionMapper {
         flattenResult.setRefNo(cashTransaction.getRefNo());
         flattenResult.setType(cashTransaction.getType());
         flattenResult.setDate(cashTransaction.getDate());
-        flattenResult.setCurrency(cashTransaction.getCurrency().getName());
+        flattenResult.setCurrency(
+            Optional.ofNullable(cashTransaction.getCurrency())
+                .map(Currency::getName)
+                .orElse(null)
+        );
 
         return flattenResult;
     }

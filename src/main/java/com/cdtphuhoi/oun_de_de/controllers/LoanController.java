@@ -117,7 +117,7 @@ public class LoanController {
         return ResponseEntity.ok(loanService.findLoanPaymentsByLoanId(loanId));
     }
 
-    @PostMapping("/{loanId}/pay")
+    @PostMapping("/{loanId}/payments")
     public ResponseEntity<LoanPaymentResult> createPayment(
         @PathVariable String loanId,
         @Valid @RequestBody CreateLoanPaymentRequest request

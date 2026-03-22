@@ -1,8 +1,5 @@
 package com.cdtphuhoi.oun_de_de.services.cash_transaction;
 
-import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
-import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
-import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
 import com.cdtphuhoi.oun_de_de.entities.AccountType;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
@@ -11,9 +8,6 @@ import com.cdtphuhoi.oun_de_de.entities.CashTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass;
-import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
-import com.cdtphuhoi.oun_de_de.entities.Payment_;
-import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -34,12 +28,12 @@ import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransacti
 import com.cdtphuhoi.oun_de_de.services.cash_transaction.dto.CreateCashTransactionDetailData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -236,10 +230,7 @@ public class CashTransactionService implements OrgManagementService {
         return chartOfAccountMap;
     }
 
-    /*
-     * tmp: override sort behavior
-     */
-    public List<CashTransactionFlattenResult> findBy(Pageable pageable) {
+    public Page<CashTransactionFlattenResult> findBy(Pageable pageable) {
         var page = cashTransactionRepository.findAll(
             Specification.allOf(
                 (root, query, cb) -> {
@@ -253,87 +244,11 @@ public class CashTransactionService implements OrgManagementService {
             ),
             pageable
         );
-        var cashTransactions = page.getContent();
-        var dates = cashTransactions.stream()
-            .map(CashTransaction::getDate)
-            .collect(Collectors.toSet());
-        var minDate = dates.stream()
-            .min(LocalDateTime::compareTo)
-            .orElse(null);
-        var maxDate = dates.stream()
-            .max(LocalDateTime::compareTo)
-            .orElse(null);
-        var listCashTransactionFlattenResults = MapperHelpers.getCashTransactionMapper().toListCashTransactionFlattenResults(cashTransactions);
-
-        if (minDate != null && minDate.isBefore(maxDate)) {
-            var payments = paymentRepository.findAll(
-                Specification.allOf(
-                    (root, query, cb) -> cb.between(root.get(Payment_.paymentDate), minDate, maxDate)
-                )
-            );
-            // TODO: add payment currency, memo
-            listCashTransactionFlattenResults.addAll(
-                payments.stream()
-                    .map(payment ->
-                        CashTransactionFlattenResult.builder()
-                            .refNo(payment.getCode())
-                            .type(CashTransactionType.DEBIT)
-                            .reason(CashTransactionReason.RECEIPT.toString())
-                            .date(payment.getPaymentDate())
-                            .amount(payment.getAmount())
-                            .build()
-                    )
-                    .toList()
-            );
-            // loan payments
-            var loanPayments = loanPaymentRepository.findAll(
-                Specification.allOf(
-                    (root, query, cb) -> cb.between(root.get(LoanPayment_.paymentDate), minDate, maxDate)
-                )
-            );
-            // TODO: add loan payment currency, memo
-            listCashTransactionFlattenResults.addAll(
-                loanPayments.stream()
-                    .map(loanPayment ->
-                        CashTransactionFlattenResult.builder()
-                            .refNo(loanPayment.getCode())
-                            .type(CashTransactionType.DEBIT)
-                            .reason(CashTransactionReason.GENERAL.toString())
-                            .date(loanPayment.getPaymentDate())
-                            .amount(loanPayment.getAmount())
-                            .build()
-                    )
-                    .toList()
-            );
-            // sell equipment
-            var transactions = stockTransactionRepository.findAll(
-                Specification.allOf(
-                    (root, query, cb) -> cb.between(root.get(StockTransaction_.createdAt), minDate, maxDate),
-                    (root, query, cb) -> cb.equal(root.get(StockTransaction_.REASON), StockTransactionReason.SOLD)
-                )
-            );
-            // TODO: add stock transaction currency, memo
-            listCashTransactionFlattenResults.addAll(
-                transactions.stream()
-                    .map(transaction ->
-                        CashTransactionFlattenResult.builder()
-                            .refNo(transaction.getRefCode())
-                            .type(CashTransactionType.DEBIT)
-                            .reason(CashTransactionReason.CASH_IN.toString())
-                            .date(transaction.getCreatedAt())
-                            .amount(transaction.getExpense())
-                            .build()
-                    )
-                    .toList()
-            );
-
-        }
-        return listCashTransactionFlattenResults.stream()
-            .sorted(
-                Comparator
-                    .comparing(CashTransactionFlattenResult::getDate)
-                    .reversed()
-            )
-            .toList();
+        var listCashTransactionFlattenResults = MapperHelpers.getCashTransactionMapper().toListCashTransactionFlattenResults(page.getContent());
+        return new PageImpl<>(
+            listCashTransactionFlattenResults,
+            pageable,
+            listCashTransactionFlattenResults.size()
+        );
     }
 }

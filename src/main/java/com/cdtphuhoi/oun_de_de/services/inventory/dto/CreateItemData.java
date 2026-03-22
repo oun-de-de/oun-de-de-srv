@@ -15,7 +15,7 @@ public class CreateItemData {
      */
     private String unitId;
 
-    private BigDecimal quantityOnHand;
-
     private BigDecimal alertThreshold;
+
+    private InitStockData initStock;
 }

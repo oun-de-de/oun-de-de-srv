@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 
 @Data
 public class CreateStockTransactionData {
+
+    private String refCode;
+
     private BigDecimal quantity;
 
     private StockTransactionReason reason;

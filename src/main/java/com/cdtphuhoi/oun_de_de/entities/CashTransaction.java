@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.entities;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_MANAGED_INDEX_NAME;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.entities.common.OrgManagedCodeList;
 import lombok.AllArgsConstructor;
@@ -41,12 +42,14 @@ public class CashTransaction extends OrgManagedCodeList {
     @Column(nullable = false)
     private CashTransactionType type;
 
+    private CashTransactionReason reason;
+
     private LocalDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Currency currency;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User employee;
 
     private String memo;

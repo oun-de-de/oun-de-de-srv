@@ -4,7 +4,11 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.LoanStatus;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Loan;
@@ -17,6 +21,7 @@ import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.BaseRepository;
+import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.LoanPaymentRepository;
 import com.cdtphuhoi.oun_de_de.repositories.LoanRepository;
@@ -61,6 +66,8 @@ public class LoanService implements OrgManagementService {
     private final CustomerRepository customerRepository;
 
     private final UserRepository userRepository;
+
+    private final CashTransactionRepository cashTransactionRepository;
 
     private Map<BorrowerType, BaseRepository<?>> repositoryByBorrowerType;
 
@@ -227,8 +234,34 @@ public class LoanService implements OrgManagementService {
         log.info("Creating payment");
         var paymentDb = loanPaymentRepository.save(payment);
         log.info("Created payment, id = {}", paymentDb.getId());
+        createCashTransactionForPayment(paymentDb);
         return MapperHelpers.getLoanMapper().toLoanPaymentResult(paymentDb);
     }
+
+    private void createCashTransactionForPayment(LoanPayment paymentDb) {
+        var cashTransaction = CashTransaction.builder()
+            .orgId(paymentDb.getOrgId())
+            .refNo(paymentDb.getCode())
+            .type(CashTransactionType.DEBIT)
+            .date(paymentDb.getPaymentDate())
+            .reason(CashTransactionReason.GENERAL)
+            .build();
+
+        var isEmployeeBorrower = BorrowerType.EMPLOYEE.equals(paymentDb.getLoan().getBorrowerType());
+
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(paymentDb.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(paymentDb.getAmount())
+            .memo(isEmployeeBorrower ?
+                String.format("Payment for employee loan, employee id: %s", paymentDb.getLoan().getBorrowerId()) :
+                String.format("Payment for customer loan, customer id: %s", paymentDb.getLoan().getBorrowerId())
+            )
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
+    }
+
 
     private static void updateLoanStatus(CreateLoanPaymentData createLoanPaymentData, Loan loan) {
         if (loan.getPaidAmount().equals(loan.getPrincipalAmount())) {

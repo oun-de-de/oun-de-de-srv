@@ -5,6 +5,7 @@ import com.cdtphuhoi.oun_de_de.validators.ValueOfEnum;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.UUID;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 @Data
@@ -22,7 +23,8 @@ public class CreateItemRequest {
      */
     private UUID unitId;
 
-    private BigDecimal quantityOnHand;
+    @Valid
+    private InitStockRequest initStock;
 
     private BigDecimal alertThreshold;
 }
