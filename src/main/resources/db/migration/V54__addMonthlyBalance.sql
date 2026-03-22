@@ -1,9 +1,9 @@
 CREATE TABLE monthly_balance
 (
-    id              VARCHAR(255) NOT NULL,
-    org_id          VARCHAR(20)  NOT NULL,
-    `year_month`    VARCHAR(255) NOT NULL,
-    closing_balance DECIMAL NULL,
+    id              VARCHAR(255)   NOT NULL,
+    org_id          VARCHAR(20)    NOT NULL,
+    period VARCHAR (255) NOT NULL,
+    closing_balance DECIMAL(19, 5) NOT NULL,
     created_at      datetime NULL,
     CONSTRAINT pk_monthlybalance PRIMARY KEY (id)
 );

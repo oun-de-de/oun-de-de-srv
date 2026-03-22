@@ -362,7 +362,7 @@ public class ReportingService implements OrgManagementService {
             );
         var cashTransactionDetails = entityManager.createQuery(query).getResultList();
 
-        var previousBalance = monthlyBalanceRepository.findByYearMonth(yearMonth.minusMonths(1).toString())
+        var previousBalance = monthlyBalanceRepository.findByPeriod(yearMonth.minusMonths(1).toString())
             .map(MonthlyBalance::getClosingBalance)
             .orElse(BigDecimal.ZERO);
         var balance = new AtomicReference<>(previousBalance);

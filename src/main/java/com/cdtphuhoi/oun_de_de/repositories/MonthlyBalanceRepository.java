@@ -7,5 +7,7 @@ import java.util.Optional;
 public interface MonthlyBalanceRepository extends JpaRepository<MonthlyBalance, String>,
     BaseRepository<MonthlyBalance> {
 
-    Optional<MonthlyBalance> findByYearMonth(String yearMonth);
+    Optional<MonthlyBalance> findByPeriod(String yearMonth);
+
+    Optional<MonthlyBalance> findByPeriodAndOrgId(String previousMonth, String orgId);
 }

@@ -34,7 +34,7 @@ public class MonthlyBalance extends OrgManaged {
     private String id;
 
     @Column(nullable = false)
-    private String yearMonth; // Format: "YYYY-MM"
+    private String period; // Format: "YYYY-MM"
 
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal closingBalance;
