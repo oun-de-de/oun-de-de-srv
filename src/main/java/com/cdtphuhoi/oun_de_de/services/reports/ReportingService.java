@@ -1,7 +1,15 @@
 package com.cdtphuhoi.oun_de_de.services.reports;
 
+import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
+import com.cdtphuhoi.oun_de_de.entities.CashTransaction_;
+import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment;
+import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
 import com.cdtphuhoi.oun_de_de.entities.Payment;
 import com.cdtphuhoi.oun_de_de.entities.Payment_;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
@@ -9,11 +17,13 @@ import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
-import com.cdtphuhoi.oun_de_de.repositories.WeightRecordRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyExpenseLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.ProductRevenue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +32,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.YearMonth;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import jakarta.persistence.EntityManager;
@@ -36,9 +50,9 @@ import jakarta.persistence.criteria.Predicate;
 @Transactional
 public class ReportingService implements OrgManagementService {
 
-    private final WeightRecordRepository weightRecordRepository;
-
     private final StockTransactionRepository stockTransactionRepository;
+
+    private final CashTransactionRepository cashTransactionRepository;
 
     private final EntityManager entityManager;
 
@@ -168,5 +182,134 @@ public class ReportingService implements OrgManagementService {
             )
         );
         return MapperHelpers.getReportMapper().toListInventoryStockReportLines(transactions);
+    }
+
+    public MonthlyReportResponse getMonthlyReport(YearMonth yearMonth) {
+        var start = startOfDayInCambodia(yearMonth.atDay(1).atStartOfDay());
+        var end = endOfDayInCambodia(yearMonth.atEndOfMonth().atTime(LocalTime.MAX));
+        var accountsReceivable = calculateCashReceivableBetween(start, end);
+        var saleInvoice = calculateSaleInvoiceBetween(start, end);
+        var cashInstallment = calculateCashInstallmentBetween(start, end);
+        var monthlyExpensesDetails = getMonthlyExpensesDetails(start, end);
+
+        return MonthlyReportResponse.builder()
+            .accountsReceivable(accountsReceivable)
+            .saleInvoice(saleInvoice)
+            .cashInstallment(cashInstallment)
+            .expenses(monthlyExpensesDetails)
+            .build();
+    }
+
+    private List<MonthlyExpenseLine> getMonthlyExpensesDetails(LocalDateTime start, LocalDateTime end) {
+        var expenseCashTransactions = cashTransactionRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) ->
+                    cb.between(
+                        root.get(CashTransaction_.date),
+                        start,
+                        end
+                    ),
+                (root, query, cb) ->
+                    cb.equal(
+                        root.get(CashTransaction_.TYPE),
+                        CashTransactionType.CREDIT
+                    ),
+                (root, query, cb) -> {
+                    root.fetch(CashTransaction_.CASH_TRANSACTION_DETAILS, JoinType.LEFT);
+                    return null;
+                }
+            )
+        );
+        var cashTransactionDetails = expenseCashTransactions.stream()
+            .map(CashTransaction::getCashTransactionDetails)
+            .filter(Objects::nonNull)
+            .flatMap(Collection::stream)
+            .toList();
+        return cashTransactionDetails.stream()
+            .map(cashTransactionDetail ->
+                MonthlyExpenseLine.builder()
+                    .description(cashTransactionDetail.getMemo())
+                    .amount(cashTransactionDetail.getAmount())
+                    .build()
+            )
+            .toList();
+    }
+
+    private BigDecimal calculateCashInstallmentBetween(LocalDateTime start, LocalDateTime end) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(BigDecimal.class);
+        var root = query.from(LoanPayment.class);
+        query
+            .select(
+                cb.coalesce(
+                    cb.sum(root.get(LoanPayment_.AMOUNT)),
+                    BigDecimal.ZERO
+                )
+            )
+            .where(
+                cb.between(
+                    root.get(LoanPayment_.paymentDate),
+                    start,
+                    end
+                )
+            );
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    private BigDecimal calculateSaleInvoiceBetween(LocalDateTime start, LocalDateTime end) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(BigDecimal.class);
+        var root = query.from(Payment.class);
+        query
+            .select(
+                cb.coalesce(
+                    cb.sum(root.get(Payment_.AMOUNT)),
+                    BigDecimal.ZERO
+                )
+            )
+            .where(
+                cb.between(
+                    root.get(Payment_.paymentDate),
+                    start,
+                    end
+                )
+            );
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    private BigDecimal calculateCashReceivableBetween(LocalDateTime start, LocalDateTime end) {
+        var invoiceIds = getInvoiceIdsByDateRange(start, end);
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(BigDecimal.class);
+        var root = query.from(WeightRecord.class);
+        query
+            .select(
+                cb.coalesce(
+                    cb.sum(root.get(WeightRecord_.AMOUNT)),
+                    BigDecimal.ZERO
+                )
+            )
+            .where(
+                root.get(WeightRecord_.INVOICE).get(Invoice_.ID).in(invoiceIds)
+            );
+        return entityManager.createQuery(query).getSingleResult();
+    }
+
+    private List<String> getInvoiceIdsByDateRange(LocalDateTime start, LocalDateTime end) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(String.class);
+        var root = query.from(Invoice.class);
+        query
+            .select(
+                root.get(Invoice_.ID)
+            )
+            .where(
+                cb.between(
+                    root.get(Invoice_.date),
+                    start,
+                    end
+                )
+            );
+        return entityManager.createQuery(query).getResultList();
     }
 }

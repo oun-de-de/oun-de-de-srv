@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.services.reports.ReportingService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
+import jakarta.validation.constraints.Pattern;
 
 @Slf4j
 @RestController
@@ -33,6 +36,19 @@ public class ReportController {
             reportingService.getDailyReport(date)
         );
     }
+
+    @GetMapping("/monthly-report")
+    public ResponseEntity<MonthlyReportResponse> getMonthlyReport(
+        @RequestParam(required = true)
+        @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$", message = "period must be in format YYYY-MM")
+        String period
+    ) {
+        var yearMonth = YearMonth.parse(period);
+        return ResponseEntity.ok(
+            reportingService.getMonthlyReport(yearMonth)
+        );
+    }
+
 
     @GetMapping("/inventory-stock-report")
     public ResponseEntity<List<InventoryStockReportLine>> getInventoryStockReport(
