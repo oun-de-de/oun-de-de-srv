@@ -2,10 +2,15 @@ package com.cdtphuhoi.oun_de_de.services.reports;
 
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
+import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.StockTransactionReason;
+import com.cdtphuhoi.oun_de_de.entities.AccountType_;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
+import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail_;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction_;
+import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
 import com.cdtphuhoi.oun_de_de.entities.LoanPayment;
@@ -22,7 +27,10 @@ import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyCashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyExpenseLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportDetailsResponse;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.ProductRevenue;
 import lombok.RequiredArgsConstructor;
@@ -311,5 +319,70 @@ public class ReportingService implements OrgManagementService {
                 )
             );
         return entityManager.createQuery(query).getResultList();
+    }
+
+
+    public MonthlyReportDetailsResponse getMonthlyReportDetails(YearMonth yearMonth) {
+        var start = startOfDayInCambodia(yearMonth.atDay(1).atStartOfDay());
+        var end = endOfDayInCambodia(yearMonth.atEndOfMonth().atTime(LocalTime.MAX));
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(MonthlyCashTransactionDetail.class);
+        var root = query.from(CashTransactionDetail.class);
+        var cashTxJoin = root.join(CashTransactionDetail_.cashTransaction, JoinType.LEFT);
+        var accTypeJoin = root.join(CashTransactionDetail_.accountType, JoinType.LEFT);
+        var customerJoin = root.join(CashTransactionDetail_.customer, JoinType.LEFT);
+        query
+            .select(
+                cb.construct(
+                    MonthlyCashTransactionDetail.class,
+                    cashTxJoin.get(CashTransaction_.DATE),
+                    cashTxJoin.get(CashTransaction_.REF_NO),
+                    cashTxJoin.get(CashTransaction_.TYPE),
+                    cashTxJoin.get(CashTransaction_.REASON),
+                    accTypeJoin.get(AccountType_.NATURE),
+                    customerJoin.get(Customer_.NAME),
+                    root.get(CashTransactionDetail_.MEMO),
+                    root.get(CashTransactionDetail_.AMOUNT)
+                )
+            )
+            .where(
+                cb.between(
+                    cashTxJoin.get(CashTransaction_.date),
+                    start,
+                    end
+                )
+            )
+            .orderBy(
+                cb.desc(cashTxJoin.get(CashTransaction_.DATE))
+            );
+        var cashTransactionDetails = entityManager.createQuery(query).getResultList();
+        var monthlyReportLines = cashTransactionDetails.stream()
+            .map(detail ->
+                MonthlyReportLine.builder()
+                    .date(detail.date())
+                    .refNo(detail.refNo())
+                    .reason(getReason(detail))
+                    .customerName(detail.customerName())
+                    .memo(detail.memo())
+                    .debit(CashTransactionType.DEBIT.equals(detail.type()) ? detail.amount() : null)
+                    .credit(CashTransactionType.CREDIT.equals(detail.type()) ? detail.amount() : null)
+                    .build()
+            )
+            .toList();
+        return MonthlyReportDetailsResponse.builder()
+            .lines(monthlyReportLines)
+            .build();
+    }
+
+    private static String getReason(MonthlyCashTransactionDetail cashTransactionDetail) {
+        if (cashTransactionDetail.accountNature() != null) {
+            return cashTransactionDetail.accountNature();
+        }
+        if (cashTransactionDetail.reason() != null) {
+            return cashTransactionDetail.reason().toString();
+        }
+        return CashTransactionType.DEBIT.equals(cashTransactionDetail.type()) ?
+            CashTransactionReason.CASH_IN.toString() :
+            CashTransactionReason.CASH_OUT.toString();
     }
 }

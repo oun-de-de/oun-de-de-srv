@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.services.reports.ReportingService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportDetailsResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +47,18 @@ public class ReportController {
         var yearMonth = YearMonth.parse(period);
         return ResponseEntity.ok(
             reportingService.getMonthlyReport(yearMonth)
+        );
+    }
+
+    @GetMapping("/monthly-report-details")
+    public ResponseEntity<MonthlyReportDetailsResponse> getMonthlyReportDetails(
+        @RequestParam(required = true)
+        @Pattern(regexp = "^\\d{4}-(0[1-9]|1[0-2])$", message = "period must be in format YYYY-MM")
+        String period
+    ) {
+        var yearMonth = YearMonth.parse(period);
+        return ResponseEntity.ok(
+            reportingService.getMonthlyReportDetails(yearMonth)
         );
     }
 
