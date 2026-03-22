@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class MonthlyExpenseLine {
+
     private String description;
 
     private BigDecimal amount;

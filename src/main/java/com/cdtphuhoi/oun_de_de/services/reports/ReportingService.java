@@ -15,6 +15,7 @@ import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
 import com.cdtphuhoi.oun_de_de.entities.LoanPayment;
 import com.cdtphuhoi.oun_de_de.entities.LoanPayment_;
+import com.cdtphuhoi.oun_de_de.entities.MonthlyBalance;
 import com.cdtphuhoi.oun_de_de.entities.Payment;
 import com.cdtphuhoi.oun_de_de.entities.Payment_;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
@@ -23,6 +24,7 @@ import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
+import com.cdtphuhoi.oun_de_de.repositories.MonthlyBalanceRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
@@ -46,6 +48,7 @@ import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.JoinType;
@@ -61,6 +64,8 @@ public class ReportingService implements OrgManagementService {
     private final StockTransactionRepository stockTransactionRepository;
 
     private final CashTransactionRepository cashTransactionRepository;
+
+    private final MonthlyBalanceRepository monthlyBalanceRepository;
 
     private final EntityManager entityManager;
 
@@ -356,21 +361,33 @@ public class ReportingService implements OrgManagementService {
                 cb.desc(cashTxJoin.get(CashTransaction_.DATE))
             );
         var cashTransactionDetails = entityManager.createQuery(query).getResultList();
+
+        var previousBalance = monthlyBalanceRepository.findByYearMonth(yearMonth.minusMonths(1).toString())
+            .map(MonthlyBalance::getClosingBalance)
+            .orElse(BigDecimal.ZERO);
+        var balance = new AtomicReference<>(previousBalance);
         var monthlyReportLines = cashTransactionDetails.stream()
-            .map(detail ->
-                MonthlyReportLine.builder()
-                    .date(detail.date())
-                    .refNo(detail.refNo())
-                    .reason(getReason(detail))
-                    .customerName(detail.customerName())
-                    .memo(detail.memo())
-                    .debit(CashTransactionType.DEBIT.equals(detail.type()) ? detail.amount() : null)
-                    .credit(CashTransactionType.CREDIT.equals(detail.type()) ? detail.amount() : null)
-                    .build()
+            .map(detail -> {
+                    var isDebit = CashTransactionType.DEBIT.equals(detail.type());
+                    return MonthlyReportLine.builder()
+                        .date(detail.date())
+                        .refNo(detail.refNo())
+                        .reason(getReason(detail))
+                        .customerName(detail.customerName())
+                        .memo(detail.memo())
+                        .debit(isDebit ? detail.amount() : null)
+                        .credit(!isDebit ? detail.amount() : null)
+                        .balance(isDebit ?
+                            balance.updateAndGet(b -> b.add(detail.amount())) :
+                            balance.updateAndGet(b -> b.subtract(detail.amount()))
+                        )
+                        .build();
+                }
             )
             .toList();
         return MonthlyReportDetailsResponse.builder()
             .lines(monthlyReportLines)
+            .initCashOnHand(previousBalance)
             .build();
     }
 
