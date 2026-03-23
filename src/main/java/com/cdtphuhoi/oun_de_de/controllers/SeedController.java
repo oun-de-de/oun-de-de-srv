@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
+import com.cdtphuhoi.oun_de_de.common.UnitType;
 import com.cdtphuhoi.oun_de_de.common.VehicleType;
 import com.cdtphuhoi.oun_de_de.entities.Contact;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -11,11 +12,13 @@ import com.cdtphuhoi.oun_de_de.entities.DefaultProductSetting;
 import com.cdtphuhoi.oun_de_de.entities.Product;
 import com.cdtphuhoi.oun_de_de.entities.ProductSetting;
 import com.cdtphuhoi.oun_de_de.entities.ProductSettingId;
+import com.cdtphuhoi.oun_de_de.entities.Unit;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductRepository;
 import com.cdtphuhoi.oun_de_de.repositories.ProductSettingRepository;
+import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
 import com.cdtphuhoi.oun_de_de.utils.ExcelUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -53,6 +56,8 @@ public class SeedController {
 
     private final CustomerRepository customerRepository;
 
+    private final UnitRepository unitRepository;
+
     private final ProductSettingRepository productSettingRepository;
 
     @PostMapping("/seed")
@@ -60,7 +65,28 @@ public class SeedController {
     @Transactional
     public ResponseEntity<String> seed() {
         var usr = controllerUtils.getCurrentSignedInUser();
-        long maxCurrentRefCode = Optional.ofNullable(productRepository.findMaxRefNo(usr.getOrgId()))
+
+        var bag = unitRepository.findOneByNameAndOrgId("bag", usr.getOrgId())
+            .orElseGet(() -> unitRepository.save(
+                Unit.builder()
+                    .name("bag")
+                    .descr("bag")
+                    .type(UnitType.COUNT)
+                    .orgId(usr.getOrgId())
+                    .build()
+            ));
+
+        var block = unitRepository.findOneByNameAndOrgId("block", usr.getOrgId())
+            .orElseGet(() -> unitRepository.save(
+                Unit.builder()
+                    .name("block")
+                    .descr("block")
+                    .type(UnitType.COUNT)
+                    .orgId(usr.getOrgId())
+                    .build()
+            ));
+
+        var maxCurrentRefCode = Optional.ofNullable(productRepository.findMaxRefNo(usr.getOrgId()))
             .orElse(0L);
         var cleanIce = productRepository.findOneByNameAndOrgId("អនាម័យ", usr.getOrgId())
             .orElseGet(() -> productRepository.save(
@@ -75,6 +101,8 @@ public class SeedController {
                             .build()
                     )
                     .date(cambodiaNow())
+                    .isPackagedByQuantity(true)
+                    .unit(bag)
                     .orgId(usr.getOrgId())
                     .build()
             ));
@@ -86,11 +114,11 @@ public class SeedController {
                     .defaultProductSetting(
                         DefaultProductSetting.builder()
                             .price(BigDecimal.valueOf(6500))
-                            .quantity(BigDecimal.valueOf(84))
-                            .orgId(usr.getOrgId())
-                            .build()
+                            .orgId(usr.getOrgId()).build()
                     )
                     .date(cambodiaNow())
+                    .isPackagedByQuantity(false)
+                    .unit(block)
                     .orgId(usr.getOrgId())
                     .build()
             ));

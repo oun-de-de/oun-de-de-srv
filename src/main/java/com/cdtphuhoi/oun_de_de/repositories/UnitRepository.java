@@ -6,4 +6,6 @@ import java.util.Optional;
 
 public interface UnitRepository extends JpaRepository<Unit, String> {
     Optional<Unit> findOneById(String id);
+
+    Optional<Unit> findOneByNameAndOrgId(String name, String orgId);
 }
