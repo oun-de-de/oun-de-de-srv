@@ -5,9 +5,11 @@ import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import com.cdtphuhoi.oun_de_de.entities.Coupon;
 import com.cdtphuhoi.oun_de_de.entities.Coupon_;
+import com.cdtphuhoi.oun_de_de.entities.Customer;
 import com.cdtphuhoi.oun_de_de.entities.Customer_;
 import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.Invoice_;
+import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
@@ -15,6 +17,7 @@ import com.cdtphuhoi.oun_de_de.exceptions.BadRequestException;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CouponRepository;
+import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InvoiceRepository;
 import com.cdtphuhoi.oun_de_de.repositories.PaymentTermCycleRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UserRepository;
@@ -57,6 +60,8 @@ public class CouponService implements OrgManagementService {
 
     private final VehicleRepository vehicleRepository;
 
+    private final CustomerRepository customerRepository;
+
     private final InvoiceRepository invoiceRepository;
 
     private final WeightRecordRepository weightRecordRepository;
@@ -92,6 +97,10 @@ public class CouponService implements OrgManagementService {
     }
 
     public CouponResult create(CreateCouponData createCouponData) {
+        if (createCouponData.getVehicleId() == null &&
+            createCouponData.getCustomerId() == null) {
+            throw new BadRequestException("VehicleId or CustomerId is required");
+        }
         if (couponRepository.existsByCouponNo(createCouponData.getCouponNo())) {
             throw new BadRequestException(
                 String.format("Coupon [code=%s] existed", createCouponData.getCouponNo())
@@ -103,34 +112,48 @@ public class CouponService implements OrgManagementService {
                     String.format("Employee [id=%s] not found", createCouponData.getEmployeeId())
                 )
             );
-        var vehicle = vehicleRepository.findOne(
-                Specification.allOf(
-                    (root, query, cb) -> {
-                        if (query != null && Long.class != query.getResultType()) {
-                            root.fetch(Vehicle_.CUSTOMER, JoinType.LEFT);
-                        }
-                        return cb.equal(
-                            root.get(Vehicle_.ID),
-                            createCouponData.getVehicleId()
-                        );
-                    }
-                )
+        var vehicle = Optional.ofNullable(createCouponData.getVehicleId())
+            .map(vehicleId ->
+                vehicleRepository.findOne(
+                        Specification.allOf(
+                            (root, query, cb) -> {
+                                if (query != null && Long.class != query.getResultType()) {
+                                    root.fetch(Vehicle_.CUSTOMER, JoinType.LEFT);
+                                }
+                                return cb.equal(
+                                    root.get(Vehicle_.ID),
+                                    vehicleId
+                                );
+                            }
+                        )
+                    )
+                    .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                            String.format("Vehicle [id=%s] not found", createCouponData.getVehicleId())
+                        )
+                    )
             )
-            .orElseThrow(
-                () -> new ResourceNotFoundException(
-                    String.format("Vehicle [id=%s] not found", createCouponData.getVehicleId())
-                )
+            .orElse(null);
+        var customer = Optional.ofNullable(vehicle)
+            .map(Vehicle::getCustomer)
+            .orElseGet(
+                () -> customerRepository.findOneById(createCouponData.getCustomerId())
+                    .orElseThrow(
+                        () -> new ResourceNotFoundException(
+                            String.format("Customer [id=%s] not found", createCouponData.getCustomerId())
+                        )
+                    )
             );
+
         var coupon = MapperHelpers.getCouponMapper().toCoupon(createCouponData, employee, vehicle);
         log.info("Creating coupon");
         var couponDb = couponRepository.save(coupon);
         log.info("Created coupon, id = {}", couponDb.getId());
-        createInvoice(couponDb);
+        createInvoice(couponDb, customer);
         return MapperHelpers.getCouponMapper().toCouponResult(couponDb);
     }
 
-    private void createInvoice(Coupon coupon) {
-        var customer = coupon.getVehicle().getCustomer();
+    private void createInvoice(Coupon coupon, Customer customer) {
         var weightRecords = coupon.getWeightRecords();
         var productWeightRecords = weightRecords.stream()
             .filter(

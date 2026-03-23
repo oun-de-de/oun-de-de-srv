@@ -21,6 +21,11 @@ public class CreateCouponData {
     private String vehicleId;
 
     /*
+     * CUSTOMER
+     */
+    private String customerId;
+
+    /*
      * USER
      */
     private String employeeId;

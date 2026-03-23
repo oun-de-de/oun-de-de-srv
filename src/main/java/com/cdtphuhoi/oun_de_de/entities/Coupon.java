@@ -42,8 +42,7 @@ public class Coupon extends OrgManaged {
 
     private LocalDateTime date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     private Vehicle vehicle;
 
     private String driverName;

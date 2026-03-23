@@ -18,8 +18,12 @@ public class CreateCouponRequest {
     /*
      * Vehicle
      */
-    @NotNull
     private UUID vehicleId;
+
+    /*
+     * CUSTOMER
+     */
+    private UUID customerId;
 
     @Size(max = DEFAULT_STRING_FIELD_LENGTH)
     private String driverName;
