@@ -101,7 +101,11 @@ public class CouponService implements OrgManagementService {
             .collect(Collectors.toSet());
         var invoices = invoiceRepository.findAll(
             Specification.allOf(
-                (root, query, cb) -> root.get(Invoice_.REF_NO).in(invoiceRefCodes)
+                (root, query, cb) -> root.get(Invoice_.REF_NO).in(invoiceRefCodes),
+                (root, query, cb) -> {
+                    root.fetch(Invoice_.CUSTOMER, JoinType.LEFT);
+                    return null;
+                }
             )
         );
         var invoiceByRefCode = invoices.stream()

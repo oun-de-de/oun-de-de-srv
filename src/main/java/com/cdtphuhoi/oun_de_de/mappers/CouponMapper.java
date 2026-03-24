@@ -43,7 +43,8 @@ public interface CouponMapper {
     @Mapping(target = "date", source = "coupon.date")
     @Mapping(target = "weightRecords", source = "coupon.weightRecords")
     @Mapping(target = "invoiceId", source = "invoice.id")
-    @Mapping(target = "customerName", source = "invoice.customerName")
+    @Mapping(target = "customerName", source = "invoice.customer.name")
+    @Mapping(target = "paymentTermCycleId", source = "invoice.cycle.id")
     CouponResult toCouponResult(Coupon coupon, Invoice invoice);
 
     List<CouponResult> toListCouponResult(List<Coupon> coupon);

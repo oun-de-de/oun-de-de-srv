@@ -22,6 +22,8 @@ public class CouponResult {
 
     private String invoiceId;
 
+    private String paymentTermCycleId;
+
     private String invoiceRefNo;
 
     private List<CouponWeightRecordResult> weightRecords;
