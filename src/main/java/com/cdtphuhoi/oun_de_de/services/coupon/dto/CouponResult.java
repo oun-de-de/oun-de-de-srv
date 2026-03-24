@@ -20,9 +20,13 @@ public class CouponResult {
 
     private CouponEmployeeResult employee;
 
+    private String invoiceId;
+
     private String invoiceRefNo;
 
     private List<CouponWeightRecordResult> weightRecords;
+
+    private String customerName;
 
     /*
      * these fields for weighing software synchronization

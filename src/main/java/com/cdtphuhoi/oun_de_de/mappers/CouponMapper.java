@@ -4,6 +4,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.CreateCouponRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.DeleteCouponRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.coupon.UpdateCouponRequest;
 import com.cdtphuhoi.oun_de_de.entities.Coupon;
+import com.cdtphuhoi.oun_de_de.entities.Invoice;
 import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.entities.Vehicle;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
@@ -37,6 +38,13 @@ public interface CouponMapper {
     CreateCouponData toCreateCouponData(CreateCouponRequest request);
 
     CouponResult toCouponResult(Coupon coupon);
+
+    @Mapping(target = "id", source = "coupon.id")
+    @Mapping(target = "date", source = "coupon.date")
+    @Mapping(target = "weightRecords", source = "coupon.weightRecords")
+    @Mapping(target = "invoiceId", source = "invoice.id")
+    @Mapping(target = "customerName", source = "invoice.customerName")
+    CouponResult toCouponResult(Coupon coupon, Invoice invoice);
 
     List<CouponResult> toListCouponResult(List<Coupon> coupon);
 

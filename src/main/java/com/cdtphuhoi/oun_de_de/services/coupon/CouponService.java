@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import jakarta.persistence.criteria.JoinType;
 
@@ -93,7 +94,29 @@ public class CouponService implements OrgManagementService {
             ),
             pageable
         );
-        return page.map(MapperHelpers.getCouponMapper()::toCouponResult);
+
+        var coupons = page.getContent();
+        var invoiceRefCodes = coupons.stream()
+            .map(Coupon::getInvoiceRefNo)
+            .collect(Collectors.toSet());
+        var invoices = invoiceRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> root.get(Invoice_.REF_NO).in(invoiceRefCodes)
+            )
+        );
+        var invoiceByRefCode = invoices.stream()
+            .collect(
+                Collectors.toMap(
+                    Invoice::getRefNo,
+                    Function.identity()
+                )
+            );
+        return page.map(coupon ->
+            MapperHelpers.getCouponMapper().toCouponResult(
+                coupon,
+                invoiceByRefCode.get(coupon.getInvoiceRefNo())
+            )
+        );
     }
 
     public CouponResult create(CreateCouponData createCouponData) {
