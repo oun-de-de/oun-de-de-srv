@@ -15,10 +15,4 @@ public class InitStockRequest {
     @NotNull
     @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal quantityOnHand;
-
-    /*
-     * optional for init stock
-     */
-    @DecimalMin(value = "0.00", inclusive = false)
-    private BigDecimal expense;
 }

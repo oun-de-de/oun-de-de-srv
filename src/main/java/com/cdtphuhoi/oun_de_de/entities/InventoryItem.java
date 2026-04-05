@@ -50,6 +50,9 @@ public class InventoryItem extends OrgManaged {
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantityOnHand;
 
+    @Column(nullable = true, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
+    private BigDecimal unitPrice;
+
     /*
      * Only applicable for CONSUMABLE
      * Nullable for equipment

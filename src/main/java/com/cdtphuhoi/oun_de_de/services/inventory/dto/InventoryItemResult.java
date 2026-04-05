@@ -22,6 +22,8 @@ public class InventoryItemResult {
 
     private UnitResult unit;
 
+    private BigDecimal unitPrice;
+
     private BigDecimal quantityOnHand;
 
     private BigDecimal alertThreshold;

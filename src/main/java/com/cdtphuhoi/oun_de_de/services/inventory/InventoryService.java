@@ -92,6 +92,7 @@ public class InventoryService implements OrgManagementService {
             .name(createItemData.getName())
             .type(MapperHelpers.getInventoryMapper().stringToItemType(createItemData.getType()))
             .unit(unit)
+            .unitPrice(createItemData.getUnitPrice())
             .quantityOnHand(qty)
             .alertThreshold(createItemData.getAlertThreshold())
             .build();
@@ -112,17 +113,14 @@ public class InventoryService implements OrgManagementService {
             .quantity(initStockData.getQuantityOnHand())
             .type(StockTransactionType.IN)
             .reason(StockTransactionReason.PURCHASE)
-            .expense(initStockData.getExpense())
+            .expense(initStockData.getQuantityOnHand().multiply(item.getUnitPrice()))
             .refCode(initStockData.getRefCode())
             .createdAt(cambodiaNow())
             .createdBy(usr)
             .build();
 
-        persistStockTransaction(stockTransaction);
-
-        if (stockTransaction.getExpense() != null) {
-            createCashTransactionForBuyItem(stockTransaction);
-        }
+        var stockTransactionDb = persistStockTransaction(stockTransaction);
+        createCashTransactionForBuyItem(stockTransactionDb);
     }
 
     private void createCashTransactionForBuyItem(StockTransaction stockTransaction) {
@@ -140,8 +138,8 @@ public class InventoryService implements OrgManagementService {
             .cashTransaction(cashTransaction)
             .amount(stockTransaction.getExpense())
             .memo(
-                String.format("Buy item [itemId=%s, quantity=%s]",
-                    stockTransaction.getItem().getId(),
+                String.format("Buy item [item=%s, quantity=%s]",
+                    stockTransaction.getItem().getName(),
                     stockTransaction.getQuantity()
                 )
             )
