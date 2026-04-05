@@ -4,6 +4,7 @@ import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_N
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.SellEquipmentRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateItemRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.inventory.InventoryService;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,6 +60,18 @@ public class InventoryController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PutMapping("/{itemId}")
+    public ResponseEntity<InventoryItemResult> updateItem(
+        @PathVariable String itemId,
+        @Valid @RequestBody UpdateItemRequest request
+    ) {
+        var result = inventoryService.updateItem(
+            itemId,
+            MapperHelpers.getInventoryMapper().toUpdateItemData(request)
+        );
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{itemId}/transactions")

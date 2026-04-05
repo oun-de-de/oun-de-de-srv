@@ -37,6 +37,7 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.InitStockData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.SellEquipmentData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.UpdateItemData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -178,13 +179,54 @@ public class InventoryService implements OrgManagementService {
     }
 
     public InventoryItemResult findItemById(String itemId) {
-        var item = inventoryItemRepository.findOneById(itemId)
+        var item = inventoryItemRepository.findOne(
+                Specification.allOf(
+                    (root, query, cb) -> cb.equal(root.get(InventoryItem_.ID), itemId),
+                    (root, query, cb) -> {
+                        root.fetch(InventoryItem_.UNIT, JoinType.LEFT);
+                        root.fetch(InventoryItem_.SUPPLIER, JoinType.LEFT);
+                        return null;
+                    }
+                )
+            )
             .orElseThrow(
                 () -> new ResourceNotFoundException(
                     String.format("Item [id=%s] not found", itemId)
                 )
             );
         return MapperHelpers.getInventoryMapper().toInventoryItemResult(item);
+    }
+
+    public InventoryItemResult updateItem(String itemId, UpdateItemData updateItemData) {
+        var item = inventoryItemRepository.findOneById(itemId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Item [id=%s] not found", itemId)
+                )
+            );
+        if (updateItemData.getUnitId() != null &&
+            (item.getUnit() == null || !item.getUnit().getId().equals(updateItemData.getUnitId()))) {
+            var unit = unitRepository.findOneById(updateItemData.getUnitId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Unit [id=%s] not found", updateItemData.getUnitId())
+                    )
+                );
+            item.setUnit(unit);
+        }
+        if (updateItemData.getSupplierId() != null &&
+            (item.getSupplier() == null || !item.getSupplier().getId().equals(updateItemData.getSupplierId()))) {
+            var supplier = supplierRepository.findOneById(updateItemData.getSupplierId())
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Supplier [id=%s] not found", updateItemData.getSupplierId())
+                    )
+                );
+            item.setSupplier(supplier);
+        }
+        MapperHelpers.getInventoryMapper().updateItem(updateItemData, item);
+        var updatedItem = inventoryItemRepository.save(item);
+        return MapperHelpers.getInventoryMapper().toInventoryItemResult(updatedItem);
     }
 
     public StockTransactionResult updateStockTransaction(String itemId, CreateStockTransactionData createStockTransactionData, User usr) {

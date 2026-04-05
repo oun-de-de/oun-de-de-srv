@@ -5,38 +5,23 @@ import com.cdtphuhoi.oun_de_de.validators.ValueOfEnum;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.util.UUID;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Data
-public class CreateItemRequest {
+public class UpdateItemRequest {
 
-    @NotBlank
     private String name;
 
-    @NotBlank
     @ValueOfEnum(enumClass = ItemType.class)
     private String type;
 
-    /*
-     * UNIT
-     */
     private UUID unitId;
 
-    /*
-     * SUPPLIER
-     */
     private UUID supplierId;
 
-    @NotNull
     @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal unitPrice;
 
     @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal alertThreshold;
-
-    @Valid
-    private InitStockRequest initStock;
 }

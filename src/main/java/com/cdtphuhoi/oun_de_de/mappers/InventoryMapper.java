@@ -7,6 +7,7 @@ import com.cdtphuhoi.oun_de_de.common.StockTransactionType;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateEquipmentBorrowRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.CreateItemRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.SellEquipmentRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateItemRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.inventory.UpdateStockTransactionRequest;
 import com.cdtphuhoi.oun_de_de.entities.EquipmentBorrow;
 import com.cdtphuhoi.oun_de_de.entities.InventoryItem;
@@ -18,9 +19,11 @@ import com.cdtphuhoi.oun_de_de.services.inventory.dto.EquipmentBorrowResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.InventoryItemResult;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.SellEquipmentData;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.StockTransactionResult;
+import com.cdtphuhoi.oun_de_de.services.inventory.dto.UpdateItemData;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ValueMapping;
 import org.mapstruct.factory.Mappers;
@@ -77,4 +80,10 @@ public interface InventoryMapper {
     List<EquipmentBorrowResult> toListEquipmentBorrowResult(List<EquipmentBorrow> equipmentBorrows);
 
     SellEquipmentData toSellEquipmentData(SellEquipmentRequest request);
+
+    UpdateItemData toUpdateItemData(UpdateItemRequest request);
+
+    @Mapping(target = "unit", ignore = true)
+    @Mapping(target = "supplier", ignore = true)
+    void updateItem(UpdateItemData updateItemData, @MappingTarget InventoryItem item);
 }
