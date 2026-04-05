@@ -1,0 +1,41 @@
+{
+  "namespace": "com.kakfainaction",
+  "type": "record",
+  "name": "Alert",
+  "fields": [
+    {
+      "name": "sensor_id",
+      "type": "long",
+      "doc": "The unique id that identifies the sensor"
+    },
+    {
+      "name": "stage_id",
+      "type": "string",
+      "doc": "The unique id that identifies the stage"
+    },
+    {
+      "name": "stage_reason",
+      "type": "string",
+      "doc": "The unique id that identifies the stage"
+    },
+    {
+      "name": "time",
+      "type": "long",
+      "doc": "Time the alert was generated as UTC milliseconds from the epoch"
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "alert_status",
+        "symbols": [
+          "Critical",
+          "Major",
+          "Minor",
+          "Warning"
+        ]
+      },
+      "doc": "The allowed values that our sensors will use to emit current status"
+    }
+  ]
+}
