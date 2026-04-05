@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 public class LoanResult {
     private String id;
 
+    private String code;
+
     private BorrowerType borrowerType;
 
     private String borrowerId;

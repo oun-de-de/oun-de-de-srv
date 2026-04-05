@@ -95,6 +95,7 @@ public interface CashTransactionMapper {
         flattenResult.setRefNo(cashTransaction.getRefNo());
         flattenResult.setType(cashTransaction.getType());
         flattenResult.setDate(cashTransaction.getDate());
+        flattenResult.setMemo(cashTransaction.getMemo());
         flattenResult.setCurrency(
             Optional.ofNullable(cashTransaction.getCurrency())
                 .map(Currency::getName)

@@ -168,6 +168,7 @@ public class LoanService implements OrgManagementService {
         var startDate = toCambodiaLocalDateTime(createLoanData.getStartDate());
         var loan = Loan.builder()
             .orgId(borrower.getOrgId())
+            .code(createLoanData.getCode())
             .borrowerType(createLoanData.getBorrowerType())
             .borrowerId(createLoanData.getBorrowerId())
             .principalAmount(createLoanData.getPrincipalAmount())
@@ -186,7 +187,33 @@ public class LoanService implements OrgManagementService {
         log.info("Creating loan and installments");
         var loanDb = loanRepository.save(loan);
         log.info("Created loan and installments");
+
+        createCashTransactionForLoan(loanDb);
         return MapperHelpers.getLoanMapper().toLoanResult(loanDb);
+    }
+
+    private void createCashTransactionForLoan(Loan loan) {
+        var isEmployeeBorrower = BorrowerType.EMPLOYEE.equals(loan.getBorrowerType());
+        var cashTransaction = CashTransaction.builder()
+            .orgId(loan.getOrgId())
+            .refNo(loan.getCode())
+            .type(CashTransactionType.CREDIT)
+            .date(loan.getCreateAt())
+            .reason(CashTransactionReason.CASH_OUT)
+            .memo(loan.getMemo())
+            .build();
+
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(cashTransaction.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(loan.getPrincipalAmount())
+            .memo(isEmployeeBorrower ?
+                String.format("Loan for employee, employee id: %s", loan.getBorrowerId()) :
+                String.format("Loan for customer, customer id: %s", loan.getBorrowerId())
+            )
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
     }
 
     public LoanResult findLoanById(String loanId) {
@@ -357,7 +384,15 @@ public class LoanService implements OrgManagementService {
     public CodeResponse generatePaymentCode(String orgId) {
         var maxCurrentRefCode = Optional.ofNullable(loanPaymentRepository.findMaxRefCode(orgId))
             .orElse(0L);
-        return  CodeResponse.builder()
+        return CodeResponse.builder()
+            .code(String.format("LPAY%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)))
+            .build();
+    }
+
+    public CodeResponse generateLoanCode(String orgId) {
+        var maxCurrentRefCode = Optional.ofNullable(loanRepository.findMaxRefCode(orgId))
+            .orElse(0L);
+        return CodeResponse.builder()
             .code(String.format("LOAN%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)))
             .build();
     }

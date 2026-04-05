@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class CreateLoanData {
 
+    private String code;
+
     private BorrowerType borrowerType;
 
     private String borrowerId;

@@ -18,7 +18,7 @@ public interface LoanPaymentRepository extends JpaRepository<LoanPayment, String
         value = """
                 SELECT MAX(CAST(SUBSTRING(code, 5) AS UNSIGNED)) AS max_no
                 FROM loan_payment
-                WHERE code LIKE 'LOAN%' and org_id = :orgId;
+                WHERE code LIKE 'LPAY%' and org_id = :orgId;
             """,
         nativeQuery = true
     )

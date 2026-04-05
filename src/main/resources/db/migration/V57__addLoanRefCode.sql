@@ -1,0 +1,2 @@
+ALTER TABLE loan
+    ADD code VARCHAR(20) NULL;

@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.controllers.dto.loan;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_CODE_LENGTH;
 import static com.cdtphuhoi.oun_de_de.services.loan.LoanService.DAY_IN_MONTH;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.validators.ValueOfEnum;
@@ -12,9 +13,14 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Data
 public class CreateLoanRequest {
+
+    @NotBlank
+    @Size(max = DEFAULT_CODE_LENGTH)
+    private String code;
 
     @NotBlank
     @ValueOfEnum(enumClass = BorrowerType.class)

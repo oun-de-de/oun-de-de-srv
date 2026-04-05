@@ -1,5 +1,6 @@
 package com.cdtphuhoi.oun_de_de.entities;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_CODE_LENGTH;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_PRECISION;
 import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_DECIMAL_SCALE;
 import static com.cdtphuhoi.oun_de_de.common.Constants.ORG_ID_COLUMN_NAME;
@@ -38,6 +39,9 @@ public class Loan extends OrgManaged {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+
+    @Column(length = DEFAULT_CODE_LENGTH)
+    private String code;
 
     @Column(nullable = false)
     private BorrowerType borrowerType;

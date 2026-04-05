@@ -133,6 +133,14 @@ public class LoanController {
         );
     }
 
+    @GetMapping("/generate-loan-code")
+    public ResponseEntity<CodeResponse> generateLoanCode() {
+        var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
+        return ResponseEntity.ok(
+            loanService.generateLoanCode(orgId)
+        );
+    }
+
     @GetMapping("/generate-payment-code")
     public ResponseEntity<CodeResponse> generatePaymentCode() {
         var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
