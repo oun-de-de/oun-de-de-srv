@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateCurrencyRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateSupplierRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
@@ -9,6 +10,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.settings.SettingService;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.SupplierResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import com.cdtphuhoi.oun_de_de.utils.ControllerUtils;
@@ -116,6 +118,27 @@ public class SettingController {
         var usr = controllerUtils.getCurrentSignedInUser();
         var result = settingService.createCurrency(
             MapperHelpers.getSettingMapper().toCreateCurrencyData(request),
+            usr
+        );
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(result);
+    }
+
+    @GetMapping("/suppliers")
+    public ResponseEntity<List<SupplierResult>> listSuppliers() {
+        return ResponseEntity.ok(
+            settingService.findAllSuppliers()
+        );
+    }
+
+    @PostMapping("/suppliers")
+    public ResponseEntity<SupplierResult> createSupplier(
+        @Valid @RequestBody CreateSupplierRequest request
+    ) {
+        var usr = controllerUtils.getCurrentSignedInUser();
+        var result = settingService.createSupplier(
+            MapperHelpers.getSettingMapper().toCreateSupplierData(request),
             usr
         );
         return ResponseEntity

@@ -4,13 +4,16 @@ import com.cdtphuhoi.oun_de_de.entities.User;
 import com.cdtphuhoi.oun_de_de.exceptions.ResourceNotFoundException;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CurrencyRepository;
+import com.cdtphuhoi.oun_de_de.repositories.SupplierRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.repositories.WarehouseRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateCurrencyData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateSupplierData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CreateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.SupplierResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
@@ -32,6 +35,8 @@ public class SettingService implements OrgManagementService {
     private final WarehouseRepository warehouseRepository;
 
     private final CurrencyRepository currencyRepository;
+
+    private final SupplierRepository supplierRepository;
 
     public UnitResult createUnit(CreateUnitData createUnitData, User usr) {
         var unit = MapperHelpers.getSettingMapper().toUnit(createUnitData, usr);
@@ -95,5 +100,19 @@ public class SettingService implements OrgManagementService {
         var currencyDb = currencyRepository.save(currency);
         log.info("Created currency, id = {}", currencyDb.getId());
         return MapperHelpers.getSettingMapper().toCurrencyResult(currencyDb);
+    }
+
+    public List<SupplierResult> findAllSuppliers() {
+        var results = supplierRepository.findAll();
+        return MapperHelpers.getSettingMapper().toListSupplierResult(results);
+    }
+
+    public SupplierResult createSupplier(CreateSupplierData createSupplierData, User usr) {
+        var supplier = MapperHelpers.getSettingMapper().toSupplier(createSupplierData);
+        supplier.setOrgId(usr.getOrgId());
+        log.info("Creating supplier");
+        var supplierDb = supplierRepository.save(supplier);
+        log.info("Created supplier, id = {}", supplierDb.getId());
+        return MapperHelpers.getSettingMapper().toSupplierResult(supplierDb);
     }
 }

@@ -20,6 +20,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
@@ -44,8 +46,11 @@ public class InventoryItem extends OrgManaged {
     @Column(nullable = false)
     private ItemType type;
 
-    @OneToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Unit unit;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Supplier supplier;
 
     @Column(nullable = false, precision = DEFAULT_DECIMAL_PRECISION, scale = DEFAULT_DECIMAL_SCALE)
     private BigDecimal quantityOnHand;
