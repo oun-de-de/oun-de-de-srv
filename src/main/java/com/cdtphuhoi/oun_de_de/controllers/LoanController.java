@@ -2,14 +2,17 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
+import com.cdtphuhoi.oun_de_de.common.dto.CodeResponse;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.CreateLoanPaymentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.ExtendLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.loan.UpdateLoanRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.loan.LoanService;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanPaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
+import com.cdtphuhoi.oun_de_de.utils.SecurityContextUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +130,14 @@ public class LoanController {
                 loanId,
                 MapperHelpers.getLoanMapper().toCreateLoanPaymentData(request)
             )
+        );
+    }
+
+    @GetMapping("/generate-payment-code")
+    public ResponseEntity<CodeResponse> generatePaymentCode() {
+        var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
+        return ResponseEntity.ok(
+            loanService.generatePaymentCode(orgId)
         );
     }
 }

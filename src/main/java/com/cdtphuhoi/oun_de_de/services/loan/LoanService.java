@@ -1,12 +1,15 @@
 package com.cdtphuhoi.oun_de_de.services.loan;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.toCambodiaLocalDateTime;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.LoanStatus;
+import com.cdtphuhoi.oun_de_de.common.dto.CodeResponse;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -42,6 +45,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -347,5 +351,13 @@ public class LoanService implements OrgManagementService {
         MapperHelpers.getLoanMapper().updateLoan(loan, updateLoanData);
         var updated = loanRepository.save(loan);
         return MapperHelpers.getLoanMapper().toLoanResult(updated);
+    }
+
+    public CodeResponse generatePaymentCode(String orgId) {
+        var maxCurrentRefCode = Optional.ofNullable(loanPaymentRepository.findMaxRefCode(orgId))
+            .orElse(0L);
+        return  CodeResponse.builder()
+            .code(String.format("LOAN%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)))
+            .build();
     }
 }
