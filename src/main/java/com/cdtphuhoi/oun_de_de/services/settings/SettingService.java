@@ -16,6 +16,7 @@ import com.cdtphuhoi.oun_de_de.services.settings.dto.CurrencyResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.SupplierResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateUnitData;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateSupplierData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UpdateWarehouseData;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.WarehouseResult;
 import lombok.RequiredArgsConstructor;
@@ -113,6 +114,18 @@ public class SettingService implements OrgManagementService {
         log.info("Creating supplier");
         var supplierDb = supplierRepository.save(supplier);
         log.info("Created supplier, id = {}", supplierDb.getId());
+        return MapperHelpers.getSettingMapper().toSupplierResult(supplierDb);
+    }
+
+    public SupplierResult updateSupplier(String supplierId, UpdateSupplierData updateSupplierData) {
+        var supplier = supplierRepository.findOneById(supplierId)
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("Supplier [id=%s] not found", supplierId)
+                )
+            );
+        MapperHelpers.getSettingMapper().updateSupplier(updateSupplierData, supplier);
+        var supplierDb = supplierRepository.save(supplier);
         return MapperHelpers.getSettingMapper().toSupplierResult(supplierDb);
     }
 }

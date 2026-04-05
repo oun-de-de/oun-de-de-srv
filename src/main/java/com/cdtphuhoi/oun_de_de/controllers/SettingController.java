@@ -6,6 +6,7 @@ import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateSupplierRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateUnitRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.CreateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateUnitRequest;
+import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateSupplierRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.settings.UpdateWarehouseRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.services.settings.SettingService;
@@ -144,5 +145,17 @@ public class SettingController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(result);
+    }
+
+    @PutMapping("/suppliers/{supplierId}")
+    public ResponseEntity<SupplierResult> updateSupplier(
+        @PathVariable String supplierId,
+        @Valid @RequestBody UpdateSupplierRequest request
+    ) {
+        var result = settingService.updateSupplier(
+            supplierId,
+            MapperHelpers.getSettingMapper().toUpdateSupplierData(request)
+        );
+        return ResponseEntity.ok(result);
     }
 }

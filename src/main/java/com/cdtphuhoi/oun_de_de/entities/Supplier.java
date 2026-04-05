@@ -30,5 +30,4 @@ public class Supplier extends OrgManagedCodeList {
     private String address;
 
     private String telephone;
-
 }
