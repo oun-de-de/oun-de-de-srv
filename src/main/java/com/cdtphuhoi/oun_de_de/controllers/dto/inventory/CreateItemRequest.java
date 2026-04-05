@@ -25,6 +25,11 @@ public class CreateItemRequest {
      */
     private UUID unitId;
 
+    /*
+     * SUPPLIER
+     */
+    private UUID supplierId;
+
     @NotNull
     @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal unitPrice;

@@ -26,6 +26,7 @@ import com.cdtphuhoi.oun_de_de.repositories.CustomerRepository;
 import com.cdtphuhoi.oun_de_de.repositories.EquipmentBorrowRepository;
 import com.cdtphuhoi.oun_de_de.repositories.InventoryItemRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
+import com.cdtphuhoi.oun_de_de.repositories.SupplierRepository;
 import com.cdtphuhoi.oun_de_de.repositories.UnitRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.inventory.dto.CreateEquipmentBorrowData;
@@ -64,10 +65,20 @@ public class InventoryService implements OrgManagementService {
 
     private final UnitRepository unitRepository;
 
+    private final SupplierRepository supplierRepository;
+
     private final CashTransactionRepository cashTransactionRepository;
 
     public List<InventoryItemResult> findAllItems() {
-        var items = inventoryItemRepository.findAll();
+        var items = inventoryItemRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> {
+                    root.fetch(InventoryItem_.UNIT, JoinType.LEFT);
+                    root.fetch(InventoryItem_.SUPPLIER, JoinType.LEFT);
+                    return null;
+                }
+            )
+        );
         return MapperHelpers.getInventoryMapper().toListInventoryItemResult(items);
     }
 
@@ -77,6 +88,15 @@ public class InventoryService implements OrgManagementService {
                 .orElseThrow(
                     () -> new ResourceNotFoundException(
                         String.format("Unit [id=%s] not found", createItemData.getUnitId())
+                    )
+                )
+            )
+            .orElse(null);
+        var supplier = Optional.ofNullable(createItemData.getSupplierId())
+            .map(supplierId -> supplierRepository.findOneById(supplierId)
+                .orElseThrow(
+                    () -> new ResourceNotFoundException(
+                        String.format("Supplier [id=%s] not found", createItemData.getSupplierId())
                     )
                 )
             )
@@ -92,6 +112,7 @@ public class InventoryService implements OrgManagementService {
             .name(createItemData.getName())
             .type(MapperHelpers.getInventoryMapper().stringToItemType(createItemData.getType()))
             .unit(unit)
+            .supplier(supplier)
             .unitPrice(createItemData.getUnitPrice())
             .quantityOnHand(qty)
             .alertThreshold(createItemData.getAlertThreshold())

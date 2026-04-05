@@ -1,6 +1,7 @@
 package com.cdtphuhoi.oun_de_de.services.inventory.dto;
 
 import com.cdtphuhoi.oun_de_de.common.ItemType;
+import com.cdtphuhoi.oun_de_de.services.settings.dto.SupplierResult;
 import com.cdtphuhoi.oun_de_de.services.settings.dto.UnitResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,8 @@ public class InventoryItemResult {
     private ItemType type;
 
     private UnitResult unit;
+
+    private SupplierResult supplier;
 
     private BigDecimal unitPrice;
 

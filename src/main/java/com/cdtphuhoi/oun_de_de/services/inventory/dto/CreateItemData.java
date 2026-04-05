@@ -15,6 +15,11 @@ public class CreateItemData {
      */
     private String unitId;
 
+    /*
+     * SUPPLIER
+     */
+    private String supplierId;
+
     private BigDecimal unitPrice;
 
     private BigDecimal alertThreshold;
