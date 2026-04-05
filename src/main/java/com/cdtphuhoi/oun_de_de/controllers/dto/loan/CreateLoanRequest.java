@@ -37,4 +37,6 @@ public class CreateLoanRequest {
 
     @NotNull
     private LocalDateTime startDate;
+
+    private String memo;
 }

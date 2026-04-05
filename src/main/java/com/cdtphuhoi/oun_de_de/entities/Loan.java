@@ -69,6 +69,8 @@ public class Loan extends OrgManaged {
     @Column(nullable = false)
     private LocalDateTime createAt;
 
+    private String memo;
+
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, mappedBy = "loan")
     private List<LoanPayment> payments;
 }

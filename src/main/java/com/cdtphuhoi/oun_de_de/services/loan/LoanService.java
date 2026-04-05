@@ -181,6 +181,7 @@ public class LoanService implements OrgManagementService {
             .status(LoanStatus.NORMAL)
             .startDate(startDate)
             .createAt(cambodiaNow())
+            .memo(createLoanData.getMemo())
             .build();
         log.info("Creating loan and installments");
         var loanDb = loanRepository.save(loan);

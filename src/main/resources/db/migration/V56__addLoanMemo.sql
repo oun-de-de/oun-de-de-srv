@@ -1,0 +1,2 @@
+ALTER TABLE loan
+    ADD memo VARCHAR(255) NULL;

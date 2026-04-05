@@ -31,4 +31,6 @@ public class LoanResult {
     private LoanStatus status;
 
     private LocalDateTime createAt;
+
+    private String memo;
 }

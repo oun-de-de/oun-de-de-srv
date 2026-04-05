@@ -23,4 +23,6 @@ public class CreateLoanData {
     private Integer dueWarningDays;
 
     private LocalDateTime startDate;
+
+    private String memo;
 }
