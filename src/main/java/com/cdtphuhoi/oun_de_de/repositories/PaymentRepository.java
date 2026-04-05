@@ -32,4 +32,14 @@ public interface PaymentRepository extends JpaRepository<Payment, String>,
         @Param("toDateTime") LocalDateTime toDate,
         @Param("orgId") String orgId
     );
+
+    @Query(
+        value = """
+                SELECT MAX(CAST(SUBSTRING(code, 4) AS UNSIGNED)) AS max_no
+                FROM payment
+                WHERE code LIKE 'INV%' and org_id = :orgId;
+            """,
+        nativeQuery = true
+    )
+    Long findMaxRefCode(@Param("orgId") String orgId);
 }

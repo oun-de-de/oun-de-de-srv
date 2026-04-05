@@ -1,12 +1,15 @@
 package com.cdtphuhoi.oun_de_de.services.payment;
 
+import static com.cdtphuhoi.oun_de_de.common.Constants.DEFAULT_PADDING_LENGTH;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.cambodiaNow;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.endOfDayInCambodia;
+import static com.cdtphuhoi.oun_de_de.utils.Utils.paddingZero;
 import static com.cdtphuhoi.oun_de_de.utils.Utils.startOfDayInCambodia;
 import com.cdtphuhoi.oun_de_de.common.BorrowerType;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionReason;
 import com.cdtphuhoi.oun_de_de.common.CashTransactionType;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.common.dto.CodeResponse;
 import com.cdtphuhoi.oun_de_de.entities.CashTransaction;
 import com.cdtphuhoi.oun_de_de.entities.CashTransactionDetail;
 import com.cdtphuhoi.oun_de_de.entities.Customer;
@@ -40,9 +43,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import jakarta.persistence.criteria.JoinType;
 
 @Slf4j
@@ -255,5 +260,13 @@ public class PaymentTermService implements OrgManagementService {
                 )
             );
         return MapperHelpers.getPaymentMapper().toPaymentTermCycleResult(result);
+    }
+
+    public CodeResponse generatePaymentCode(String orgId) {
+        var maxCurrentRefCode = Optional.ofNullable(paymentRepository.findMaxRefCode(orgId))
+            .orElse(0L);
+        return  CodeResponse.builder()
+            .code(String.format("INV%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)))
+            .build();
     }
 }

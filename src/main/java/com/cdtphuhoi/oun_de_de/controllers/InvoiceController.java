@@ -2,11 +2,13 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.common.PaymentTermCycleStatus;
+import com.cdtphuhoi.oun_de_de.common.dto.CodeResponse;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ConvertToLoanRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.CreatePaymentRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.ExportInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.controllers.dto.invoice.UpdateInvoicesRequest;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
+import com.cdtphuhoi.oun_de_de.services.auth.dto.UserDetailsImpl;
 import com.cdtphuhoi.oun_de_de.services.invoice.InvoiceService;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceExportLineResult;
 import com.cdtphuhoi.oun_de_de.services.invoice.dto.InvoiceResult;
@@ -14,6 +16,7 @@ import com.cdtphuhoi.oun_de_de.services.invoice.dto.PaymentResult;
 import com.cdtphuhoi.oun_de_de.services.loan.dto.LoanResult;
 import com.cdtphuhoi.oun_de_de.services.payment.PaymentTermService;
 import com.cdtphuhoi.oun_de_de.services.payment.dto.PaymentTermCycleResult;
+import com.cdtphuhoi.oun_de_de.utils.SecurityContextUtils;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -153,6 +156,14 @@ public class InvoiceController {
     public ResponseEntity<PaymentTermCycleResult> getCycleDetails(@PathVariable String cycleId) {
         return ResponseEntity.ok(
             paymentTermService.findCycleByCycleId(cycleId)
+        );
+    }
+
+    @GetMapping("/cycles/generate-payment-code")
+    public ResponseEntity<CodeResponse> generatePaymentCode() {
+        var orgId = SecurityContextUtils.getCurrentUserProperty(UserDetailsImpl::getOrgId);
+        return ResponseEntity.ok(
+            paymentTermService.generatePaymentCode(orgId)
         );
     }
 }
