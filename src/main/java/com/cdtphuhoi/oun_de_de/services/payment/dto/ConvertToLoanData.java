@@ -7,9 +7,13 @@ import java.time.LocalDateTime;
 @Data
 public class ConvertToLoanData {
 
+    private String code;
+
     private BigDecimal loanInstallmentAmount;
 
     private LocalDateTime startDate;
 
     private Integer dueWarningDays;
+
+    private String memo;
 }

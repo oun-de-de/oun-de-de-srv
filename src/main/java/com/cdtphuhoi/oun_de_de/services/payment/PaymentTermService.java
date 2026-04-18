@@ -237,12 +237,14 @@ public class PaymentTermService implements OrgManagementService {
         var remainingAmount = cycle.getTotalAmount().subtract(cycle.getTotalPaidAmount());
         var loanResult = loanService.createLoan(
             CreateLoanData.builder()
+                .code(convertToLoanData.getCode())
                 .borrowerType(BorrowerType.CUSTOMER)
                 .borrowerId(cycle.getCustomer().getId())
                 .principalAmount(remainingAmount)
                 .loanInstallmentAmount(convertToLoanData.getLoanInstallmentAmount())
                 .dueWarningDays(convertToLoanData.getDueWarningDays())
                 .startDate(convertToLoanData.getStartDate())
+                .memo(convertToLoanData.getMemo())
                 .build()
         );
         log.info("Close cycle due to remaining amount has been converted to loan");
@@ -265,7 +267,7 @@ public class PaymentTermService implements OrgManagementService {
     public CodeResponse generatePaymentCode(String orgId) {
         var maxCurrentRefCode = Optional.ofNullable(paymentRepository.findMaxRefCode(orgId))
             .orElse(0L);
-        return  CodeResponse.builder()
+        return CodeResponse.builder()
             .code(String.format("INV%s", paddingZero(BigInteger.valueOf(maxCurrentRefCode + 1), DEFAULT_PADDING_LENGTH)))
             .build();
     }

@@ -41,7 +41,7 @@ spring:
 security:
   jwt:
     secret: ${JWT_SECRET:}
-    expiration: 3600s
+    expiration: 14400s # 4h
     refreshExpiration: 86400s # 1day
 
 logging:
