@@ -29,4 +29,13 @@ public class Constants {
     public static final String COUPON_NO_COLUMN_NAME = "coupon_no";
 
     public static final int DEFAULT_PADDING_LENGTH = 9;
+
+    public static final String LOAN_CODE_REGEX = "^LOAN\\d+$";
+    public static final String LOAN_CODE_ERROR_MSG = "Loan code must follow the format LOAN followed by digits only (e.g. LOAN000000005)";
+
+    public static final String INV_CODE_REGEX = "^INV\\d+$";
+    public static final String INV_CODE_ERROR_MSG = "Payment code must follow the format INV followed by digits only (e.g. INV000000005)";
+
+    public static final String LPAY_CODE_REGEX = "^LPAY\\d+$";
+    public static final String LPAY_CODE_ERROR_MSG = "Loan payment code must follow the format LPAY followed by digits only (e.g. LPAY000000005)";
 }
