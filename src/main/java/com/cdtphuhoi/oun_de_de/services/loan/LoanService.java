@@ -361,7 +361,32 @@ public class LoanService implements OrgManagementService {
             );
         loan.setPrincipalAmount(loan.getPrincipalAmount().add(extendLoanData.getAmount()));
         var updated = loanRepository.save(loan);
+        createCashTransactionForLoanExtension(updated, extendLoanData.getAmount());
         return MapperHelpers.getLoanMapper().toLoanResult(updated);
+    }
+
+    private void createCashTransactionForLoanExtension(Loan loan, BigDecimal extensionAmount) {
+        var isEmployeeBorrower = BorrowerType.EMPLOYEE.equals(loan.getBorrowerType());
+        var cashTransaction = CashTransaction.builder()
+            .orgId(loan.getOrgId())
+            .refNo(String.format("%s-EXT", loan.getCode()))
+            .type(CashTransactionType.CREDIT)
+            .date(cambodiaNow())
+            .reason(CashTransactionReason.CASH_OUT)
+            .memo(loan.getMemo())
+            .build();
+
+        var cashTransactionDetail = CashTransactionDetail.builder()
+            .orgId(cashTransaction.getOrgId())
+            .cashTransaction(cashTransaction)
+            .amount(extensionAmount)
+            .memo(isEmployeeBorrower ?
+                String.format("Loan extension for employee, employee id: %s", loan.getBorrowerId()) :
+                String.format("Loan extension for customer, customer id: %s", loan.getBorrowerId())
+            )
+            .build();
+        cashTransaction.setCashTransactionDetails(List.of(cashTransactionDetail));
+        cashTransactionRepository.save(cashTransaction);
     }
 
     public LoanResult updateLoan(String loanId, UpdateLoanData updateLoanData) {
