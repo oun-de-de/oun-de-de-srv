@@ -235,7 +235,8 @@ public class CouponService implements OrgManagementService {
                             root.get(Coupon_.COUPON_NO),
                             couponNo
                         );
-                    }
+                    },
+                    (root, query, cb) -> cb.isNull(root.get(Coupon_.DEL_DATE))
                 )
             )
             .orElseThrow(
@@ -340,7 +341,8 @@ public class CouponService implements OrgManagementService {
                     (root, query, cb) -> cb.equal(
                         root.get(Coupon_.COUPON_NO),
                         couponNo
-                    )
+                    ),
+                    (root, query, cb) -> cb.isNull(root.get(Coupon_.DEL_DATE))
                 )
             )
             .orElseThrow(
