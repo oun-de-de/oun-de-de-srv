@@ -98,5 +98,5 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           timeout: 300s
-          envs: IMAGE_TAG,GIT_SHA,DB_PASSWORD,DB_URL,DB_USRNAME,JWT_SECRET
+          envs: IMAGE_TAG,GIT_SHA,DB_PASSWORD,DB_URL,DB_USRNAME,JWT_SECRET,APP_DOMAIN,SSL_EMAIL
           script_path: infra/script.sh
