@@ -362,7 +362,11 @@ public class CouponService implements OrgManagementService {
                     }
                 )
             )
-            .get();
+            .orElseThrow(
+                () -> new ResourceNotFoundException(
+                    String.format("resetWeighRecordsAndInvoice: Invoice [refNo=%s] not found", coupon.getInvoiceRefNo())
+                )
+            );
         var resetAmount = invoice.getWeightRecords().stream()
             .map(WeightRecord::getAmount)
             .reduce(
