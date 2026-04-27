@@ -91,6 +91,8 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USRNAME: ${{ secrets.DB_USRNAME }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+          SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
