@@ -83,7 +83,7 @@ services:
 
   srv:
     image: dacnguyen9101/oun-de-de:$IMAGE_TAG
-    # restart: unless-stopped
+    restart: unless-stopped
     # depends_on:
     #   - db
     environment:
@@ -120,6 +120,7 @@ services:
 
   certbot:
     image: certbot/certbot:latest
+    restart: unless-stopped
     volumes:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
