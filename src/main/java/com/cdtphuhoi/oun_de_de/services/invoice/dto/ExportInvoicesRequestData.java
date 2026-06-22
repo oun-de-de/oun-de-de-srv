@@ -5,5 +5,10 @@ import java.util.List;
 
 @Data
 public class ExportInvoicesRequestData {
+
     private List<String> invoiceIds;
+
+    private String productName;
+
+    private String referredBy;
 }

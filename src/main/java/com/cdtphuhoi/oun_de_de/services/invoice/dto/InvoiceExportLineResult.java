@@ -11,6 +11,8 @@ public class InvoiceExportLineResult {
 
     private String customerName;
 
+    private String referredByName;
+
     private LocalDateTime date;
 
     private String productName;
