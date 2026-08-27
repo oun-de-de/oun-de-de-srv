@@ -2,6 +2,7 @@ package com.cdtphuhoi.oun_de_de.controllers;
 
 import static com.cdtphuhoi.oun_de_de.common.Constants.SWAGGER_SECURITY_SCHEME_NAME;
 import com.cdtphuhoi.oun_de_de.services.reports.ReportingService;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportDetailsResponse;
@@ -70,6 +71,18 @@ public class ReportController {
     ) {
         return ResponseEntity.ok(
             reportingService.getInventoryStockReport(fromDate, toDate)
+        );
+    }
+
+    @GetMapping("/cash-transaction-report")
+    public ResponseEntity<CashTransactionReportResponse> getCashTransactionReport(
+        @RequestParam(required = false) String journalClassId,
+        @RequestParam(required = false) String chartOfAccountId,
+        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
+    ) {
+        return ResponseEntity.ok(
+            reportingService.getCashTransactionReport(journalClassId, chartOfAccountId, from, to)
         );
     }
 }

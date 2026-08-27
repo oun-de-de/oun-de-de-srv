@@ -22,11 +22,16 @@ import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
+import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount_;
+import com.cdtphuhoi.oun_de_de.entities.JournalClass_;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.MonthlyBalanceRepository;
 import com.cdtphuhoi.oun_de_de.repositories.StockTransactionRepository;
 import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionDetailProjection;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyCashTransactionDetail;
@@ -45,6 +50,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -401,5 +407,94 @@ public class ReportingService implements OrgManagementService {
         return CashTransactionType.DEBIT.equals(cashTransactionDetail.type()) ?
             CashTransactionReason.CASH_IN.toString() :
             CashTransactionReason.CASH_OUT.toString();
+    }
+
+    public CashTransactionReportResponse getCashTransactionReport(
+        String journalClassId,
+        String chartOfAccountId,
+        LocalDate from,
+        LocalDate to
+    ) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(CashTransactionDetailProjection.class);
+        var root = query.from(CashTransactionDetail.class);
+        var cashTxJoin = root.join(CashTransactionDetail_.cashTransaction, JoinType.LEFT);
+        var journalClassJoin = root.join(CashTransactionDetail_.journalClass, JoinType.LEFT);
+
+        query.select(
+            cb.construct(
+                CashTransactionDetailProjection.class,
+                cashTxJoin.get(CashTransaction_.DATE),
+                cashTxJoin.get(CashTransaction_.REF_NO),
+                cashTxJoin.get(CashTransaction_.TYPE),
+                journalClassJoin.get(JournalClass_.NAME),
+                root.get(CashTransactionDetail_.MEMO),
+                root.get(CashTransactionDetail_.AMOUNT)
+            )
+        );
+
+        var predicates = new ArrayList<Predicate>();
+
+        if (journalClassId != null) {
+            predicates.add(
+                cb.equal(journalClassJoin.get(JournalClass_.ID), journalClassId)
+            );
+        }
+        if (chartOfAccountId != null) {
+            var coaJoin = root.join(CashTransactionDetail_.chartOfAccount, JoinType.LEFT);
+            predicates.add(
+                cb.equal(coaJoin.get(ChartOfAccount_.ID), chartOfAccountId)
+            );
+        }
+        predicates.add(
+            cb.greaterThanOrEqualTo(
+                cb.function("DATE", LocalDate.class, cashTxJoin.get(CashTransaction_.DATE)),
+                from
+            )
+        );
+        predicates.add(
+            cb.lessThanOrEqualTo(
+                cb.function("DATE", LocalDate.class, cashTxJoin.get(CashTransaction_.DATE)),
+                to
+            )
+        );
+
+        query.where(predicates.toArray(new Predicate[0]));
+        query.orderBy(cb.asc(cashTxJoin.get(CashTransaction_.DATE)));
+
+        var rows = entityManager.createQuery(query).getResultList();
+
+        var previousBalance = monthlyBalanceRepository
+            .findByPeriod(YearMonth.from(from).minusMonths(1).toString())
+            .map(MonthlyBalance::getClosingBalance)
+            .orElse(BigDecimal.ZERO);
+        var balance = new AtomicReference<>(previousBalance);
+        var counter = new int[]{0};
+
+        var lines = rows.stream()
+            .map(row -> {
+                counter[0]++;
+                var isDebit = CashTransactionType.DEBIT.equals(row.type());
+                return CashTransactionReportLine.builder()
+                    .no(counter[0])
+                    .date(row.date())
+                    .refNo(row.refNo())
+                    .type(row.type())
+                    .name(row.journalClassName())
+                    .memo(row.memo())
+                    .debit(isDebit ? row.amount() : null)
+                    .credit(!isDebit ? row.amount() : null)
+                    .balance(isDebit ?
+                        balance.updateAndGet(b -> b.add(row.amount())) :
+                        balance.updateAndGet(b -> b.subtract(row.amount()))
+                    )
+                    .build();
+            })
+            .toList();
+
+        return CashTransactionReportResponse.builder()
+            .initCashOnHand(previousBalance)
+            .lines(lines)
+            .build();
     }
 }
