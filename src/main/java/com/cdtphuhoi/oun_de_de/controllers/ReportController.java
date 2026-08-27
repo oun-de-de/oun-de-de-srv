@@ -7,6 +7,7 @@ import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportDetailsResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyReportResponse;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceCustomerGroup;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,17 @@ public class ReportController {
     ) {
         return ResponseEntity.ok(
             reportingService.getCashTransactionReport(journalClassId, chartOfAccountId, from, to)
+        );
+    }
+
+    @GetMapping("/open-invoice-report")
+    public ResponseEntity<List<OpenInvoiceCustomerGroup>> getOpenInvoiceReport(
+        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+        @RequestParam(required = false) String customerId
+    ) {
+        return ResponseEntity.ok(
+            reportingService.getOpenInvoiceReport(from, to, customerId)
         );
     }
 }

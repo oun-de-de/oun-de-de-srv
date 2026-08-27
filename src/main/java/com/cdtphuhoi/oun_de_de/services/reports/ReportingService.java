@@ -22,6 +22,7 @@ import com.cdtphuhoi.oun_de_de.entities.StockTransaction;
 import com.cdtphuhoi.oun_de_de.entities.StockTransaction_;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord;
 import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount_;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass_;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
@@ -32,6 +33,10 @@ import com.cdtphuhoi.oun_de_de.services.OrgManagementService;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionDetailProjection;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportResponse;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceCycleGroup;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceCustomerGroup;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceProjection;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.InventoryStockReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.MonthlyCashTransactionDetail;
@@ -52,7 +57,9 @@ import java.time.LocalTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import jakarta.persistence.EntityManager;
@@ -407,6 +414,96 @@ public class ReportingService implements OrgManagementService {
         return CashTransactionType.DEBIT.equals(cashTransactionDetail.type()) ?
             CashTransactionReason.CASH_IN.toString() :
             CashTransactionReason.CASH_OUT.toString();
+    }
+
+    public List<OpenInvoiceCustomerGroup> getOpenInvoiceReport(
+        LocalDate from,
+        LocalDate to,
+        String customerId
+    ) {
+        var cb = entityManager.getCriteriaBuilder();
+        var query = cb.createQuery(OpenInvoiceProjection.class);
+        var root = query.from(Invoice.class);
+        var cycleJoin = root.join(Invoice_.CYCLE, JoinType.LEFT);
+
+        var subquery = query.subquery(BigDecimal.class);
+        var wrRoot = subquery.from(WeightRecord.class);
+        subquery.select(
+            cb.coalesce(cb.sum(wrRoot.get(WeightRecord_.AMOUNT)), BigDecimal.ZERO)
+        ).where(
+            cb.equal(wrRoot.get(WeightRecord_.INVOICE), root)
+        );
+
+        query.select(cb.construct(
+            OpenInvoiceProjection.class,
+            root.get(Invoice_.DATE),
+            root.get(Invoice_.REF_NO),
+            root.get(Invoice_.CUSTOMER_NAME),
+            cycleJoin.get(PaymentTermCycle_.ID),
+            cycleJoin.get(PaymentTermCycle_.START_DATE),
+            cycleJoin.get(PaymentTermCycle_.END_DATE),
+            cycleJoin.get(PaymentTermCycle_.TOTAL_PAID_AMOUNT),
+            subquery
+        ));
+
+        var predicates = new ArrayList<Predicate>();
+        predicates.add(cb.greaterThanOrEqualTo(root.get(Invoice_.DATE), from.atStartOfDay()));
+        predicates.add(cb.lessThanOrEqualTo(root.get(Invoice_.DATE), to.atTime(LocalTime.MAX)));
+        if (customerId != null) {
+            predicates.add(cb.equal(root.get(Invoice_.CUSTOMER).get(Customer_.ID), customerId));
+        }
+        query.where(predicates.toArray(new Predicate[0]));
+
+        query.orderBy(
+            cb.asc(root.get(Invoice_.CUSTOMER_NAME)),
+            cb.asc(cycleJoin.get(PaymentTermCycle_.START_DATE)),
+            cb.asc(root.get(Invoice_.DATE))
+        );
+
+        var rows = entityManager.createQuery(query).getResultList();
+
+        // customer → cycleId → lines
+        Map<String, Map<String, List<OpenInvoiceReportLine>>> customerCycleMap = new LinkedHashMap<>();
+        // keep cycle metadata keyed by cycleId
+        Map<String, OpenInvoiceProjection> cycleMetaMap = new LinkedHashMap<>();
+
+        for (var row : rows) {
+            customerCycleMap
+                .computeIfAbsent(row.customerName(), k -> new LinkedHashMap<>())
+                .computeIfAbsent(row.cycleId(), k -> new ArrayList<>())
+                .add(OpenInvoiceReportLine.builder()
+                    .date(row.invoiceDate())
+                    .refNo(row.refNo())
+                    .originalAmount(row.originalAmount())
+                    .build());
+            cycleMetaMap.putIfAbsent(row.cycleId(), row);
+        }
+
+        return customerCycleMap.entrySet().stream()
+            .map(customerEntry -> {
+                var cycles = customerEntry.getValue().entrySet().stream()
+                    .map(cycleEntry -> {
+                        var meta = cycleMetaMap.get(cycleEntry.getKey());
+                        var invoiceLines = cycleEntry.getValue();
+                        var totalOriginal = invoiceLines.stream()
+                            .map(OpenInvoiceReportLine::getOriginalAmount)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                        return OpenInvoiceCycleGroup.builder()
+                            .cycleStartDate(meta.cycleStartDate())
+                            .cycleEndDate(meta.cycleEndDate())
+                            .totalOriginalAmount(totalOriginal)
+                            .totalPaidAmount(meta.totalPaidAmount())
+                            .balance(totalOriginal.subtract(meta.totalPaidAmount()))
+                            .invoices(invoiceLines)
+                            .build();
+                    })
+                    .toList();
+                return OpenInvoiceCustomerGroup.builder()
+                    .customerName(customerEntry.getKey())
+                    .cycles(cycles)
+                    .build();
+            })
+            .toList();
     }
 
     public CashTransactionReportResponse getCashTransactionReport(
