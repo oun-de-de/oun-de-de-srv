@@ -221,6 +221,29 @@ public class PaymentTermService implements OrgManagementService {
         return MapperHelpers.getPaymentMapper().toListPaymentResults(payments);
     }
 
+    public Page<PaymentResult> findPaymentsBy(
+        String customerId,
+        LocalDateTime from,
+        LocalDateTime to,
+        Pageable pageable
+    ) {
+        var page = paymentRepository.findAll(
+            Specification.allOf(
+                (root, query, cb) -> customerId == null ? null
+                    : cb.equal(
+                        root.get(Payment_.CYCLE).get(PaymentTermCycle_.CUSTOMER).get(Customer_.ID),
+                        customerId
+                    ),
+                (root, query, cb) -> from == null ? null
+                    : cb.greaterThanOrEqualTo(root.get(Payment_.PAYMENT_DATE), from),
+                (root, query, cb) -> to == null ? null
+                    : cb.lessThanOrEqualTo(root.get(Payment_.PAYMENT_DATE), to)
+            ),
+            pageable
+        );
+        return page.map(MapperHelpers.getPaymentMapper()::toPaymentResult);
+    }
+
     public LoanResult convertToLoan(String cycleId, ConvertToLoanData convertToLoanData) {
         var cycleOpt = paymentTermCycleRepository.findOne(
             Specification.allOf(

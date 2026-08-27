@@ -138,6 +138,18 @@ public class InvoiceController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/payments")
+    public ResponseEntity<Page<PaymentResult>> listPayments(
+        @RequestParam(name = "customer_id", required = false) String customerId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+        Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+            paymentTermService.findPaymentsBy(customerId, from, to, pageable)
+        );
+    }
+
     @PostMapping("/cycles/{cycleId}/convert-to-loan")
     public ResponseEntity<LoanResult> convertToLoan(
         @PathVariable String cycleId,
