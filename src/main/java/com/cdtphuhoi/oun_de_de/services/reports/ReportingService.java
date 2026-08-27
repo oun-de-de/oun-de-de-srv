@@ -25,6 +25,8 @@ import com.cdtphuhoi.oun_de_de.entities.WeightRecord_;
 import com.cdtphuhoi.oun_de_de.entities.PaymentTermCycle_;
 import com.cdtphuhoi.oun_de_de.entities.ChartOfAccount_;
 import com.cdtphuhoi.oun_de_de.entities.JournalClass_;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTerm;
+import com.cdtphuhoi.oun_de_de.entities.PaymentTerm_;
 import com.cdtphuhoi.oun_de_de.mappers.MapperHelpers;
 import com.cdtphuhoi.oun_de_de.repositories.CashTransactionRepository;
 import com.cdtphuhoi.oun_de_de.repositories.MonthlyBalanceRepository;
@@ -35,6 +37,11 @@ import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.CashTransactionReportResponse;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceCycleGroup;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceCustomerGroup;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CustomerInvoiceLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CustomerInvoiceProjection;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CustomerPaymentLine;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CustomerPaymentProjection;
+import com.cdtphuhoi.oun_de_de.services.reports.dto.CustomerTransactionDetailGroup;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceProjection;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.OpenInvoiceReportLine;
 import com.cdtphuhoi.oun_de_de.services.reports.dto.DailyReportResponse;
@@ -593,5 +600,140 @@ public class ReportingService implements OrgManagementService {
             .initCashOnHand(previousBalance)
             .lines(lines)
             .build();
+    }
+
+    public List<CustomerTransactionDetailGroup> getCustomerTransactionDetailReport(
+        LocalDate from,
+        LocalDate to,
+        String customerId
+    ) {
+        var fromDt = from.atStartOfDay();
+        var toDt = to.atTime(LocalTime.MAX);
+
+        // --- Invoice query ---
+        var cb = entityManager.getCriteriaBuilder();
+        var invQuery = cb.createQuery(CustomerInvoiceProjection.class);
+        var invRoot = invQuery.from(Invoice.class);
+        var cycleJoin = invRoot.join(Invoice_.CYCLE, JoinType.LEFT);
+        var customerJoin = cycleJoin.join(PaymentTermCycle_.CUSTOMER, JoinType.LEFT);
+
+        var wrSub = invQuery.subquery(BigDecimal.class);
+        var wrRoot = wrSub.from(WeightRecord.class);
+        wrSub.select(cb.coalesce(cb.sum(wrRoot.get(WeightRecord_.AMOUNT)), BigDecimal.ZERO))
+            .where(cb.equal(wrRoot.get(WeightRecord_.INVOICE), invRoot));
+
+        var termSub = invQuery.subquery(Integer.class);
+        var ptRoot = termSub.from(PaymentTerm.class);
+        termSub.select(ptRoot.get(PaymentTerm_.DURATION))
+            .where(cb.equal(ptRoot.get(PaymentTerm_.CUSTOMER), customerJoin));
+
+        invQuery.select(cb.construct(
+            CustomerInvoiceProjection.class,
+            invRoot.get(Invoice_.DATE),
+            invRoot.get(Invoice_.REF_NO),
+            customerJoin.get(Customer_.NAME),
+            cycleJoin.get(PaymentTermCycle_.START_DATE),
+            cycleJoin.get(PaymentTermCycle_.END_DATE),
+            cycleJoin.get(PaymentTermCycle_.TOTAL_AMOUNT),
+            cycleJoin.get(PaymentTermCycle_.TOTAL_PAID_AMOUNT),
+            termSub,
+            wrSub
+        ));
+
+        var invPredicates = new ArrayList<Predicate>();
+        invPredicates.add(cb.greaterThanOrEqualTo(cycleJoin.get(PaymentTermCycle_.START_DATE), fromDt));
+        invPredicates.add(cb.lessThanOrEqualTo(cycleJoin.get(PaymentTermCycle_.START_DATE), toDt));
+        if (customerId != null) {
+            invPredicates.add(cb.equal(customerJoin.get(Customer_.ID), customerId));
+        }
+        invQuery.where(invPredicates.toArray(new Predicate[0]));
+        invQuery.orderBy(
+            cb.asc(customerJoin.get(Customer_.NAME)),
+            cb.asc(invRoot.get(Invoice_.DATE))
+        );
+
+        var invRows = entityManager.createQuery(invQuery).getResultList();
+
+        // --- Payment query ---
+        var payQuery = cb.createQuery(CustomerPaymentProjection.class);
+        var payRoot = payQuery.from(Payment.class);
+        var payCycleJoin = payRoot.join(Payment_.CYCLE, JoinType.LEFT);
+        var payCustomerJoin = payCycleJoin.join(PaymentTermCycle_.CUSTOMER, JoinType.LEFT);
+
+        payQuery.select(cb.construct(
+            CustomerPaymentProjection.class,
+            payRoot.get(Payment_.PAYMENT_DATE),
+            payRoot.get(Payment_.CODE),
+            payCustomerJoin.get(Customer_.NAME),
+            payCycleJoin.get(PaymentTermCycle_.TOTAL_AMOUNT),
+            payRoot.get(Payment_.AMOUNT)
+        ));
+
+        var payPredicates = new ArrayList<Predicate>();
+        payPredicates.add(cb.greaterThanOrEqualTo(payCycleJoin.get(PaymentTermCycle_.START_DATE), fromDt));
+        payPredicates.add(cb.lessThanOrEqualTo(payCycleJoin.get(PaymentTermCycle_.START_DATE), toDt));
+        if (customerId != null) {
+            payPredicates.add(cb.equal(payCustomerJoin.get(Customer_.ID), customerId));
+        }
+        payQuery.where(payPredicates.toArray(new Predicate[0]));
+        payQuery.orderBy(
+            cb.asc(payCustomerJoin.get(Customer_.NAME)),
+            cb.asc(payRoot.get(Payment_.PAYMENT_DATE))
+        );
+
+        var payRows = entityManager.createQuery(payQuery).getResultList();
+
+        // --- Group invoices by customer ---
+        Map<String, List<CustomerInvoiceProjection>> invByCustomer = new LinkedHashMap<>();
+        for (var row : invRows) {
+            invByCustomer.computeIfAbsent(row.customerName(), k -> new ArrayList<>()).add(row);
+        }
+
+        // --- Group payments by customer ---
+        Map<String, List<CustomerPaymentProjection>> payByCustomer = new LinkedHashMap<>();
+        for (var row : payRows) {
+            payByCustomer.computeIfAbsent(row.customerName(), k -> new ArrayList<>()).add(row);
+        }
+
+        // --- Merge all customer names ---
+        var allCustomers = new LinkedHashMap<String, Boolean>();
+        invByCustomer.keySet().forEach(k -> allCustomers.put(k, true));
+        payByCustomer.keySet().forEach(k -> allCustomers.put(k, true));
+
+        var customerCounter = new int[]{0};
+        return allCustomers.keySet().stream().map(name -> {
+            customerCounter[0]++;
+            var invLines = invByCustomer.getOrDefault(name, List.of());
+            var payLines = payByCustomer.getOrDefault(name, List.of());
+
+            var invoices = invLines.stream().map(row ->
+                CustomerInvoiceLine.builder()
+                    .date(row.invoiceDate())
+                    .refNo(row.refNo())
+                    .term(row.term())
+                    .startDate(row.cycleStartDate())
+                    .dueDate(row.cycleEndDate())
+                    .amount(row.originalAmount())
+                    .total(row.cycleTotal())
+                    .remaining(row.cycleTotal().subtract(row.cyclePaid()))
+                    .build()
+            ).toList();
+
+            var payments = payLines.stream().map(row ->
+                CustomerPaymentLine.builder()
+                    .date(row.paymentDate())
+                    .refNo(row.code())
+                    .openAmount(row.cycleTotal())
+                    .received(row.paymentAmount())
+                    .build()
+            ).toList();
+
+            return CustomerTransactionDetailGroup.builder()
+                .no(customerCounter[0])
+                .customerName(name)
+                .invoices(invoices)
+                .payments(payments)
+                .build();
+        }).toList();
     }
 }
