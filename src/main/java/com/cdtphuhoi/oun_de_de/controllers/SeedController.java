@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -124,7 +123,7 @@ public class SeedController {
             ));
 
         try (
-            var inputStream = Files.newInputStream(Path.of("/Users/I753911/Desktop/projects/Customer_List_11-03-2026.xlsx"));
+            var inputStream = Files.newInputStream(Path.of("/Users/I753911/Desktop/projects/customer_30_06_2026.xlsx"));
             var workbook = new XSSFWorkbook(inputStream)
         ) {
             var sheet = workbook.getSheet("Sheet1");
